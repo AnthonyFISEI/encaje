@@ -1,0 +1,338 @@
+---
+import LayoutWpReplica from "../../../layouts/LayoutWpReplica.astro";
+
+const base =
+  import.meta.env.BASE_URL === "/" ? "/" : `${import.meta.env.BASE_URL}/`;
+const BACKEND_URL =
+  import.meta.env.WORDPRESS_API_URL || "http://encaje-wp.test";
+
+let posts = [];
+let errorMsg = null;
+
+try {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 4000);
+  const response = await fetch(`${BACKEND_URL}/wp-json/wp/v2/posts?_embed`, {
+    signal: controller.signal
+  });
+  clearTimeout(timeoutId);
+  if (response.ok) {
+    posts = await response.json();
+  } else {
+    errorMsg = `El servidor respondió con código ${response.status}. URL: ${BACKEND_URL}`;
+  }
+} catch (e) {
+  errorMsg = `No se pudo conectar al servidor de WordPress (${BACKEND_URL}). Asegúrate de que esté encendido y accesible.`;
+}
+---
+
+<LayoutWpReplica title="Blog - Encaje (Réplica WordPress)" errorMsg={errorMsg}>
+  <main class="wp-replica-blog">
+    <!-- Header banner -->
+    <section
+      class="wp-page-banner"
+      style="background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://encaje.ec/wp-content/uploads/2025/02/BANNER_PROYECTOS.jpg');"
+    >
+      <div class="wp-banner-container">
+        <h1>Blog</h1>
+        <ul class="wp-breadcrumbs">
+          <li><a href={`${base}replica-wp`}>Inicio</a></li>
+          <li><span>/</span></li>
+          <li class="active">Blog</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Blog Grid Section -->
+    <section class="wp-portfolio-section">
+      <div class="wp-container">
+        {
+          errorMsg ? (
+            <div class="wp-error-box">
+              <p>{errorMsg}</p>
+            </div>
+          ) : (
+            <div class="wp-portfolio-box">
+              {posts.map((post) => {
+                const media = post._embedded?.["wp:featuredmedia"]?.[0];
+                const imageUrl =
+                  media?.source_url ||
+                  "https://encaje.ec/wp-content/uploads/2025/02/03-SECCION-NOSOTROS-1.jpg";
+                return (
+                  <div class="wp-portfolio-post">
+                    <figure class="wp-portfolio-figure effect-milo">
+                      <img
+                        src={imageUrl}
+                        alt={post.title.rendered}
+                        class="wp-portfolio-img"
+                      />
+                      <figcaption>
+                        <h4 set:html={post.title.rendered} />
+                        <p>Noticias y Tendencias</p>
+                        <a
+                          href={`${base}replica-wp/blog/${post.slug}`}
+                          class="wp-plus-btn"
+                        >
+                          <span>+</span>
+                        </a>
+                      </figcaption>
+                    </figure>
+                  </div>
+                );
+              })}
+            </div>
+          )
+        }
+      </div>
+    </section>
+
+    <!-- Cierre Banner Section -->
+    <section class="wp-cierre-banner">
+      <img
+        src="https://encaje.ec/wp-content/uploads/2025/02/03_CIERRE_NOSOTROS.jpg"
+        alt="Cierre Banner Nosotros"
+        class="wp-cierre-banner-img"
+      />
+    </section>
+
+
+  </main>
+</LayoutWpReplica>
+
+<style>
+  .wp-replica-blog {
+    background-color: var(--wp-bg-dark);
+  }
+
+  /* Page Banner styling */
+  .wp-page-banner {
+    padding: 180px 0 100px;
+    background-size: cover;
+    background-position: center;
+    border-bottom: 1px solid #3d3d3d;
+    margin-bottom: 60px;
+    text-align: center;
+  }
+
+  .wp-page-banner h1 {
+    font-size: 50px;
+    font-weight: 700;
+    color: var(--wp-text-light);
+    font-family: "Montserrat", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+  }
+
+  .wp-breadcrumbs {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.4);
+    font-family: "Montserrat", sans-serif;
+    margin-top: 15px;
+  }
+
+  .wp-breadcrumbs a {
+    color: rgba(255, 255, 255, 0.4);
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .wp-breadcrumbs a:hover {
+    color: var(--wp-accent-yellow);
+  }
+
+  .wp-breadcrumbs li.active {
+    color: var(--wp-text-light);
+  }
+
+  /* Grid container */
+  .wp-portfolio-section {
+    padding: 0 0 80px 0;
+  }
+
+  .wp-container {
+    max-width: 1170px;
+    margin: 0 auto;
+    padding: 0 30px;
+  }
+
+  .wp-portfolio-box {
+    display: flex;
+    flex-wrap: wrap;
+    margin: -15px;
+  }
+
+  .wp-portfolio-post {
+    width: 33.3333%;
+    padding: 15px;
+  }
+
+  @media (max-width: 1023px) {
+    .wp-portfolio-post {
+      width: 50%;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .wp-portfolio-post {
+      width: 100%;
+    }
+  }
+
+  /* Replica figure element */
+  .wp-portfolio-figure {
+    position: relative;
+    overflow: hidden;
+    margin: 0;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background: #000;
+  }
+
+  .wp-portfolio-figure::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.45);
+    z-index: 2;
+    transition: background-color 0.35s;
+  }
+
+  .wp-portfolio-img {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+    transition:
+      transform 0.35s,
+      opacity 0.35s;
+  }
+
+  /* Figcaption & Hover effects */
+  .wp-portfolio-figure figcaption {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 30px;
+    color: var(--wp-text-light);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    z-index: 3;
+  }
+
+  .wp-portfolio-figure h4 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--wp-text-light);
+    margin-bottom: 5px;
+    font-family: "Montserrat", sans-serif;
+    transform: translate3d(-20px, 0, 0);
+    opacity: 0;
+    transition:
+      transform 0.35s,
+      opacity 0.35s;
+  }
+
+  .wp-portfolio-figure p {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0;
+    font-family: "Montserrat", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transform: translate3d(-20px, 0, 0);
+    opacity: 0;
+    transition:
+      transform 0.35s,
+      opacity 0.35s;
+    transition-delay: 0.05s;
+  }
+
+  /* Actions plus button */
+  .wp-plus-btn {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 24px;
+    font-weight: 300;
+    opacity: 0;
+    transform: translate3d(20px, -20px, 0);
+    transition: all 0.35s;
+    z-index: 10;
+  }
+
+  .wp-plus-btn span {
+    line-height: 1;
+    margin-top: -2px;
+  }
+
+  .wp-plus-btn:hover {
+    background-color: var(--wp-accent-yellow);
+    border-color: transparent;
+    color: #ffffff;
+  }
+
+  /* Hover states */
+  .wp-portfolio-figure:hover::before {
+    background-color: rgba(0, 0, 0, 0.6);
+  }
+
+  .wp-portfolio-figure:hover .wp-portfolio-img {
+    transform: scale(1.05);
+  }
+
+  .wp-portfolio-figure:hover h4,
+  .wp-portfolio-figure:hover p {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+
+  .wp-portfolio-figure:hover .wp-plus-btn {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+
+  .wp-error-box {
+    background: rgba(214, 163, 59, 0.1);
+    border: 1px solid var(--wp-accent-yellow);
+    padding: 20px;
+    border-radius: 4px;
+    text-align: center;
+    margin: 40px auto;
+    max-width: 600px;
+  }
+
+  /* Cierre Banner */
+  .wp-cierre-banner {
+    width: 100%;
+  }
+
+  .wp-cierre-banner-img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+
+</style>

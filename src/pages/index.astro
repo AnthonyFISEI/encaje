@@ -1,0 +1,1025 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { Image } from 'astro:assets';
+
+const base = import.meta.env.BASE_URL === '/' ? '/' : `${import.meta.env.BASE_URL}/`;
+const BACKEND_URL = import.meta.env.WORDPRESS_API_URL || "http://encaje-wp.test";
+
+// Fallback project data to keep the site populated and design perfect if WordPress is offline/empty
+const fallbackProjects = [
+  {
+    title: { rendered: "Residencia JCJ" },
+    slug: "residenciajcj",
+    _embedded: {
+      "wp:featuredmedia": [
+        {
+          source_url: "https://encaje.ec/wp-content/uploads/2025/02/01-SECCION-BANNER-1-min.jpg"
+        }
+      ]
+    }
+  },
+  {
+    title: { rendered: "Playa Jama" },
+    slug: "playa-jama",
+    _embedded: {
+      "wp:featuredmedia": [
+        {
+          source_url: "https://encaje.ec/wp-content/uploads/2025/02/BANNER_PROYECTOS.jpg"
+        }
+      ]
+    }
+  },
+  {
+    title: { rendered: "Casa DB" },
+    slug: "casadb",
+    _embedded: {
+      "wp:featuredmedia": [
+        {
+          source_url: "https://encaje.ec/wp-content/uploads/2025/02/03-SECCION-NOSOTROS-1.jpg"
+        }
+      ]
+    }
+  },
+  {
+    title: { rendered: "Edificio T5" },
+    slug: "edificio-t5",
+    _embedded: {
+      "wp:featuredmedia": [
+        {
+          source_url: "https://encaje.ec/wp-content/uploads/2025/02/03-SECCION-NOSOTROS-2.jpg"
+        }
+      ]
+    }
+  },
+  {
+    title: { rendered: "Mama Miche" },
+    slug: "mama-miche",
+    _embedded: {
+      "wp:featuredmedia": [
+        {
+          source_url: "https://encaje.ec/wp-content/uploads/2025/02/03_CIERRE_NOSOTROS.jpg"
+        }
+      ]
+    }
+  }
+];
+
+let projects = [];
+let featuredProjects = []; // Residencia JCJ, Playa Jama, Casa DB
+let galleryProjects = []; // Edificio T5, Mama Miche, Casa DB
+
+try {
+  const response = await fetch(`${BACKEND_URL}/wp-json/wp/v2/projects?_embed&per_page=10`);
+  if (response.ok) {
+    projects = await response.json();
+  }
+} catch (e) {
+  console.warn("Could not connect to WordPress backend, using offline fallback data:", e.message);
+}
+
+// Fallback to local offline projects if fetch was empty or failed
+if (!projects || projects.length === 0) {
+  projects = fallbackProjects;
+}
+
+// Filter featured projects for top grid (Residencia JCJ, Playa Jama, Casa DB)
+featuredProjects = projects.filter(p => 
+  p.slug === 'residenciajcj' || p.slug === 'playa-jama' || p.slug === 'casadb'
+);
+if (featuredProjects.length < 3) {
+  featuredProjects = projects.slice(0, 3);
+}
+
+// Filter gallery projects for bottom grid (Edificio T5, Mama Miche, Casa DB)
+galleryProjects = projects.filter(p =>
+  p.slug === 'edificio-t5' || p.slug === 'mama-miche' || p.slug === 'casadb'
+);
+if (galleryProjects.length < 3) {
+  galleryProjects = projects.slice(0, 3);
+}
+
+// Helper to extract featured image
+const getFeaturedImage = (project) => {
+  const media = project?._embedded?.['wp:featuredmedia']?.[0];
+  return media?.source_url || '/placeholder.jpg';
+};
+
+// Structured Data (JSON-LD)
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  "name": "Encaje - Soluciones Constructivas",
+  "image": "https://app.encaje.ec/wp-content/uploads/2025/02/02-LOGO-ENCAJE.png",
+  "@id": "https://app.encaje.ec/",
+  "url": "https://app.encaje.ec/",
+  "telephone": "+593 98 311 6325",
+  "email": "info@encaje.ec",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Quito, Ecuador",
+    "addressLocality": "Quito",
+    "addressCountry": "EC"
+  },
+  "description": "Proyectamos y construimos con una rigurosa planificación y el mejor equipo técnico para garantizar obras maestras duraderas."
+};
+---
+
+<Layout>
+  <!-- Datos Estructurados JSON-LD -->
+  <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+  <!-- Hero Section -->
+  <section class="premium-hero" style="background-image: linear-gradient(to bottom, rgba(36, 36, 36, 0.45) 0%, rgba(36, 36, 36, 0.85) 100%), url('https://encaje.ec/wp-content/uploads/2025/02/01-SECCION-BANNER-1-min.jpg');">
+    <div class="hero-bg-glow"></div>
+    <div class="hero-container">
+      <span class="hero-tagline">DISEÑO & PRECISIÓN</span>
+      <h1 class="hero-title">Soluciones<br /><span class="gradient-text">Constructivas</span></h1>
+      <p class="hero-desc">
+        Proyectamos y construimos espacios eficientes que desafían conceptos y tradiciones bajo rigurosos estándares técnicos.
+      </p>
+      <div class="hero-ctas">
+        <a href={`${base}proyectos`} class="btn-primary">Ver Proyectos</a>
+        <a href={`${base}quienes-somos`} class="btn-secondary">Conócenos</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Projects Preview (Residencia JCJ, Playa Jama, Casa DB) -->
+  <section class="premium-featured-section">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <span class="section-subtitle">PORTAFOLIO</span>
+          <h2 class="section-title">Obras Destacadas</h2>
+        </div>
+        <a href={`${base}proyectos`} class="view-all-link">
+          <span>Ver todos los proyectos</span>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="arrow-icon">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+          </svg>
+        </a>
+      </div>
+
+      <div class="featured-projects-grid">
+        {featuredProjects.map((project) => {
+          const imgUrl = getFeaturedImage(project);
+          return (
+            <article class="featured-project-card">
+              <div class="card-image-wrapper">
+                <Image src={imgUrl} alt={project.title.rendered} class="card-image" width={800} height={500} />
+                <div class="card-overlay">
+                  <a href={`${base}proyectos/${project.slug}`} class="view-details-btn">
+                    Ver Obra
+                  </a>
+                </div>
+              </div>
+              <div class="card-content">
+                <span class="card-category">Hogar y Vivienda</span>
+                <h3 class="card-title" set:html={project.title.rendered}></h3>
+                <a href={`${base}proyectos/${project.slug}`} class="card-link-arrow">
+                  <span>Explorar Detalles</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="mini-arrow">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                  </svg>
+                </a>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section ("QUIENES SOMOS") -->
+  <section class="premium-about-section">
+    <div class="container">
+      <div class="about-grid">
+        <!-- Left side: Collage of images -->
+        <div class="about-images-collage">
+          <div class="collage-track">
+            <div class="collage-item main-img">
+              <Image src="https://encaje.ec/wp-content/uploads/2025/02/03-SECCION-NOSOTROS-1.jpg" alt="Obra de Construcción Principal" class="shadow-premium" width={600} height={400} />
+            </div>
+            <div class="collage-item sub-img">
+              <Image src="https://encaje.ec/wp-content/uploads/2025/02/03-SECCION-NOSOTROS-2.jpg" alt="Detalle de Obra" class="shadow-premium" width={400} height={300} />
+            </div>
+          </div>
+        </div>
+
+        <!-- Right side: Text details -->
+        <div class="about-content">
+          <span class="section-subtitle">QUIENES SOMOS</span>
+          <h2 class="section-title">Encaje</h2>
+          <div class="gold-bar"></div>
+          <p class="about-text">
+            Proyectamos y construimos con una rigurosa planificación y el mejor equipo técnico para garantizar obras maestras duraderas, adaptadas a las necesidades particulares de cada cliente y respetando el entorno social y ecológico.
+          </p>
+          <a href={`${base}quienes-somos`} class="about-more-btn">
+            <span>MÁS INFORMACIÓN</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="btn-arrow">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services Section -->
+  <section class="premium-services-section">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-subtitle">NUESTRAS SOLUCIONES</span>
+        <h2 class="section-title">Servicios</h2>
+      </div>
+
+      <div class="services-grid">
+        <!-- Card 1: Diseño Arquitectónico -->
+        <div class="service-card">
+          <div class="service-icon-box">
+            <img src="https://encaje.ec/wp-content/uploads/2025/02/Diseno_Arquitectonico_ENCAJE.svg" alt="Diseño Arquitectónico" class="service-svg-icon" />
+          </div>
+          <h3>Diseño Arquitectónico</h3>
+          <p>Planificación de espacios eficientes y funcionales con la más alta precisión formal.</p>
+        </div>
+
+        <!-- Card 2: Construcción -->
+        <div class="service-card">
+          <div class="service-icon-box">
+            <img src="https://encaje.ec/wp-content/uploads/2025/02/Construccion_ENCAJE.svg" alt="Construcción" class="service-svg-icon" />
+          </div>
+          <h3>Construcción</h3>
+          <p>Ejecución integral de obra civil bajo estrictos controles de calidad, seguridad y cronogramas.</p>
+        </div>
+
+        <!-- Card 3: Asesoramiento Técnico -->
+        <div class="service-card">
+          <div class="service-icon-box">
+            <img src="https://encaje.ec/wp-content/uploads/2025/02/Asesoramiento_Tecnico_ENCAJE.svg" alt="Asesoramiento Técnico" class="service-svg-icon" />
+          </div>
+          <h3>Asesoramiento Técnico</h3>
+          <p>Orientación calificada y factibilidad estructural en todas las etapas de la edificación.</p>
+        </div>
+
+        <!-- Card 4: Urbanismo (Highlighted on Hover) -->
+        <div class="service-card urban-highlight">
+          <div class="service-icon-box highlighted">
+            <img src="https://encaje.ec/wp-content/uploads/2025/02/Urbanismo_ENCAJE.svg" alt="Urbanismo" class="service-svg-icon active-svg" />
+          </div>
+          <h3>Urbanismo</h3>
+          <p>Desarrollo urbano socialmente responsable, sostenible e integrado armónicamente con su entorno.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Gallery / Secondary Grid Section (Edificio T5, Mama Miche, Casa DB) -->
+  <section class="premium-gallery-section">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <span class="section-subtitle">EJECUCIÓN DE OBRAS</span>
+          <h2 class="section-title">Galería de Proyectos</h2>
+        </div>
+      </div>
+
+      <div class="gallery-projects-grid">
+        {galleryProjects.map((project) => {
+          const imgUrl = getFeaturedImage(project);
+          const categoryName = project.slug === 'edificio-t5' ? 'Edificios' : (project.slug === 'mama-miche' ? 'Comercial & Retail' : 'Hogar y Vivienda');
+          return (
+            <div class="gallery-project-card">
+              <figure class="gallery-figure effect-milo">
+                <Image src={imgUrl} alt={project.title.rendered} class="gallery-img" width={600} height={450} />
+                <figcaption>
+                  <p>{categoryName}</p>
+                  <h4 set:html={project.title.rendered}></h4>
+                  <a href={`${base}proyectos/${project.slug}`} class="gallery-details-link">
+                    <span class="material-icons-outlined">article</span>
+                  </a>
+                </figcaption>
+              </figure>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <!-- Closing Banner Section -->
+  <section class="premium-closing-banner" style="background-image: linear-gradient(to top, rgba(36,36,36,0.95), rgba(36,36,36,0.35)), url('https://encaje.ec/wp-content/uploads/2025/02/03_CIERRE_NOSOTROS.jpg');">
+    <div class="closing-content">
+      <h2>Unimos Diseño, Técnica y Honestidad</h2>
+      <p>Construyamos juntos soluciones duraderas y de alta gama.</p>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  /* Override layout margin-top for home page to allow the hero section to bleed under the transparent glassmorphic header */
+  :global(.content-wrapper) {
+    margin-top: 0 !important;
+  }
+
+  /* Hero Section Styling */
+  .premium-hero {
+    position: relative;
+    padding: 15rem 2rem 12rem;
+    text-align: center;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .hero-bg-glow {
+    position: absolute;
+    top: -10%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .hero-container {
+    max-width: 850px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 10;
+  }
+
+  .hero-tagline {
+    font-family: var(--font-heading);
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.3em;
+    display: block;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+  }
+
+  .hero-title {
+    font-family: var(--font-heading);
+    font-size: 5rem;
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 2rem;
+    color: var(--text-light);
+    text-transform: uppercase;
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(212, 175, 55, 0.2);
+  }
+
+  .hero-desc {
+    font-size: 1.35rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 3.5rem;
+    max-width: 650px;
+    margin-left: auto;
+    margin-right: auto;
+    font-weight: 300;
+  }
+
+  .hero-ctas {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+  }
+
+  .btn-primary {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    color: var(--bg-dark);
+    background: var(--primary);
+    text-decoration: none;
+    padding: 1.1rem 2.5rem;
+    border-radius: 30px;
+    box-shadow: 0 10px 25px rgba(212, 175, 55, 0.2);
+    transition: var(--transition-smooth);
+  }
+
+  .btn-primary:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 15px 35px rgba(212, 175, 55, 0.4);
+  }
+
+  .btn-secondary {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    color: var(--text-light);
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    text-decoration: none;
+    padding: 1.1rem 2.5rem;
+    border-radius: 30px;
+    transition: var(--transition-smooth);
+  }
+
+  .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--primary);
+    transform: translateY(-2px);
+  }
+
+  /* Featured Projects Section */
+  .premium-featured-section {
+    padding: 7rem 2rem;
+    background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.2) 100%);
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 4rem;
+  }
+
+  .section-header.text-center {
+    justify-content: center;
+    text-align: center;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .section-subtitle {
+    font-family: var(--font-heading);
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.25em;
+    display: block;
+    margin-bottom: 0.75rem;
+  }
+
+  .section-title {
+    font-family: var(--font-heading);
+    font-size: 2.8rem;
+    font-weight: 800;
+    color: var(--text-light);
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+  }
+
+  .view-all-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--primary);
+    font-family: var(--font-heading);
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: var(--transition-smooth);
+  }
+
+  .view-all-link:hover {
+    color: var(--primary-hover);
+  }
+
+  .arrow-icon {
+    width: 1.1rem;
+    height: 1.1rem;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .view-all-link:hover .arrow-icon {
+    transform: translateX(6px);
+  }
+
+  .featured-projects-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2.5rem;
+  }
+
+  /* Featured Project Card */
+  .featured-project-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-radius: 16px;
+    overflow: hidden;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: var(--transition-smooth);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  }
+
+  .featured-project-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--border-card-hover);
+    box-shadow: 0 20px 40px rgba(212, 175, 55, 0.08);
+  }
+
+  .card-image-wrapper {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: #1b1b1b;
+  }
+
+  .card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .featured-project-card:hover .card-image {
+    transform: scale(1.08);
+  }
+
+  .card-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(36, 36, 36, 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: var(--transition-smooth);
+  }
+
+  .card-image-wrapper:hover .card-overlay {
+    opacity: 1;
+  }
+
+  .view-details-btn {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    color: var(--bg-dark);
+    background: var(--primary);
+    text-decoration: none;
+    padding: 0.8rem 1.6rem;
+    border-radius: 30px;
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+    transform: translateY(15px);
+    transition: var(--transition-smooth);
+  }
+
+  .card-image-wrapper:hover .view-details-btn {
+    transform: translateY(0);
+  }
+
+  .view-details-btn:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+  }
+
+  .card-content {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+
+  .card-category {
+    font-size: 0.8rem;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .card-title {
+    font-family: var(--font-heading);
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-light);
+    margin-bottom: 1.25rem;
+    line-height: 1.3;
+  }
+
+  .card-link-arrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: rgba(255, 255, 255, 0.75);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    font-family: var(--font-heading);
+    transition: var(--transition-smooth);
+    margin-top: auto;
+  }
+
+  .card-link-arrow:hover {
+    color: var(--primary);
+  }
+
+  .mini-arrow {
+    width: 0.9rem;
+    height: 0.9rem;
+    transition: transform 0.3s;
+  }
+
+  .card-link-arrow:hover .mini-arrow {
+    transform: translateX(4px);
+  }
+
+  /* About Section */
+  .premium-about-section {
+    padding: 8rem 2rem;
+    background: rgba(30, 30, 30, 0.2);
+    border-top: 1px solid rgba(255, 255, 255, 0.02);
+  }
+
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 5rem;
+    align-items: center;
+  }
+
+  /* Collage of Images */
+  .about-images-collage {
+    position: relative;
+  }
+
+  .collage-track {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 1.5rem;
+  }
+
+  .collage-item img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    display: block;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .collage-item img:hover {
+    transform: scale(1.03);
+  }
+
+  .shadow-premium {
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  }
+
+  /* About text contents */
+  .about-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .gold-bar {
+    width: 50px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    margin: 1rem 0 2rem;
+    border-radius: 2px;
+  }
+
+  .about-text {
+    font-size: 1.15rem;
+    color: var(--text-muted);
+    line-height: 1.8;
+    margin-bottom: 2.5rem;
+    font-weight: 300;
+  }
+
+  .about-more-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--primary);
+    font-family: var(--font-heading);
+    font-weight: 700;
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    font-size: 0.95rem;
+    transition: var(--transition-smooth);
+  }
+
+  .about-more-btn:hover {
+    color: var(--primary-hover);
+  }
+
+  .btn-arrow {
+    width: 1.1rem;
+    height: 1.1rem;
+    transition: transform 0.3s;
+  }
+
+  .about-more-btn:hover .btn-arrow {
+    transform: translateX(6px);
+  }
+
+  /* Services Section */
+  .premium-services-section {
+    padding: 8rem 2rem;
+    background: var(--bg-slate);
+    border-top: 1px solid rgba(255, 255, 255, 0.03);
+  }
+
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+    margin-top: 4rem;
+  }
+
+  .service-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    padding: 3rem 2rem;
+    border-radius: 16px;
+    transition: var(--transition-smooth);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .service-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--border-card-hover);
+    box-shadow: 0 15px 35px rgba(212, 175, 55, 0.05);
+  }
+
+  .service-icon-box {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2rem;
+    transition: var(--transition-smooth);
+  }
+
+  .service-card:hover .service-icon-box {
+    background: rgba(212, 175, 55, 0.1);
+    border-color: rgba(212, 175, 55, 0.25);
+    transform: scale(1.05);
+  }
+
+  /* Highlight specific card (Urbanismo in replica is active-gold!) */
+  .urban-highlight:hover .service-icon-box.highlighted {
+    background: var(--primary);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+  }
+
+  .service-svg-icon {
+    width: 2.2rem;
+    height: 2.2rem;
+    filter: invert(1) brightness(100%); /* Turn standard dark SVGs to white */
+    transition: var(--transition-smooth);
+  }
+
+  .service-card:hover .service-svg-icon {
+    filter: none; /* Return to original gold/colored SVG styling */
+  }
+
+  .service-card h3 {
+    font-family: var(--font-heading);
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .service-card p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  /* Gallery Section (Edificio T5, Mama Miche, Casa DB) */
+  .premium-gallery-section {
+    padding: 8rem 2rem;
+  }
+
+  .gallery-projects-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2.5rem;
+  }
+
+  .gallery-project-card {
+    border: 1px solid var(--border-card);
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--bg-card);
+  }
+
+  .gallery-figure {
+    position: relative;
+    overflow: hidden;
+    margin: 0;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background: #000;
+  }
+
+  .gallery-img {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .gallery-figure::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.45);
+    z-index: 2;
+    transition: background-color 0.4s;
+  }
+
+  /* Figcaption & Hover effects */
+  .gallery-figure figcaption {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 2.5rem;
+    color: var(--text-light);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    z-index: 3;
+  }
+
+  .gallery-figure h4 {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-light);
+    margin-bottom: 0;
+    transform: translate3d(-20px, 0, 0);
+    opacity: 0;
+    transition: transform 0.4s, opacity 0.4s;
+  }
+
+  .gallery-figure p {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 0.5rem;
+    transform: translate3d(-20px, 0, 0);
+    opacity: 0;
+    transition: transform 0.4s, opacity 0.4s;
+  }
+
+  .gallery-details-link {
+    position: absolute;
+    top: 2.5rem;
+    right: 2.5rem;
+    width: 45px;
+    height: 45px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #ffffff;
+    text-decoration: none;
+    opacity: 0;
+    transform: translate3d(20px, -20px, 0);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .gallery-details-link span {
+    font-size: 1.25rem;
+  }
+
+  .gallery-details-link:hover {
+    background-color: var(--primary);
+    border-color: transparent;
+    color: var(--bg-dark);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+  }
+
+  /* Hover states trigger */
+  .gallery-figure:hover::before {
+    background-color: rgba(0, 0, 0, 0.7);
+  }
+
+  .gallery-figure:hover .gallery-img {
+    transform: scale(1.05);
+  }
+
+  .gallery-figure:hover h4,
+  .gallery-figure:hover p {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+
+  .gallery-figure:hover .gallery-details-link {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+
+  /* Closing Banner */
+  .premium-closing-banner {
+    position: relative;
+    padding: 12rem 2rem;
+    text-align: center;
+    background-size: cover;
+    background-position: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .closing-content {
+    max-width: 800px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+  }
+
+  .closing-content h2 {
+    font-family: var(--font-heading);
+    font-size: 3.5rem;
+    font-weight: 850;
+    color: var(--text-light);
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+  }
+
+  .closing-content p {
+    color: var(--text-muted);
+    font-size: 1.35rem;
+    font-weight: 300;
+  }
+
+  /* Responsive styling */
+  @media (max-width: 1024px) {
+    .featured-projects-grid,
+    .gallery-projects-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .about-grid {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+    }
+    .services-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .premium-hero h1 {
+      font-size: 3.5rem;
+    }
+    .featured-projects-grid,
+    .gallery-projects-grid {
+      grid-template-columns: 1fr;
+    }
+    .services-grid {
+      grid-template-columns: 1fr;
+    }
+    .collage-track {
+      grid-template-columns: 1fr;
+    }
+    .closing-content h2 {
+      font-size: 2.2rem;
+    }
+  }
+</style>

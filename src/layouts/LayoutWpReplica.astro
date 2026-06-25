@@ -1,0 +1,968 @@
+---
+import SEO from "../components/SEO.astro";
+
+let {
+	title = "Encaje - Soluciones Constructivas",
+	description = "Proyectamos y construimos con rigurosa planificación y el mejor equipo técnico.",
+	image = "logo.svg",
+	errorMsg = null,
+} = Astro.props;
+const base =
+	import.meta.env.BASE_URL === "/" ? "/" : `${import.meta.env.BASE_URL}/`;
+---
+
+<!doctype html>
+<html lang="es">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<SEO title={title} description={description} image={image} />
+
+		<!-- Google Fonts: Montserrat -->
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+			rel="stylesheet"
+		/>
+
+		<!-- Font Awesome for original social icons -->
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+			integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ=="
+			crossorigin="anonymous"
+			referrerpolicy="no-referrer"
+		/>
+
+		<!-- Material Icons for differentiating sections -->
+		<link
+			href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined"
+			rel="stylesheet"
+		/>
+	</head>
+	<body>
+		<!-- WP Preloader -->
+		<div id="ip-container" class="ip-container loading">
+			<div class="ip-header">
+				<p class="ip-logo">
+					<img src={`${base}logo.svg`} alt="ENCAJE" />
+				</p>
+				<div class="ip-loader">
+					<svg
+						class="ip-inner"
+						width="100px"
+						height="100px"
+						viewBox="0 0 80 80"
+					>
+						<path
+							class="ip-loader-circlebg"
+							d="M40,10C57.351,10,71,23.649,71,40.5S57.351,71,40.5,71 S10,57.351,10,40.5S23.649,10,40.5,10z"
+						></path>
+						<path
+							id="ip-loader-circle"
+							class="ip-loader-circle"
+							d="M40,10C57.351,10,71,23.649,71,40.5S57.351,71,40.5,71 S10,57.351,10,40.5S23.649,10,40.5,10z"
+						></path>
+					</svg>
+				</div>
+			</div>
+		</div>
+
+		<!-- Left Sidebar Line -->
+		<header class="wp-header">
+			<!-- Top contact info -->
+			<div class="wp-top-contact-info">
+				<span><i class="fas fa-phone-alt"></i> +593 98 311 6325</span>
+				<span class="wp-separator">|</span>
+				<span><i class="far fa-envelope"></i> info@encaje.ec</span>
+			</div>
+
+			<!-- Logo Box -->
+			<div class="wp-logo-box">
+				<a href={`${base}replica-wp`}>
+					<img
+						src={`${base}logo.svg`}
+						alt="ENCAJE"
+						class="wp-logo-img"
+					/>
+				</a>
+			</div>
+
+			<!-- Sidebar vertical bar -->
+			<div class="wp-sidebar-line">
+				<!-- Menu toggle button -->
+				<button
+					id="wp-menu-toggle"
+					class="wp-open-menu-toggle"
+					aria-label="Toggle Menu"
+				>
+					<span></span>
+					<span></span>
+					<span></span>
+				</button>
+
+				<!-- Social icons list -->
+				<div class="wp-social-line">
+					<ul class="wp-social-list">
+						<li>
+							<a
+								href="https://www.facebook.com/ENCAJEC"
+								target="_blank"
+								rel="noopener noreferrer"
+								aria-label="Facebook"
+								><i class="fab fa-facebook-f"></i></a
+							>
+						</li>
+						<li>
+							<a
+								href="https://www.instagram.com/encaje.ec"
+								target="_blank"
+								rel="noopener noreferrer"
+								aria-label="Instagram"
+								><i class="fab fa-instagram"></i></a
+							>
+						</li>
+						<li>
+							<a
+								href="https://www.tiktok.com/@encaje.ec"
+								target="_blank"
+								rel="noopener noreferrer"
+								aria-label="TikTok"
+								><i class="fab fa-tiktok"></i></a
+							>
+						</li>
+						<li>
+							<a
+								href="https://www.linkedin.com/company/encaje-ec/"
+								target="_blank"
+								rel="noopener noreferrer"
+								aria-label="LinkedIn"
+								><i class="fab fa-linkedin-in"></i></a
+							>
+						</li>
+						<li>
+							<a
+								href="https://www.youtube.com/@encaje-ec"
+								target="_blank"
+								rel="noopener noreferrer"
+								aria-label="YouTube"
+								><i class="fab fa-youtube"></i></a
+							>
+						</li>
+					</ul>
+				</div>
+
+				<!-- Vertical Copyright -->
+				<div class="wp-copyright-line">
+					<p>© 2025 Encaje</p>
+				</div>
+			</div>
+
+			<!-- Navigation panel (slides out) -->
+			<nav id="wp-nav-panel" class="wp-nav-menu-box">
+				<ul class="wp-navigation-menu-list">
+					<li>
+						<a href={`${base}replica-wp`}>
+							<span><em>Inicio</em></span>
+						</a>
+					</li>
+					<li>
+						<a href={`${base}replica-wp/proyectos`}>
+							<span><em>Proyectos</em></span>
+						</a>
+					</li>
+					<li>
+						<a href={`${base}replica-wp/blog`}>
+							<span><em>Blog</em></span>
+						</a>
+					</li>
+					<li>
+						<a href={`${base}replica-wp/quienes-somos`}>
+							<span><em>Quienes Somos</em></span>
+						</a>
+					</li>
+					<li>
+						<a href={`${base}replica-wp/contacto`}>
+							<span><em>Contacto</em></span>
+						</a>
+					</li>
+				</ul>
+			</nav>
+		</header>
+
+		<!-- Main Content Area -->
+		<div id="wp-content-wrapper" class="wp-content-container">
+			{
+				errorMsg && (
+					<div class="wp-connection-error-banner">
+						<div class="wp-error-banner-content">
+							<i class="fas fa-exclamation-triangle" />
+							<span>
+								<strong>
+									ALERTA DE CONEXIÓN CON WORDPRESS:
+								</strong>{" "}
+								{errorMsg}
+							</span>
+						</div>
+					</div>
+				)
+			}
+			<slot />
+
+			<!-- Footer Section -->
+			<footer class="wp-footer-section">
+				<div class="wp-footer-container">
+					<!-- Col 1: Logo -->
+					<div class="wp-footer-col">
+						<img
+							src={`${base}logo.svg`}
+							alt="ENCAJE"
+							class="wp-footer-logo"
+						/>
+					</div>
+
+					<!-- Col 2: Ubicaciones -->
+					<div class="wp-footer-col">
+						<h4>NOSOTROS</h4>
+						<p class="wp-footer-desc">
+							Proyectamos y construimos desde la responsabilidad
+							social de la arquitectura y la ingeniería con el
+							entorno y la sociedad.
+						</p>
+					</div>
+
+					<!-- Col 3: Síguenos -->
+					<div class="wp-footer-col">
+						<h4>SÍGUENOS</h4>
+						<div class="wp-footer-socials">
+							<a
+								href="https://www.facebook.com/ENCAJEC"
+								target="_blank"
+								rel="noopener noreferrer"
+								aria-label="Facebook"
+								><i class="fab fa-facebook-f"></i></a
+							>
+							<a
+								href="https://www.instagram.com/encaje.ec"
+								target="_blank"
+								rel="noopener noreferrer"
+								aria-label="Instagram"
+								><i class="fab fa-instagram"></i></a
+							>
+							<a
+								href="https://www.tiktok.com/@encaje.ec"
+								target="_blank"
+								rel="noopener noreferrer"
+								aria-label="TikTok"
+								><i class="fab fa-tiktok"></i></a
+							>
+							<a
+								href="https://www.linkedin.com/company/encaje-ec/"
+								target="_blank"
+								rel="noopener noreferrer"
+								aria-label="LinkedIn"
+								><i class="fab fa-linkedin-in"></i></a
+							>
+							<a
+								href="https://www.youtube.com/@encaje-ec"
+								target="_blank"
+								rel="noopener noreferrer"
+								aria-label="YouTube"
+								><i class="fab fa-youtube"></i></a
+							>
+						</div>
+					</div>
+
+					<!-- Col 4: Contáctanos -->
+					<div class="wp-footer-col">
+						<h4>CONTÁCTANOS</h4>
+						<p class="wp-footer-contact">
+							+593 98 311 6325<br />
+							info@encaje.ec
+						</p>
+					</div>
+				</div>
+			</footer>
+		</div>
+
+		<!-- Script to toggle the sidebar menu -->
+		<script is:inline>
+			document.addEventListener("DOMContentLoaded", () => {
+				const toggleBtn = document.getElementById("wp-menu-toggle");
+				const navPanel = document.getElementById("wp-nav-panel");
+				const logoBox = document.querySelector(".wp-logo-box");
+
+				if (toggleBtn && navPanel) {
+					toggleBtn.addEventListener("click", (e) => {
+						e.preventDefault();
+						toggleBtn.classList.toggle("active");
+						navPanel.classList.toggle("active");
+						if (logoBox) {
+							logoBox.classList.toggle("active");
+						}
+					});
+				}
+			});
+		</script>
+
+		<!-- Preloader script -->
+		<script is:inline>
+			document.addEventListener("DOMContentLoaded", () => {
+				const container = document.getElementById("ip-container");
+				const circle = document.getElementById("ip-loader-circle");
+
+				if (container && circle) {
+					const length = 192; // Circumference of circle
+					circle.style.strokeDasharray = `${length} ${length}`;
+					circle.style.strokeDashoffset = length;
+
+					let progress = 0;
+
+					// Disable scroll initially
+					document.body.style.overflow = "hidden";
+
+					const interval = setInterval(() => {
+						progress = Math.min(progress + Math.random() * 0.1, 1);
+						circle.style.strokeDashoffset = length * (1 - progress);
+
+						if (progress === 1) {
+							clearInterval(interval);
+
+							// Switch classes to animate out
+							container.classList.remove("loading");
+							container.classList.add("loaded");
+
+							// Re-enable scroll after animations complete
+							setTimeout(() => {
+								document.body.style.overflow = "";
+							}, 1000);
+						}
+					}, 80);
+				}
+			});
+		</script>
+	</body>
+</html>
+
+<style is:global>
+	:root {
+		--wp-bg-dark: #242424;
+		--wp-bg-darker: #272727;
+		--wp-bg-panel: #717171;
+		--wp-bg-sidebar: #3d3d3d;
+		--wp-accent-yellow: #d6a33b;
+		--wp-accent-gold: #d6a33b;
+		--wp-text-light: #ffffff;
+		--wp-text-muted: rgba(255, 255, 255, 0.8);
+	}
+
+	* {
+		box-sizing: border-box;
+		margin: 0;
+		padding: 0;
+	}
+
+	body {
+		background: var(--wp-bg-dark);
+		font-family: "Montserrat", sans-serif;
+		color: var(--wp-text-light);
+		min-height: 100vh;
+		overflow-x: hidden;
+	}
+
+	/* Top Contact Info */
+	.wp-top-contact-info {
+		position: fixed;
+		top: 38px;
+		right: 40px;
+		z-index: 997;
+		display: flex;
+		align-items: center;
+		gap: 15px;
+		font-size: 13px;
+		color: rgba(255, 255, 255, 0.7);
+		font-weight: 400;
+	}
+
+	.wp-top-contact-info i {
+		color: var(--wp-accent-gold);
+		margin-right: 5px;
+	}
+
+	.wp-separator {
+		color: rgba(255, 255, 255, 0.2);
+	}
+
+	/* WP Logo Box */
+	.wp-logo-box {
+		position: fixed;
+		top: 0;
+		left: 100px;
+		width: 310px;
+		height: 100px;
+		padding: 30px;
+		background-color: var(--wp-bg-darker);
+		z-index: 999;
+		transition: all 0.3s ease-in-out;
+		display: flex;
+		align-items: center;
+	}
+
+	.wp-logo-img {
+		max-width: 100%;
+		height: 40px;
+		width: auto;
+		display: block;
+	}
+
+	/* WP Sidebar Line */
+	.wp-sidebar-line {
+		position: fixed;
+		top: 0;
+		left: 0;
+		bottom: 0;
+		width: 100px;
+		background: var(--wp-bg-sidebar);
+		z-index: 1000;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	/* Hamburger menu toggle button */
+	.wp-open-menu-toggle {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		width: 100px;
+		height: 100px;
+		padding: 0;
+		background-color: var(--wp-accent-yellow);
+		border: none;
+		cursor: pointer;
+		outline: none;
+		transition: all 0.3s ease-in-out;
+	}
+
+	.wp-open-menu-toggle span {
+		display: block;
+		width: 28px;
+		height: 2px;
+		background-color: var(--wp-text-light);
+		margin-bottom: 6px;
+		transition: all 0.3s ease-in-out;
+	}
+
+	.wp-open-menu-toggle span:last-child {
+		width: 17px;
+		margin-bottom: 0;
+	}
+
+	/* Hamburger Menu Active state animations */
+	.wp-open-menu-toggle.active {
+		background-color: var(--wp-bg-darker);
+	}
+
+	.wp-open-menu-toggle.active span:nth-child(1) {
+		transform: rotate(45deg) translate(6px, 5px);
+		width: 28px;
+	}
+
+	.wp-open-menu-toggle.active span:nth-child(2) {
+		opacity: 0;
+	}
+
+	.wp-open-menu-toggle.active span:nth-child(3) {
+		transform: rotate(-45deg) translate(6px, -5px);
+		width: 28px;
+	}
+
+	/* Social Media Line in Sidebar */
+	.wp-social-line {
+		padding: 20px 0;
+		text-align: center;
+		flex-grow: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-end;
+		margin-bottom: 2rem;
+		position: relative;
+	}
+
+	.wp-social-line::before {
+		content: "";
+		position: absolute;
+		top: 30px;
+		left: 50%;
+		bottom: 30px;
+		width: 1px;
+		background-color: #4c4c4c;
+		z-index: 1;
+	}
+
+	.wp-social-list {
+		list-style: none;
+		position: relative;
+		z-index: 2;
+	}
+
+	.wp-social-list li {
+		margin-bottom: 13px;
+	}
+
+	.wp-social-list li a {
+		display: inline-flex;
+		justify-content: center;
+		align-items: center;
+		width: 40px;
+		height: 40px;
+		border: 1px solid #4c4c4c;
+		border-radius: 50%;
+		color: rgba(255, 255, 255, 0.4);
+		text-decoration: none;
+		background-color: var(--wp-bg-sidebar);
+		transition: all 0.2s ease-in-out;
+	}
+
+	.wp-social-list li a:hover {
+		background-color: var(--wp-accent-yellow);
+		color: var(--wp-text-light);
+		border-color: transparent;
+	}
+
+	/* Vertical Copyright in Sidebar */
+	.wp-copyright-line {
+		text-align: center;
+		height: 250px;
+		width: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: var(--wp-bg-darker);
+	}
+
+	.wp-copyright-line p {
+		color: var(--wp-text-light);
+		font-size: 14px;
+		writing-mode: vertical-rl;
+		transform: rotate(180deg);
+		margin: 0;
+		font-weight: 500;
+		letter-spacing: 0.05em;
+	}
+
+	/* Navigation Panel (Slides Out) */
+	.wp-nav-menu-box {
+		position: fixed;
+		top: 0;
+		left: -300px;
+		width: 400px;
+		height: 100vh;
+		background-color: var(--wp-bg-panel);
+		padding: 130px 40px 30px; /* Offset top for logo area */
+		text-align: right;
+		overflow-y: auto;
+		transition: all 0.3s ease-in-out;
+		z-index: 998;
+	}
+
+	.wp-nav-menu-box.active {
+		left: 100px;
+	}
+
+	.wp-logo-box.active {
+		left: 100px;
+	}
+
+	.wp-navigation-menu-list {
+		list-style: none;
+		border-left: 1px solid #868686;
+		border-right: 1px solid #868686;
+		counter-reset: menu-counter;
+	}
+
+	.wp-navigation-menu-list > li {
+		border-bottom: 1px solid #868686;
+		position: relative;
+		counter-increment: menu-counter;
+	}
+
+	.wp-navigation-menu-list > li:first-child {
+		border-top: 1px solid #868686;
+	}
+
+	/* Number prefix (e.g. 01, 02) */
+	.wp-navigation-menu-list > li::before {
+		content: "0" counter(menu-counter);
+		position: absolute;
+		top: 38px;
+		left: 30px;
+		font-weight: bold;
+		color: rgba(255, 255, 255, 0.1);
+		font-size: 20px;
+		font-family: "Montserrat", sans-serif;
+		transition: all 0.2s ease-in-out;
+	}
+
+	.wp-navigation-menu-list > li:hover::before {
+		left: 42px;
+		color: var(--wp-text-light);
+	}
+
+	/* Horizontal dash decorator */
+	.wp-navigation-menu-list > li::after {
+		content: "";
+		position: absolute;
+		width: 20px;
+		height: 1px;
+		top: 47px;
+		left: 10px;
+		background-color: #868686;
+		transition: all 0.2s ease-in-out;
+	}
+
+	.wp-navigation-menu-list > li:hover::after {
+		width: 32px;
+	}
+
+	.wp-navigation-menu-list > li > a {
+		display: block;
+		padding: 36px 25px;
+		color: var(--wp-text-light);
+		font-size: 16px;
+		font-weight: 700;
+		letter-spacing: 1.5px;
+		text-transform: uppercase;
+		text-decoration: none;
+		font-family: "Montserrat", sans-serif;
+		transition: all 0.2s ease-in-out;
+	}
+
+	.wp-navigation-menu-list > li > a span em {
+		font-style: normal;
+		position: relative;
+		z-index: 2;
+	}
+
+	.wp-navigation-menu-list > li > a span {
+		display: inline-block;
+		position: relative;
+	}
+
+	/* Underline/slash animations on hover */
+	.wp-navigation-menu-list > li > a span::after {
+		content: "";
+		position: absolute;
+		height: 10px;
+		bottom: 0px;
+		left: 100%;
+		right: -56px;
+		margin-left: 56px;
+		background-color: var(--wp-accent-yellow);
+		transition: all 0.3s ease-in-out;
+		z-index: 1;
+	}
+
+	.wp-navigation-menu-list > li > a:hover span::after {
+		margin-left: 0;
+		left: -20px;
+	}
+
+	/* Main Content Container Offset */
+	.wp-content-container {
+		margin-left: 100px;
+		min-height: 100vh;
+		transition: all 0.3s ease-in-out;
+	}
+
+	/* Responsive tweaks */
+	@media (max-width: 1023px) {
+		.wp-logo-box {
+			left: 0;
+			width: 100%;
+			height: 80px;
+			justify-content: flex-end;
+			padding-right: 120px;
+		}
+
+		.wp-logo-box.active {
+			left: 0;
+		}
+
+		.wp-sidebar-line {
+			left: auto;
+			right: 0;
+			width: 80px;
+			height: 80px;
+			background: transparent;
+			flex-direction: row;
+			justify-content: flex-end;
+		}
+
+		.wp-open-menu-toggle {
+			width: 80px;
+			height: 80px;
+		}
+
+		.wp-social-line,
+		.wp-copyright-line {
+			display: none;
+		}
+
+		.wp-nav-menu-box {
+			left: -100vw;
+			width: 100vw;
+			top: 80px;
+			height: calc(100vh - 80px);
+			padding: 40px 20px;
+		}
+
+		.wp-nav-menu-box.active {
+			left: 0;
+		}
+
+		.wp-content-container {
+			margin-left: 0;
+			padding-top: 80px;
+		}
+	}
+
+	/* WP Preloader Styles */
+	.ip-header {
+		position: fixed;
+		top: 0;
+		left: 0;
+		z-index: 99999;
+		min-height: 480px;
+		width: 100%;
+		height: 100%;
+		background: #242424;
+	}
+
+	.ip-logo,
+	.ip-loader {
+		position: absolute;
+		left: 0;
+		width: 100%;
+		opacity: 0;
+		cursor: default;
+		pointer-events: none;
+	}
+
+	.ip-logo {
+		top: 0;
+		height: 100%;
+		transform: translate3d(0, 35%, 0);
+		text-align: center;
+		display: flex;
+		justify-content: center;
+		align-items: flex-start;
+	}
+
+	.ip-logo img {
+		max-width: 250px;
+		height: auto;
+	}
+
+	.ip-loader {
+		bottom: 35%;
+	}
+
+	.ip-header .ip-inner {
+		display: block;
+		margin: 0 auto;
+	}
+
+	.ip-header .ip-loader svg {
+		fill: #242424;
+	}
+
+	.ip-header .ip-loader svg path.ip-loader-circlebg {
+		stroke: #333333 !important;
+		stroke-width: 5px;
+	}
+
+	.ip-header .ip-loader svg path.ip-loader-circle {
+		transition: stroke-dashoffset 0.2s;
+		stroke: #d6a33b !important;
+		stroke-width: 2px;
+	}
+
+	.loading .ip-logo,
+	.loading .ip-loader {
+		opacity: 1;
+		animation: animInitialHeader 1s cubic-bezier(0.7, 0, 0.3, 1) both;
+	}
+
+	.loading .ip-loader {
+		animation-delay: 0.2s;
+	}
+
+	@keyframes animInitialHeader {
+		from {
+			opacity: 0;
+			transform: translate3d(0, 800px, 0);
+		}
+	}
+
+	.loaded .ip-logo,
+	.loaded .ip-loader {
+		opacity: 1;
+	}
+
+	.loaded .ip-logo {
+		animation: animLoadedLoader 0.5s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+	}
+
+	.loaded .ip-loader {
+		animation: animLoadedLoader 0.5s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+	}
+
+	@keyframes animLoadedLoader {
+		to {
+			opacity: 0;
+			transform: translate3d(0, -100%, 0) scale3d(0.3, 0.3, 1);
+		}
+	}
+
+	.loaded .ip-header {
+		animation: animLoadedHeader 1s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+	}
+
+	@keyframes animLoadedHeader {
+		to {
+			transform: translate3d(0, -100%, 0);
+		}
+	}
+
+	/* Centralized Footer Styling */
+	.wp-footer-section {
+		padding: 80px 0;
+		background-color: var(--wp-bg-darker);
+		border-top: 1px solid #3d3d3d;
+	}
+
+	.wp-footer-container {
+		max-width: 1170px;
+		margin: 0 auto;
+		padding: 0 30px;
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: 40px;
+	}
+
+	.wp-footer-col h4 {
+		font-size: 14px;
+		font-weight: 700;
+		color: #ffffff;
+		margin-bottom: 25px;
+		letter-spacing: 2px;
+		text-transform: uppercase;
+		font-family: "Montserrat", sans-serif;
+		position: relative;
+		padding-bottom: 12px;
+	}
+
+	.wp-footer-col h4::after {
+		content: "";
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		width: 35px;
+		height: 2px;
+		background-color: var(--wp-accent-gold);
+	}
+
+	.wp-footer-logo {
+		max-width: 180px;
+		height: auto;
+		display: block;
+	}
+
+	.wp-footer-desc,
+	.wp-footer-contact {
+		font-size: 14px;
+		color: var(--wp-text-muted);
+		line-height: 24px;
+		font-weight: 300;
+	}
+
+	.wp-footer-socials {
+		display: flex;
+		gap: 15px;
+	}
+
+	.wp-footer-socials a {
+		width: 40px;
+		height: 40px;
+		border: 1px solid rgba(255, 255, 255, 0.2);
+		border-radius: 50%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		color: rgba(255, 255, 255, 0.6);
+		text-decoration: none;
+		transition: all 0.2s;
+	}
+
+	.wp-footer-socials a:hover {
+		background-color: var(--wp-accent-yellow);
+		color: #ffffff;
+		border-color: transparent;
+	}
+
+	@media (max-width: 1023px) {
+		.wp-footer-container {
+			grid-template-columns: repeat(2, 1fr);
+			gap: 30px;
+		}
+	}
+
+	@media (max-width: 767px) {
+		.wp-footer-container {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	.wp-connection-error-banner {
+		background-color: #d9534f;
+		color: #ffffff;
+		padding: 18px 30px;
+		font-family: "Montserrat", sans-serif;
+		font-size: 14px;
+		text-align: center;
+		border-left: 5px solid #c9302c;
+		margin-bottom: 0px;
+		display: block;
+		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+		z-index: 1000;
+		animation: slideDown 0.3s ease-out;
+	}
+
+	.wp-error-banner-content {
+		display: inline-flex;
+		align-items: center;
+		gap: 12px;
+		justify-content: center;
+		width: 100%;
+		max-width: 1170px;
+		margin: 0 auto;
+	}
+
+	.wp-error-banner-content i {
+		font-size: 18px;
+		color: #f0ad4e;
+	}
+
+	@keyframes slideDown {
+		from {
+			transform: translateY(-100%);
+		}
+		to {
+			transform: translateY(0);
+		}
+	}
+</style>

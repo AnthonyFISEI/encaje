@@ -1,0 +1,1034 @@
+---
+import LayoutWpReplica from '../../layouts/LayoutWpReplica.astro';
+
+const base = import.meta.env.BASE_URL === '/' ? '/' : `${import.meta.env.BASE_URL}/`;
+const BACKEND_URL = import.meta.env.WORDPRESS_API_URL || "http://encaje-wp.test";
+
+// Fetch projects from WordPress
+let projects = [];
+let errorMsg = null;
+try {
+  const response = await fetch(`${BACKEND_URL}/wp-json/wp/v2/projects?_embed&per_page=10`);
+  if (response.ok) {
+    projects = await response.json();
+  } else {
+    errorMsg = `El servidor respondió con código ${response.status}. URL: ${BACKEND_URL}`;
+  }
+} catch (e) {
+  errorMsg = `No se pudo conectar al servidor de WordPress (${BACKEND_URL}). Asegúrate de que esté encendido y accesible.`;
+}
+
+let featuredProjects = projects;
+let galleryProjects = projects.filter(p =>
+  p.slug === 'edificio-t5' || p.slug === 'mama-miche' || p.slug === 'casadb'
+);
+if (galleryProjects.length < 3) {
+  galleryProjects = projects.slice(0, 3);
+}
+
+// Fallback image utility
+const getFeaturedImage = (project) => {
+  const media = project?._embedded?.['wp:featuredmedia']?.[0];
+  return media?.source_url || '/placeholder.jpg';
+};
+---
+
+<LayoutWpReplica title="Encaje - Soluciones Constructivas (Réplica WordPress)" errorMsg={errorMsg}>
+  <!-- Hero Section -->
+  <section class="wp-hero-section" style={`background-image: url('${BACKEND_URL}/wp-content/uploads/2025/02/01-SECCION-BANNER-1-min.jpg');`}>
+    <div class="wp-hero-overlay"></div>
+    <div class="wp-hero-container">
+      <span class="wp-hero-num">1<span class="wp-hero-num-total">/ 3</span></span>
+      <h1 class="wp-hero-title">Soluciones<br />constructivas</h1>
+      <div class="wp-hero-link-box">
+        <a href={`${base}replica-wp/proyectos`} class="wp-hero-link">TODOS LOS PROYECTOS</a>
+      </div>
+    </div>
+
+    <!-- Siguiente slider indicator vertically on the right edge -->
+    <div class="wp-hero-next-control">
+      <span>SIGUIENTE</span>
+      <span class="wp-next-line"></span>
+    </div>
+  </section>
+
+  <!-- Projects Carousel Preview Section -->
+  <section class="wp-carousel-section">
+    <div class="wp-carousel-container">
+      <!-- Carousel Slider Controls -->
+      <button class="wp-carousel-control prev" id="wp-carousel-prev" aria-label="Previous Project">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      
+      <div class="wp-carousel-wrapper">
+        <div class="wp-carousel-track" id="wp-carousel-track">
+          {featuredProjects.map((project) => {
+            const imgUrl = getFeaturedImage(project);
+            return (
+              <div class="wp-carousel-card">
+                <a href={`${base}replica-wp/proyectos/${project.slug}`} class="wp-card-link">
+                  <div class="wp-card-image-box">
+                    <img src={imgUrl} alt={project.title.rendered} />
+                  </div>
+                  <div class="wp-card-info">
+                    <span class="wp-card-category">Hogar y Vivienda</span>
+                    <h3 class="wp-card-title" set:html={project.title.rendered}></h3>
+                  </div>
+                </a>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <button class="wp-carousel-control next" id="wp-carousel-next" aria-label="Next Project">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  </section>
+
+  <!-- About Section ("NOSOTROS") -->
+  <section class="wp-about-section">
+    <div class="wp-about-container">
+      <!-- Left side: side-by-side images inside wrapper -->
+      <div class="wp-about-images-wrapper">
+        <div class="wp-about-images">
+          <div class="wp-about-img-item">
+            <img src={`${BACKEND_URL}/wp-content/uploads/2025/02/03-SECCION-NOSOTROS-1.jpg`} alt="Obra Encaje" />
+          </div>
+          <div class="wp-about-img-item">
+            <img src={`${BACKEND_URL}/wp-content/uploads/2025/02/03-SECCION-NOSOTROS-2.jpg`} alt="Detalle Construcción" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Right side: Text details -->
+      <div class="wp-about-content">
+        <span class="wp-about-subtitle">NOSOTROS <span class="wp-about-sub-line"></span></span>
+        <h2 class="wp-about-title">Encaje</h2>
+        <p class="wp-about-text">
+          Proyectamos y construimos desde la responsabilidad social de la arquitectura y la ingeniería con el entorno de la sociedad. Somos un equipo humano de trabajo constante y coordinado entre Arquitectura e Ingeniería para entregar soluciones constructivas eficientes a nuestros clientes.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services Section -->
+  <section class="wp-services-section">
+    <div class="wp-services-header-banner">
+      <div class="wp-services-header-container">
+        <span class="wp-services-header-bar"></span>
+        <div class="wp-services-header-text">
+          <span class="wp-section-subtitle">NUESTROS</span>
+          <h2 class="wp-section-title">Servicios</h2>
+        </div>
+      </div>
+    </div>
+
+    <div class="wp-services-container">
+      <div class="wp-services-grid">
+        <!-- Service 1: Diseño Arquitectónico -->
+        <div class="wp-service-card">
+          <div class="wp-icon-wrapper">
+            <img src={`${BACKEND_URL}/wp-content/uploads/2025/02/Diseno_Arquitectonico_ENCAJE.svg`} alt="Diseño Arquitectónico" class="wp-service-icon-svg" />
+          </div>
+          <h3>DISEÑO ARQUITECTÓNICO</h3>
+          <p>Concepto e implantación de proyectos desde cero.</p>
+        </div>
+
+        <!-- Service 2: Construcción -->
+        <div class="wp-service-card">
+          <div class="wp-icon-wrapper">
+            <img src={`${BACKEND_URL}/wp-content/uploads/2025/02/Construccion_ENCAJE.svg`} alt="Construcción" class="wp-service-icon-svg" />
+          </div>
+          <h3>CONSTRUCCIÓN</h3>
+          <p>Entregar soluciones constructivas eficientes.</p>
+        </div>
+
+        <!-- Service 3: Asesoramiento Técnico -->
+        <div class="wp-service-card">
+          <div class="wp-icon-wrapper">
+            <img src={`${BACKEND_URL}/wp-content/uploads/2025/02/Asesoramiento_Tecnico_ENCAJE.svg`} alt="Asesoramiento Técnico" class="wp-service-icon-svg" />
+          </div>
+          <h3>ASESORAMIENTO TÉCNICO</h3>
+          <p>Brindamos orientación y conocimientos técnicos al cliente.</p>
+        </div>
+
+        <!-- Service 4: Urbanismo -->
+        <div class="wp-service-card">
+          <div class="wp-icon-wrapper">
+            <img src={`${BACKEND_URL}/wp-content/uploads/2025/02/Urbanismo_ENCAJE.svg`} alt="Urbanismo" class="wp-service-icon-svg" />
+          </div>
+          <h3>URBANISMO</h3>
+          <p>Construimos desde la responsabilidad social de la arquitectura y la ingeniería.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured / Secondary Grid Section (Edificio T5, Mama Miche, Casa DB) -->
+  <section class="wp-gallery-section">
+    <div class="wp-gallery-container">
+      <div class="wp-gallery-grid">
+        {galleryProjects.map((project) => {
+          const imgUrl = getFeaturedImage(project);
+          const category = project.slug === 'edificio-t5' ? 'Edificios' : (project.slug === 'mama-miche' ? 'Comercial & Retail' : 'Hogar y Vivienda');
+          return (
+            <div class="wp-gallery-card">
+              <a href={`${base}replica-wp/proyectos/${project.slug}`} class="wp-gallery-link">
+                <div class="wp-gallery-img-box">
+                  <img src={imgUrl} alt={project.title.rendered} />
+                </div>
+                <div class="wp-gallery-info-overlay">
+                  <span class="wp-gallery-cat">
+                    <span class="wp-cat-dash"></span> {category}
+                  </span>
+                  <h4 class="wp-gallery-title" set:html={project.title.rendered}></h4>
+                </div>
+              </a>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <!-- "Entorno y la Sociedad" Section -->
+  <section class="wp-entorno-section">
+    <div class="wp-entorno-container">
+      <!-- Left content -->
+      <div class="wp-entorno-content">
+        <h2>ENTORNO Y LA SOCIEDAD</h2>
+        <p>Proyectamos y construimos desde la responsabilidad social de la arquitectura y la ingeniería con el entorno y la sociedad.</p>
+        <div class="wp-entorno-btn-box">
+          <a href="#" class="wp-entorno-btn">MAS INFO</a>
+        </div>
+      </div>
+
+      <!-- Right Image -->
+      <div class="wp-entorno-image">
+        <img src={`${BACKEND_URL}/wp-content/uploads/2025/02/04-SECCION-CONTACTO-min.jpg`} alt="Entorno y la Sociedad" />
+      </div>
+    </div>
+  </section>
+
+
+
+  <script is:inline>
+    document.addEventListener('DOMContentLoaded', () => {
+      const track = document.getElementById('wp-carousel-track');
+      const prevBtn = document.getElementById('wp-carousel-prev');
+      const nextBtn = document.getElementById('wp-carousel-next');
+      if (!track || !prevBtn || !nextBtn) return;
+
+      let currentIndex = 0;
+      const getCardsPerView = () => {
+        if (window.innerWidth < 768) return 1;
+        if (window.innerWidth < 1024) return 2;
+        return 3;
+      };
+
+      const updateSlider = () => {
+        const cards = track.querySelectorAll('.wp-carousel-card');
+        if (cards.length === 0) return;
+        
+        const cardsPerView = getCardsPerView();
+        const maxIndex = Math.max(0, cards.length - cardsPerView);
+        if (currentIndex > maxIndex) {
+          currentIndex = maxIndex;
+        }
+
+        // Calculate card width and gap dynamically
+        const cardWidth = cards[0].getBoundingClientRect().width;
+        const style = window.getComputedStyle(track);
+        const gap = parseFloat(style.gap) || 30;
+
+        const offset = currentIndex * (cardWidth + gap);
+        track.style.transform = `translateX(-${offset}px)`;
+
+        // Toggle buttons visibility/opacity based on positions
+        prevBtn.style.opacity = currentIndex === 0 ? '0.3' : '1';
+        prevBtn.style.pointerEvents = currentIndex === 0 ? 'none' : 'auto';
+        nextBtn.style.opacity = currentIndex >= maxIndex ? '0.3' : '1';
+        nextBtn.style.pointerEvents = currentIndex >= maxIndex ? 'none' : 'auto';
+      };
+
+      prevBtn.addEventListener('click', () => {
+        if (currentIndex > 0) {
+          currentIndex--;
+          updateSlider();
+        }
+      });
+
+      nextBtn.addEventListener('click', () => {
+        const cards = track.querySelectorAll('.wp-carousel-card');
+        const cardsPerView = getCardsPerView();
+        if (currentIndex < cards.length - cardsPerView) {
+          currentIndex++;
+          updateSlider();
+        }
+      });
+
+      // Update on resize and run initially
+      window.addEventListener('resize', updateSlider);
+      
+      // Delay slightly to ensure layout is computed
+      setTimeout(updateSlider, 200);
+    });
+  </script>
+</LayoutWpReplica>
+
+<style>
+  /* Hero Section styles */
+  .wp-hero-section {
+    position: relative;
+    height: calc(100vh - 100px);
+    min-height: 500px;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    padding: 0 80px;
+    overflow: hidden;
+  }
+
+  .wp-hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 1;
+  }
+
+  .wp-hero-container {
+    position: relative;
+    z-index: 2;
+    max-width: 1000px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .wp-hero-num {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--wp-text-light);
+    display: block;
+    margin-bottom: 25px;
+    font-family: "Montserrat", sans-serif;
+  }
+
+  .wp-hero-num-total {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.4);
+    font-weight: 500;
+    margin-left: 4px;
+    vertical-align: super;
+  }
+
+  /* Vertical NEXT button indicator on the right edge */
+  .wp-hero-next-control {
+    position: absolute;
+    right: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    z-index: 5;
+  }
+
+  .wp-hero-next-control span {
+    writing-mode: vertical-rl;
+    text-transform: uppercase;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: rgba(255, 255, 255, 0.6);
+    font-family: "Montserrat", sans-serif;
+  }
+
+  .wp-next-line {
+    width: 1px;
+    height: 60px;
+    background-color: rgba(255, 255, 255, 0.3);
+  }
+
+  .wp-hero-title {
+    font-size: 80px;
+    font-weight: 800;
+    color: var(--wp-text-light);
+    line-height: 1.1;
+    text-transform: uppercase;
+    font-family: "Montserrat", sans-serif;
+    margin-bottom: 40px;
+    letter-spacing: -1px;
+  }
+
+  .wp-hero-link-box {
+    display: inline-block;
+  }
+
+  .wp-hero-link {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--wp-text-light);
+    text-decoration: none;
+    letter-spacing: 2px;
+    font-family: "Montserrat", sans-serif;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--wp-text-light);
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  .wp-hero-link:hover {
+    color: var(--wp-accent-gold);
+    border-color: var(--wp-accent-gold);
+  }
+
+  @media (max-width: 1023px) {
+    .wp-hero-section {
+      height: 60vh;
+      padding: 0 40px;
+    }
+
+    .wp-hero-title {
+      font-size: 50px;
+    }
+  }
+
+  /* Carousel Section (JCJ, Jama, Casa DB) */
+  .wp-carousel-section {
+    padding: 0;
+    background-color: var(--wp-bg-dark);
+    margin-top: 50px; /* space between banner and carousel */
+    position: relative;
+    z-index: 5;
+    margin-bottom: 60px;
+  }
+
+  .wp-carousel-container {
+    max-width: 1170px;
+    margin: 0 auto;
+    padding: 0 30px;
+    position: relative;
+  }
+
+  .wp-carousel-wrapper {
+    overflow: hidden;
+    width: 100%;
+  }
+
+  .wp-carousel-track {
+    display: flex;
+    gap: 30px;
+    transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  .wp-carousel-card {
+    flex: 0 0 calc(33.333% - 20px);
+    background-color: var(--wp-bg-darker);
+    border: 1px solid #3d3d3d;
+    transition: border-color 0.3s;
+  }
+
+  .wp-carousel-card:hover {
+    border-color: var(--wp-accent-gold);
+  }
+
+  .wp-card-link {
+    text-decoration: none;
+    display: block;
+    color: inherit;
+  }
+
+  .wp-card-image-box {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background-color: #000;
+  }
+
+  .wp-card-image-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s;
+  }
+
+  .wp-card-link:hover .wp-card-image-box img {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+
+  .wp-card-info {
+    padding: 25px;
+  }
+
+  .wp-card-category {
+    font-size: 12px;
+    color: var(--wp-accent-gold);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+
+  .wp-card-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--wp-text-light);
+    margin: 0;
+    font-family: "Montserrat", sans-serif;
+  }
+
+  /* Carousel controls */
+  .wp-carousel-control {
+    position: absolute;
+    top: 50%;
+    width: 50px;
+    height: 50px;
+    background-color: var(--wp-accent-gold);
+    border: none;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #242424;
+    font-size: 18px;
+    transform: translateY(-50%);
+    transition: background-color 0.2s, color 0.2s;
+  }
+
+  .wp-carousel-control:hover {
+    background-color: var(--wp-text-light);
+    color: #000;
+  }
+
+  .wp-carousel-control.prev {
+    left: 5px;
+  }
+
+  .wp-carousel-control.next {
+    right: 5px;
+  }
+
+  @media (max-width: 1023px) {
+    .wp-carousel-section {
+      margin-top: 30px;
+      padding: 20px 0;
+    }
+
+    .wp-carousel-card {
+      flex: 0 0 calc(50% - 15px);
+    }
+
+    .wp-carousel-control {
+      display: none;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .wp-carousel-card {
+      flex: 0 0 100%;
+    }
+  }
+
+  /* About Section ("NOSOTROS") */
+  .wp-about-section {
+    padding: 100px 0;
+    background-color: #b3b3b3;
+    border-bottom: 1px solid #cccccc;
+  }
+
+  .wp-about-container {
+    max-width: 1170px;
+    margin: 0 auto;
+    padding: 0 30px;
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 60px;
+    align-items: center;
+  }
+
+  .wp-about-images-wrapper {
+    border: 1px solid #999999;
+    padding: 25px;
+    position: relative;
+    background-color: transparent;
+  }
+
+  .wp-about-images-wrapper::before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    width: 15px;
+    height: 15px;
+    border-top: 2px solid #242424;
+    border-left: 2px solid #242424;
+  }
+
+  .wp-about-images-wrapper::after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: -10px;
+    width: 15px;
+    height: 15px;
+    border-bottom: 2px solid #242424;
+    border-left: 2px solid #242424;
+  }
+
+  .wp-about-images {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .wp-about-img-item img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border: 1px solid #cccccc;
+  }
+
+  .wp-about-content {
+    font-family: "Montserrat", sans-serif;
+    position: relative;
+    text-align: right;
+    padding: 20px 0;
+  }
+
+  .wp-about-content::before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    right: -15px;
+    width: 15px;
+    height: 15px;
+    border-top: 2px solid #242424;
+    border-right: 2px solid #242424;
+  }
+
+  .wp-about-content::after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    right: -15px;
+    width: 15px;
+    height: 15px;
+    border-bottom: 2px solid #242424;
+    border-right: 2px solid #242424;
+  }
+
+  .wp-about-subtitle {
+    font-size: 18px;
+    color: #242424;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 700;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+  }
+
+  .wp-about-sub-line {
+    display: inline-block;
+    width: 50px;
+    height: 6px;
+    background-color: var(--wp-accent-yellow);
+  }
+
+  .wp-about-title {
+    font-size: 42px;
+    font-weight: 800;
+    color: #242424;
+    margin-bottom: 25px;
+    text-transform: none;
+  }
+
+  .wp-about-text {
+    font-size: 15px;
+    color: #444444;
+    line-height: 28px;
+    font-weight: 400;
+  }
+
+  @media (max-width: 1023px) {
+    .wp-about-container {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+  }
+
+  /* Services Section */
+  .wp-services-section {
+    padding: 0 0 100px 0;
+    background-color: var(--wp-bg-dark);
+    border-bottom: 1px solid #3d3d3d;
+  }
+
+  .wp-services-header-banner {
+    background-color: var(--wp-accent-gold);
+    padding: 40px 0;
+    margin-bottom: 60px;
+    width: 100%;
+  }
+
+  .wp-services-header-container {
+    max-width: 1170px;
+    margin: 0 auto;
+    padding: 0 30px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .wp-services-header-bar {
+    display: block;
+    width: 50px;
+    height: 8px;
+    background-color: #ffffff;
+  }
+
+  .wp-services-header-text {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .wp-services-header-text .wp-section-subtitle {
+    font-size: 13px;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: 2px;
+  }
+
+  .wp-services-header-text .wp-section-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #ffffff;
+    text-transform: none; /* "Servicios" */
+    margin: 0;
+    line-height: 1.2;
+    font-family: "Montserrat", sans-serif;
+  }
+
+  .wp-services-container {
+    max-width: 1170px;
+    margin: 0 auto;
+    padding: 0 30px;
+  }
+
+  .wp-services-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 25px;
+  }
+
+  .wp-service-card {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 50px 30px;
+    text-align: center;
+    background-color: var(--wp-bg-darker);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: border-color 0.3s;
+  }
+
+  .wp-service-card:hover {
+    border-color: var(--wp-accent-yellow);
+  }
+
+  .wp-icon-wrapper {
+    width: 95px;
+    height: 82px;
+    background-color: rgba(255, 255, 255, 0.08);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 25px;
+    transition: all 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border-radius: 0px;
+  }
+
+  /* Hover state: turn yellow and animate wrapper */
+  .wp-service-card:hover .wp-icon-wrapper {
+    background-color: var(--wp-accent-gold);
+    transform: translateY(-8px) scale(1.08) rotate(5deg);
+    box-shadow: 0 10px 25px rgba(214, 163, 59, 0.35);
+  }
+
+  .wp-service-icon-svg {
+    width: 40px;
+    height: 40px;
+    filter: brightness(0) invert(1) !important; /* make line icons white */
+    transition: transform 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  /* Hover state: scale up and rotate icon slightly */
+  .wp-service-card:hover .wp-service-icon-svg {
+    transform: scale(1.15) rotate(-5deg);
+  }
+
+  .wp-service-card h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 15px;
+    letter-spacing: 1px;
+    font-family: "Montserrat", sans-serif;
+  }
+
+  .wp-service-card p {
+    font-size: 13px;
+    color: #b3b3b3;
+    line-height: 22px;
+    margin: 0;
+    font-weight: 400;
+  }
+
+  @media (max-width: 1023px) {
+    .wp-services-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 767px) {
+    .wp-services-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Gallery Section (Edificio T5, Mama Miche, Casa DB) */
+  .wp-gallery-section {
+    padding: 80px 0;
+    background-color: var(--wp-bg-dark);
+    border-bottom: 1px solid #3d3d3d;
+  }
+
+  .wp-gallery-container {
+    max-width: 1170px;
+    margin: 0 auto;
+    padding: 0 30px;
+  }
+
+  .wp-gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+  }
+
+  .wp-gallery-card {
+    position: relative;
+    border: 1px solid #3d3d3d;
+    overflow: hidden;
+  }
+
+  .wp-gallery-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .wp-gallery-img-box {
+    width: 100%;
+    aspect-ratio: 16 / 11;
+    background-color: #000;
+  }
+
+  .wp-gallery-img-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s, opacity 0.4s;
+  }
+
+  .wp-gallery-link:hover .wp-gallery-img-box img {
+    transform: scale(1.04);
+    opacity: 0.8;
+  }
+
+  /* Overlay info banner styled exactly like the WordPress theme screenshot */
+  .wp-gallery-info-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(30, 30, 30, 0.85);
+    padding: 20px 25px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .wp-gallery-cat {
+    font-size: 11px;
+    color: var(--wp-accent-gold);
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+  }
+
+  .wp-cat-dash {
+    width: 12px;
+    height: 2px;
+    background-color: var(--wp-accent-gold);
+    display: inline-block;
+  }
+
+  .wp-gallery-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--wp-text-light);
+    margin: 0;
+  }
+
+  @media (max-width: 1023px) {
+    .wp-gallery-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Entorno y la Sociedad Section */
+  .wp-entorno-section {
+    padding: 120px 0;
+    background-color: #3d3d3d;
+    border-bottom: 1px solid #2b2b2b;
+  }
+
+  .wp-entorno-container {
+    max-width: 1170px;
+    margin: 0 auto;
+    padding: 0 30px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+  }
+
+  .wp-entorno-content {
+    font-family: "Montserrat", sans-serif;
+    position: relative;
+    padding: 20px 0;
+  }
+
+  .wp-entorno-content::before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    left: -15px;
+    width: 15px;
+    height: 15px;
+    border-top: 2px solid #ffffff;
+    border-left: 2px solid #ffffff;
+  }
+
+  .wp-entorno-content::after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: -15px;
+    width: 15px;
+    height: 15px;
+    border-bottom: 2px solid #ffffff;
+    border-left: 2px solid #ffffff;
+  }
+
+  .wp-entorno-content h2 {
+    font-size: 32px;
+    font-weight: 800;
+    color: #ffffff;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+  }
+
+  .wp-entorno-content p {
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.75);
+    line-height: 28px;
+    margin-bottom: 35px;
+    font-weight: 400;
+  }
+
+  .wp-entorno-btn-box {
+    display: inline-block;
+  }
+
+  .wp-entorno-btn {
+    display: inline-block;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    letter-spacing: 2px;
+    padding: 12px 35px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    transition: all 0.2s;
+  }
+
+  .wp-entorno-btn:hover {
+    color: #3d3d3d;
+    background-color: #ffffff;
+    border-color: #ffffff;
+  }
+
+  .wp-entorno-image {
+    position: relative;
+  }
+
+  .wp-entorno-image::before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    right: -15px;
+    width: 15px;
+    height: 15px;
+    border-top: 2px solid #ffffff;
+    border-right: 2px solid #ffffff;
+    pointer-events: none;
+  }
+
+  .wp-entorno-image::after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    right: -15px;
+    width: 15px;
+    height: 15px;
+    border-bottom: 2px solid #ffffff;
+    border-right: 2px solid #ffffff;
+    pointer-events: none;
+  }
+
+  .wp-entorno-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  @media (max-width: 1023px) {
+    .wp-entorno-container {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+  }
+
+
+</style>

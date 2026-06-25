@@ -1,0 +1,263 @@
+---
+import LayoutWpReplica from '../../../layouts/LayoutWpReplica.astro';
+
+const base = import.meta.env.BASE_URL === '/' ? '/' : `${import.meta.env.BASE_URL}/`;
+export async function getStaticPaths() {
+  const BACKEND_URL = import.meta.env.WORDPRESS_API_URL || "http://encaje-wp.test";
+  const fallbackProjects = [
+    {
+      title: { rendered: "Residencia JCJ" },
+      slug: "residencia-jcj",
+      content: { rendered: "<p>Un diseño residencial único que destaca por su elegancia y espacialidad...</p>" },
+      _embedded: {
+        "wp:featuredmedia": [{ source_url: "https://encaje.ec/wp-content/uploads/2025/02/02_RESIDENCIAJCJ_PROYECTOS_5-1.jpg" }]
+      }
+    },
+    {
+      title: { rendered: "Playa Jama" },
+      slug: "playa-jama",
+      content: { rendered: "<p>Un exclusivo proyecto junto al mar pensado para disfrutar del descanso y el clima tropical...</p>" },
+      _embedded: {
+        "wp:featuredmedia": [{ source_url: "https://encaje.ec/wp-content/uploads/2025/02/02_PLAYAJAMA_PROYECTOS_2-1-1.jpg" }]
+      }
+    },
+    {
+      title: { rendered: "Casa DB" },
+      slug: "casadb",
+      content: { rendered: "<p>Una hermosa residencia familiar que se integra armónicamente con la naturaleza...</p>" },
+      _embedded: {
+        "wp:featuredmedia": [{ source_url: "https://encaje.ec/wp-content/uploads/2025/02/02_CASADB_PROYECTOS_6-1.jpg" }]
+      }
+    },
+    {
+      title: { rendered: "Edificio T5" },
+      slug: "edificio-t5",
+      content: { rendered: "<p>Un moderno edificio de departamentos diseñado para el confort urbano...</p>" },
+      _embedded: {
+        "wp:featuredmedia": [{ source_url: "https://encaje.ec/wp-content/uploads/2025/02/02_EDIFICIOT5_PROYECTOS_4-1.jpg" }]
+      }
+    },
+    {
+      title: { rendered: "Mama Miche" },
+      slug: "mama-miche",
+      content: { rendered: "<p>Un innovador espacio comercial con identidad y diseño minimalista...</p>" },
+      _embedded: {
+        "wp:featuredmedia": [{ source_url: "https://encaje.ec/wp-content/uploads/2025/02/02_MM_PROYECTOS_1.jpg" }]
+      }
+    }
+  ];
+
+  try {
+    const response = await fetch(`${BACKEND_URL}/wp-json/wp/v2/projects?_embed`);
+    if (!response.ok) {
+      console.warn("WordPress projects API failed. Using fallback static paths.");
+      return fallbackProjects.map((project) => ({
+        params: { slug: project.slug },
+        props: { project },
+      }));
+    }
+    const projects = await response.json();
+    return projects.map((project) => ({
+      params: { slug: project.slug },
+      props: { project },
+    }));
+  } catch (e) {
+    console.warn("WordPress projects API failed. Using fallback static paths.");
+    return fallbackProjects.map((project) => ({
+      params: { slug: project.slug },
+      props: { project },
+    }));
+  }
+}
+
+const { project } = Astro.props;
+
+if (!project) {
+  return Astro.redirect(`${base}replica-wp/proyectos`);
+}
+
+const media = project._embedded?.['wp:featuredmedia']?.[0];
+const imageUrl = media?.source_url || '/placeholder.jpg';
+
+// Clean shortcodes
+let processedContent = project.content.rendered.replace(/\[\/?[^\]]+\]/g, '');
+
+// Convert the dynamic list structure from WordPress to the original theme's spans markup
+// Match: <li>\n\t\t\t\t\t\t\t\t\t\tEstilo\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\tIndustrial\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t</li>
+// Regex matches any label word, newlines/spaces, and the value string inside <li> tags
+processedContent = processedContent.replace(
+  /<li>\s*([A-Za-zÀ-ÿ]+)\s*\n\s*([A-Za-zÀ-ÿ0-9\s,\-\/]+)\s*<\/li>/gi,
+  '<li><span class="data-name">$1</span><span class="data-val">$2</span></li>'
+);
+
+// We also wrap the <ul> under Ficha Técnica with the class .project-data-list
+processedContent = processedContent.replace(
+  /<h2>Ficha Técnica<\/h2>\s*<ul>/gi,
+  '<h2>Ficha Técnica</h2><ul class="project-data-list">'
+);
+
+// Extract Yoast SEO fields if available, otherwise use defaults
+const seoTitle = project.yoast_head_json?.title || `${project.title.rendered} - Encaje (Réplica WordPress)`;
+const seoDescription = project.yoast_head_json?.description || project.yoast_head_json?.og_description || `Conoce los detalles de la obra ${project.title.rendered} en la réplica WordPress de Encaje.`;
+const seoImage = project.yoast_head_json?.og_image?.[0]?.url || imageUrl;
+---
+
+<LayoutWpReplica title={seoTitle} description={seoDescription} image={seoImage}>
+  <main class="wp-replica-detail">
+    <!-- Banner Section -->
+    <section class="wp-single-banner">
+      <div class="wp-banner-container">
+        <h1 set:html={project.title.rendered}></h1>
+        <p>Solución Constructiva</p>
+      </div>
+    </section>
+
+    <!-- Main Content Section -->
+    <section class="wp-single-project-section">
+      <div class="wp-container">
+        <div class="wp-project-grid">
+          <!-- Featured Image -->
+          <div class="wp-project-image-box">
+            <div class="wp-feature-image">
+              <img src={imageUrl} alt={project.title.rendered} />
+            </div>
+          </div>
+
+          <!-- Description and Specs -->
+          <div class="wp-project-content-box">
+            <article class="wp-project-content" set:html={processedContent}>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</LayoutWpReplica>
+
+<style>
+  .wp-replica-detail {
+    background-color: var(--wp-bg-dark);
+    padding-bottom: 80px;
+  }
+
+  /* Single banner */
+  .wp-single-banner {
+    padding: 120px 0 80px;
+    background-color: var(--wp-bg-darker);
+    border-bottom: 1px solid #3d3d3d;
+    margin-bottom: 60px;
+  }
+
+  .wp-banner-container {
+    max-width: 1170px;
+    margin: 0 auto;
+    padding: 0 30px;
+  }
+
+  .wp-single-banner h1 {
+    font-size: 40px;
+    font-weight: 700;
+    color: var(--wp-text-light);
+    font-family: "Montserrat", sans-serif;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .wp-single-banner p {
+    font-size: 16px;
+    color: var(--wp-accent-gold);
+    font-family: "Montserrat", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  /* Layout container split */
+  .wp-single-project-section {
+    padding: 0 0 40px 0;
+  }
+
+  .wp-container {
+    max-width: 1170px;
+    margin: 0 auto;
+    padding: 0 30px;
+  }
+
+  .wp-project-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+
+  @media (max-width: 1023px) {
+    .wp-project-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .wp-feature-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border: 1px solid #3d3d3d;
+  }
+
+  /* Rendered Content styles matching WordPress */
+  .wp-project-content {
+    font-family: "Montserrat", sans-serif;
+  }
+
+  .wp-project-content :global(h2) {
+    font-size: 25px;
+    font-weight: 600;
+    color: var(--wp-text-light);
+    margin-bottom: 25px;
+    font-family: "Montserrat", sans-serif;
+  }
+
+  .wp-project-content :global(p) {
+    font-size: 15px;
+    color: var(--wp-text-muted);
+    line-height: 26px;
+    margin-bottom: 20px;
+  }
+
+  /* Ficha técnica custom list styles matching Royarch style.css */
+  .wp-project-content :global(ul.project-data-list) {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 30px;
+  }
+
+  .wp-project-content :global(ul.project-data-list li) {
+    display: flex;
+    border: 1px solid #3d3d3d;
+    border-bottom: none;
+    align-items: center;
+  }
+
+  .wp-project-content :global(ul.project-data-list li:last-child) {
+    border-bottom: 1px solid #3d3d3d;
+  }
+
+  .wp-project-content :global(ul.project-data-list li span) {
+    display: inline-block;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 300;
+    line-height: 50px;
+  }
+
+  .wp-project-content :global(ul.project-data-list li span.data-name) {
+    width: 150px;
+    font-weight: 700;
+    text-transform: uppercase;
+    background-color: #3d3d3d;
+    padding: 0 30px;
+    margin-right: 15px;
+    flex-shrink: 0;
+  }
+
+  .wp-project-content :global(ul.project-data-list li span.data-val) {
+    padding: 0 15px;
+  }
+</style>

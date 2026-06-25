@@ -1,0 +1,549 @@
+---
+import LayoutWpReplica from '../../layouts/LayoutWpReplica.astro';
+
+const base = import.meta.env.BASE_URL === '/' ? '/' : `${import.meta.env.BASE_URL}/`;
+const BACKEND_URL = import.meta.env.WORDPRESS_API_URL || "http://encaje-wp.test";
+---
+
+<LayoutWpReplica title="Quienes Somos - Encaje (Réplica WordPress)">
+  <main class="wp-quienes-somos">
+    <!-- Page Banner -->
+    <section class="wp-page-banner" style={`background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://encaje.ec/wp-content/uploads/2025/02/BANNER_QUIENES_SOMOS.jpg');`}>
+      <div class="wp-banner-container">
+        <div class="wp-banner-content">
+          <img src="https://encaje.ec/wp-content/uploads/2025/02/QUIENES_SOMOS.svg" alt="Quienes Somos" class="wp-banner-svg-title" />
+          <ul class="wp-breadcrumbs">
+            <li><a href={`${base}replica-wp`}>Inicio</a></li>
+            <li><span>/</span></li>
+            <li class="active">Quienes Somos</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about-section">
+      <div class="container">
+        <div class="about-box">
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="images">
+                <div class="row-images">
+                  <div class="col-md-6">
+                    <img src="https://encaje.ec/wp-content/uploads/2025/02/01_SECCION_ACERCADE.jpg" alt="Obra de Construcción 1" />
+                    <img src="https://encaje.ec/wp-content/uploads/2025/02/02_SECCION_ACERCADE.jpg" alt="Obra de Construcción 2" />
+                  </div>
+                  <div class="col-md-6-offset">
+                    <img class="snd-size" src="https://encaje.ec/wp-content/uploads/2025/02/03_SECCION_ACERCADE.jpg" alt="Obra de Construcción 3" />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="about-content">
+                <h3>Encaje</h3>
+                <p>
+                  <span style="font-weight: 400;">
+                    Encaje es una empresa fundada en 2017, conformada por un equipo comprometido que integra arquitectura e ingeniería para ofrecer soluciones constructivas eficientes. Nos apasiona resolver problemas de manera honesta, innovadora y confiable, desafiando conceptos, procedimientos y tradiciones. Buscamos que nuestros clientes confíen en nuestra capacidad de innovación, llevándola a cabo con eficiencia en materiales, energía, conceptualización e implementación de proyectos urbanos, siempre considerando el impacto en el entorno y la transformación del entorno.
+                  </span>
+                </p>
+                <p>
+                  <span style="font-weight: 400;">
+                    Nos enorgullece haber contribuido al embellecimiento de la ciudad a través de diversos proyectos que mejoran su entorno, creando espacios que fomentan la belleza y el bienestar en la comunidad. Un proyecto arquitectónico bien resuelto irradia vida, inspira y genera un ambiente agradable para vivir, trabajar y crear.
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Services Header Section -->
+    <div class="wp-services-header-box">
+      <h5 class="wp-services-subtitle"><span style="color:#D8A53B !important">_____</span> NUESTROS</h5>
+      <h2 class="wp-services-title">Servicios</h2>
+    </div>
+
+    <!-- Services Section -->
+    <section class="services-section">
+      <div class="container">
+        <div class="services-box">
+          <div class="row-services">
+            <!-- Service 1 -->
+            <div class="col-service">
+              <div class="services-post">
+                <div class="wp-service-icon-container">
+                  <img src={`${BACKEND_URL}/wp-content/uploads/2025/02/Diseno_Arquitectonico_ENCAJE.svg`} alt="Diseño Arquitectónico" class="wp-service-icon-svg" />
+                </div>
+                <h4>DISEÑO ARQUITECTONICO</h4>
+                <p>Concepto e implantación de proyectos desde cero.</p>
+              </div>
+            </div>
+
+            <!-- Service 2 -->
+            <div class="col-service">
+              <div class="services-post">
+                <div class="wp-service-icon-container">
+                  <img src={`${BACKEND_URL}/wp-content/uploads/2025/02/Construccion_ENCAJE.svg`} alt="Construcción" class="wp-service-icon-svg" />
+                </div>
+                <h4>CONSTRUCCIÓN</h4>
+                <p>Entregar soluciones constructivas eficientes.</p>
+              </div>
+            </div>
+
+            <!-- Service 3 -->
+            <div class="col-service">
+              <div class="services-post">
+                <div class="wp-service-icon-container">
+                  <img src={`${BACKEND_URL}/wp-content/uploads/2025/02/Asesoramiento_Tecnico_ENCAJE.svg`} alt="Asesoramiento Técnico" class="wp-service-icon-svg" />
+                </div>
+                <h4>ASESORAMIENTO TÉCNICO</h4>
+                <p>Brindamos orientación y conocimientos técnicos al cliente.</p>
+              </div>
+            </div>
+
+            <!-- Service 4 -->
+            <div class="col-service">
+              <div class="services-post active">
+                <div class="wp-service-icon-container active">
+                  <img src={`${BACKEND_URL}/wp-content/uploads/2025/02/Urbanismo_ENCAJE.svg`} alt="Urbanismo" class="wp-service-icon-svg active-icon" />
+                </div>
+                <h4>URBANISMO</h4>
+                <p>Construimos desde la responsabilidad social de la arquitectura y la ingeniería.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Diferenciador Header Section -->
+    <div class="wp-diff-header-box">
+      <h5 class="wp-diff-subtitle"><span style="color:#D8A53B !important">_________</span></h5>
+      <h2 class="wp-diff-title">Diferenciador</h2>
+    </div>
+
+    <!-- Diferenciador Section -->
+    <section class="services-section4">
+      <div class="container">
+        <div class="services-box4">
+          <!-- Item 1 -->
+          <div class="services-post4">
+            <div class="wp-diff-img-box">
+              <img src="https://encaje.ec/wp-content/uploads/2025/02/04_SECCION_METODOLOGIA.jpg" alt="Metodología 1" />
+            </div>
+            <div class="serv-content">
+              <div class="wp-diff-icon-circle">
+                <span class="material-icons-outlined md-highlight">highlight</span>
+              </div>
+              <h4>PROYECTAMOS</h4>
+              <p>Y construimos desde la responsabilidad social de la arquitectura y la ingeniería con el entorno y la sociedad.</p>
+            </div>
+          </div>
+
+          <!-- Item 2 -->
+          <div class="services-post4">
+            <div class="wp-diff-img-box">
+              <img src="https://encaje.ec/wp-content/uploads/2025/02/05_SECCION_METODOLOGIA.jpg.jpg" alt="Metodología 2" />
+            </div>
+            <div class="serv-content">
+              <div class="wp-diff-icon-circle">
+                <span class="material-icons-outlined md-settings_system_daydream">settings_system_daydream</span>
+              </div>
+              <h4>CREEMOS</h4>
+              <p>La Arquitectura y la Ingeniería deben ser accesibles para todos, no solo para quienes pueden costearlas, ya que las soluciones constructivas eficientes deben beneficiar principalmente a los más necesitados.</p>
+            </div>
+          </div>
+
+          <!-- Item 3 -->
+          <div class="services-post4">
+            <div class="wp-diff-img-box">
+              <img src="https://encaje.ec/wp-content/uploads/2025/02/06_SECCION_METODOLOGIA.jpg.jpg" alt="Metodología 3" />
+            </div>
+            <div class="serv-content">
+              <div class="wp-diff-icon-circle">
+                <span class="material-icons-outlined md-format_paint">format_paint</span>
+              </div>
+              <h4>CREAMOS</h4>
+              <p>Proyectos arquitectónicos y de ingeniería propios que ofrezcan soluciones accesibles para quienes buscan su primera vivienda, ya sea mediante crédito o ahorros.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Cierre Banner Section -->
+    <section class="wp-cierre-banner">
+      <img src="https://encaje.ec/wp-content/uploads/2025/02/CIERRE_BANER_QUIENESSOMOS.jpg" alt="Cierre Banner" class="wp-cierre-banner-img" />
+    </section>
+
+
+  </main>
+</LayoutWpReplica>
+
+<style>
+  .wp-quienes-somos {
+    background-color: var(--wp-bg-dark);
+    font-family: "Montserrat", sans-serif;
+  }
+
+  /* Page Banner styling */
+  .wp-page-banner {
+    padding: 180px 0 100px;
+    background-size: cover;
+    background-position: center;
+    border-bottom: 1px solid #3d3d3d;
+    position: relative;
+    text-align: center;
+  }
+
+  .wp-banner-container {
+    max-width: 1170px;
+    margin: 0 auto;
+    padding: 0 30px;
+  }
+
+  .wp-banner-svg-title {
+    max-width: 500px;
+    width: 100%;
+    height: auto;
+    margin-bottom: 25px;
+    display: inline-block;
+  }
+
+  .wp-breadcrumbs {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.4);
+    margin-top: 15px;
+  }
+
+  .wp-breadcrumbs a {
+    color: rgba(255, 255, 255, 0.4);
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .wp-breadcrumbs a:hover {
+    color: var(--wp-accent-yellow);
+  }
+
+  .wp-breadcrumbs li.active {
+    color: var(--wp-text-light);
+  }
+
+  /* About Section */
+  .about-section {
+    padding: 100px 0;
+    border-bottom: 1px solid #3d3d3d;
+  }
+
+  .container {
+    max-width: 1170px;
+    margin: 0 auto;
+    padding: 0 30px;
+  }
+
+  .about-box .row {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 60px;
+    align-items: center;
+  }
+
+  .row-images {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .col-md-6 img {
+    width: 100%;
+    height: auto;
+    display: block;
+    margin-bottom: 20px;
+    border: 1px solid #3d3d3d;
+  }
+
+  .col-md-6 img:last-child {
+    margin-bottom: 0;
+  }
+
+  .col-md-6-offset {
+    display: flex;
+    align-items: center;
+  }
+
+  .col-md-6-offset img.snd-size {
+    width: 100%;
+    height: auto;
+    display: block;
+    border: 1px solid #3d3d3d;
+  }
+
+  .about-content h3 {
+    font-size: 35px;
+    font-weight: 800;
+    color: var(--wp-text-light);
+    text-transform: uppercase;
+    margin-bottom: 25px;
+    letter-spacing: 1px;
+  }
+
+  .about-content p {
+    font-size: 15px;
+    color: var(--wp-text-muted);
+    line-height: 28px;
+    margin-bottom: 20px;
+    font-weight: 300;
+  }
+
+  .about-content p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Services Headers */
+  .wp-services-header-box {
+    text-align: center;
+    margin-top: 100px;
+    margin-bottom: 50px;
+  }
+
+  .wp-services-subtitle {
+    font-size: 13px;
+    color: var(--wp-accent-gold);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .wp-services-title {
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--wp-text-light);
+    text-transform: uppercase;
+    margin: 0;
+  }
+
+  /* Services Grid */
+  .services-section {
+    padding-bottom: 100px;
+    border-bottom: 1px solid #3d3d3d;
+  }
+
+  .row-services {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 25px;
+  }
+
+  .services-post {
+    border: 1px solid #3d3d3d;
+    padding: 40px 20px;
+    text-align: center;
+    background-color: var(--wp-bg-darker);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 280px;
+    transition: border-color 0.3s;
+  }
+
+  .services-post:hover {
+    border-color: var(--wp-accent-yellow);
+  }
+
+  .wp-service-icon-container {
+    width: 95px;
+    height: 82px;
+    background-color: #3d3d3d;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 25px;
+    transition: background-color 0.3s;
+  }
+
+  .wp-service-icon-container.active {
+    background-color: var(--wp-accent-gold);
+  }
+
+  .wp-service-icon-svg {
+    width: 40px;
+    height: 40px;
+    filter: invert(1) brightness(2);
+  }
+
+  .wp-service-icon-svg.active-icon {
+    filter: none;
+  }
+
+  .services-post h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--wp-text-light);
+    margin-bottom: 15px;
+    letter-spacing: 1px;
+  }
+
+  .services-post p {
+    font-size: 13px;
+    color: var(--wp-text-muted);
+    line-height: 22px;
+    margin: 0;
+    font-weight: 300;
+  }
+
+  /* Diferenciador Headers */
+  .wp-diff-header-box {
+    text-align: center;
+    margin-top: 100px;
+    margin-bottom: 50px;
+  }
+
+  .wp-diff-subtitle {
+    font-size: 13px;
+    color: var(--wp-accent-gold);
+    letter-spacing: 2px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .wp-diff-title {
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--wp-text-light);
+    text-transform: uppercase;
+    margin: 0;
+  }
+
+  /* Diferenciador Section */
+  .services-section4 {
+    padding-bottom: 100px;
+    border-bottom: 1px solid #3d3d3d;
+  }
+
+  .services-box4 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+  }
+
+  .services-post4 {
+    background-color: var(--wp-bg-darker);
+    border: 1px solid #3d3d3d;
+    overflow: hidden;
+  }
+
+  .wp-diff-img-box {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+  }
+
+  .wp-diff-img-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s;
+  }
+
+  .services-post4:hover .wp-diff-img-box img {
+    transform: scale(1.05);
+  }
+
+  .services-post4 .serv-content {
+    padding: 30px 25px;
+    position: relative;
+    text-align: center;
+  }
+
+  .wp-diff-icon-circle {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 60px;
+    height: 60px;
+    background-color: var(--wp-accent-gold);
+    color: var(--wp-bg-dark);
+    border-radius: 50%;
+    margin-bottom: 20px;
+  }
+
+  .wp-diff-icon-circle span {
+    font-size: 28px;
+  }
+
+  .services-post4 h4 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--wp-text-light);
+    margin-bottom: 15px;
+    letter-spacing: 1px;
+  }
+
+  .services-post4 p {
+    font-size: 14px;
+    color: var(--wp-text-muted);
+    line-height: 24px;
+    font-weight: 300;
+    margin: 0;
+  }
+
+  /* Cierre Banner */
+  .wp-cierre-banner {
+    width: 100%;
+  }
+
+  .wp-cierre-banner-img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+
+
+  /* Responsive Design */
+  @media (max-width: 1023px) {
+    .about-box .row {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+
+    .row-services {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .services-box4 {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .wp-page-banner {
+      padding: 140px 0 60px;
+    }
+
+    .wp-banner-svg-title {
+      max-width: 300px;
+    }
+
+    .row-images {
+      grid-template-columns: 1fr;
+    }
+
+    .row-services {
+      grid-template-columns: 1fr;
+    }
+
+    .services-box4 {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,39 @@
+---
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  canonicalUrl?: string;
+}
+
+const { 
+  title = "Encaje | Soluciones Constructivas Premium", 
+  description = "Proyectamos y construimos espacios eficientes que desafían conceptos y tradiciones.", 
+  image = "logo.svg",
+  canonicalUrl = Astro.url.href
+} = Astro.props;
+
+// Format image URL so it's absolute (required by social crawlers like WhatsApp/Facebook)
+const base = import.meta.env.BASE_URL === '/' ? '/' : `${import.meta.env.BASE_URL}/`;
+const imageUrl = image.startsWith('http') 
+  ? image 
+  : `${Astro.url.origin}${base}${image.replace(/^\//, '')}`;
+---
+<!-- Meta de Navegador -->
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonicalUrl} />
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website" />
+<meta property="og:url" content={canonicalUrl} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content={imageUrl} />
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:url" content={canonicalUrl} />
+<meta property="twitter:title" content={title} />
+<meta property="twitter:description" content={description} />
+<meta property="twitter:image" content={imageUrl} />

@@ -1,0 +1,392 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { Image } from 'astro:assets';
+
+const base = import.meta.env.BASE_URL === '/' ? '/' : `${import.meta.env.BASE_URL}/`;
+const BACKEND_URL = import.meta.env.WORDPRESS_API_URL || "http://encaje-wp.test";
+
+// Fallback posts data to keep the site populated if WordPress is offline or empty
+const fallbackPosts = [
+  {
+    title: { rendered: "Innovación y Sostenibilidad en la Arquitectura Moderna" },
+    slug: "innovacion-y-sostenibilidad-en-la-arquitectura-moderna",
+    date: "2026-06-10T12:00:00",
+    excerpt: { rendered: "Exploramos cómo las nuevas tecnologías y los materiales eco-amigables están transformando los procesos de construcción y diseño arquitectónico." },
+    _embedded: {
+      "wp:featuredmedia": [
+        {
+          source_url: "https://encaje.ec/wp-content/uploads/2025/02/03-SECCION-NOSOTROS-1.jpg"
+        }
+      ]
+    }
+  },
+  {
+    title: { rendered: "Planificación de Obras Civiles: Clave para el Éxito" },
+    slug: "planificacion-de-obras-civiles-clave-para-el-exito",
+    date: "2026-05-28T09:30:00",
+    excerpt: { rendered: "Un desglose detallado de la importancia del control de cronogramas y presupuestos en el desarrollo de infraestructuras comerciales e institucionales." },
+    _embedded: {
+      "wp:featuredmedia": [
+        {
+          source_url: "https://encaje.ec/wp-content/uploads/2025/02/03-SECCION-NOSOTROS-2.jpg"
+        }
+      ]
+    }
+  },
+  {
+    title: { rendered: "Tendencias de Diseño de Interiores para Espacios de Trabajo" },
+    slug: "tendencias-de-diseno-de-interiores-para-espacios-de-trabajo",
+    date: "2026-05-15T15:45:00",
+    excerpt: { rendered: "Cómo el diseño biofílico y los espacios flexibles mejoran la productividad y el bienestar de los colaboradores en oficinas corporativas." },
+    _embedded: {
+      "wp:featuredmedia": [
+        {
+          source_url: "https://encaje.ec/wp-content/uploads/2025/02/03_CIERRE_NOSOTROS.jpg"
+        }
+      ]
+    }
+  }
+];
+
+let posts = [];
+
+try {
+  const response = await fetch(`${BACKEND_URL}/wp-json/wp/v2/posts?_embed`);
+  if (response.ok) {
+    posts = await response.json();
+  } else {
+    console.warn(`Error al conectar con el backend de WordPress (Código: ${response.status})`);
+  }
+} catch (e) {
+  console.warn("Could not connect to WordPress backend for blog, using offline fallback data:", e.message);
+}
+
+// Fallback to local offline posts if fetch was empty or failed
+if (!posts || posts.length === 0) {
+  posts = fallbackPosts;
+}
+
+// Format date helper
+const formatDate = (dateString) => {
+  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+  return new Date(dateString).toLocaleDateString('es-ES', options);
+};
+---
+
+<Layout title="Blog - Encaje | Arquitectura y Construcción" description="Artículos, tendencias, noticias y consejos sobre arquitectura, planificación y construcción sostenible en Ecuador.">
+  <main class="blog-page">
+    <!-- Hero Section -->
+    <section class="blog-hero" style="background-image: linear-gradient(to bottom, rgba(36, 36, 36, 0.45) 0%, rgba(36, 36, 36, 0.85) 100%), url('https://encaje.ec/wp-content/uploads/2025/02/04-SECCION-CONTACTO-min.jpg');">
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <span class="hero-tagline">CONOCIMIENTO & TENDENCIAS</span>
+        <h1>Nuestro Blog</h1>
+        <ul class="breadcrumbs">
+          <li><a href={base}>Inicio</a></li>
+          <li class="separator">/</li>
+          <li class="active">Blog</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Blog Posts Grid Section -->
+    <section class="blog-section">
+      <div class="section-container">
+        <div class="blog-grid">
+          {posts.map((post) => {
+            // Extract featured media URL safely
+            const media = post._embedded?.['wp:featuredmedia']?.[0];
+            const imageUrl = media?.source_url || 'https://encaje.ec/wp-content/uploads/2025/02/03-SECCION-NOSOTROS-1.jpg'; 
+            const altText = media?.alt_text || post.title.rendered;
+            const cleanExcerpt = post.excerpt.rendered.replace(/<[^>]*>/g, '').slice(0, 160) + '...';
+
+            return (
+              <article class="blog-card">
+                <div class="card-image-wrapper">
+                  <Image src={imageUrl} alt={altText} class="card-image" width={600} height={380} />
+                  <div class="card-overlay">
+                    <a href={`${base}blog/${post.slug}`} class="view-btn">
+                      Leer Artículo
+                    </a>
+                  </div>
+                </div>
+                <div class="card-info">
+                  <span class="post-date">{formatDate(post.date)}</span>
+                  <h2 class="post-title" set:html={post.title.rendered}></h2>
+                  <p class="post-excerpt" set:html={cleanExcerpt}></p>
+                  <a href={`${base}blog/${post.slug}`} class="card-link">
+                    <span>Continuar Leyendo</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="arrow-icon">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                    </svg>
+                  </a>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  .blog-page {
+    background-color: var(--bg-dark);
+  }
+
+  /* Hero Section Styling */
+  .blog-hero {
+    position: relative;
+    padding: 12rem 2rem 8rem;
+    text-align: center;
+    background-size: cover;
+    background-position: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    z-index: 1;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .hero-tagline {
+    font-family: var(--font-heading);
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.3em;
+    display: block;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+  }
+
+  .blog-hero h1 {
+    font-family: var(--font-heading);
+    font-size: 4rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--text-light) 30%, rgba(241, 245, 249, 0.7) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-transform: uppercase;
+  }
+
+  /* Breadcrumbs */
+  .breadcrumbs {
+    list-style: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(27, 27, 27, 0.6);
+    padding: 0.5rem 1.5rem;
+    border-radius: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    font-size: 0.9rem;
+  }
+
+  .breadcrumbs a {
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+    font-family: var(--font-heading);
+    font-weight: 500;
+    transition: var(--transition-smooth);
+  }
+
+  .breadcrumbs a:hover {
+    color: var(--primary);
+  }
+
+  .breadcrumbs .separator {
+    color: rgba(255, 255, 255, 0.25);
+  }
+
+  .breadcrumbs .active {
+    color: var(--primary);
+    font-weight: 600;
+    font-family: var(--font-heading);
+  }
+
+  /* Grid Section */
+  .blog-section {
+    padding: 6rem 2rem;
+  }
+
+  .section-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .blog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 3rem;
+  }
+
+  @media (max-width: 640px) {
+    .blog-grid {
+      grid-template-columns: 1fr;
+    }
+    .blog-hero h1 {
+      font-size: 2.5rem;
+    }
+  }
+
+  /* Blog Card Styling */
+  .blog-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-radius: 16px;
+    overflow: hidden;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: var(--transition-smooth);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  }
+
+  .blog-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--border-card-hover);
+    box-shadow: 0 20px 40px rgba(212, 175, 55, 0.08);
+  }
+
+  .card-image-wrapper {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: #1b1b1b;
+  }
+
+  .card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .blog-card:hover .card-image {
+    transform: scale(1.08);
+  }
+
+  .card-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(36, 36, 36, 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: var(--transition-smooth);
+  }
+
+  .card-image-wrapper:hover .card-overlay {
+    opacity: 1;
+  }
+
+  .view-btn {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    color: var(--bg-dark);
+    background: var(--primary);
+    text-decoration: none;
+    padding: 0.8rem 1.6rem;
+    border-radius: 30px;
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+    transform: translateY(15px);
+    transition: var(--transition-smooth);
+  }
+
+  .card-image-wrapper:hover .view-btn {
+    transform: translateY(0);
+  }
+
+  .view-btn:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 0 25px rgba(212, 175, 55, 0.6);
+  }
+
+  .card-info {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+
+  .post-date {
+    font-size: 0.85rem;
+    color: var(--primary);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+    font-family: var(--font-heading);
+  }
+
+  .post-title {
+    font-family: var(--font-heading);
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: var(--text-light);
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+    line-height: 1.35;
+  }
+
+  .post-excerpt {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.65;
+    margin-bottom: 1.5rem;
+    flex-grow: 1;
+  }
+
+  .card-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--primary);
+    font-family: var(--font-heading);
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 0.95rem;
+    letter-spacing: 0.05em;
+    width: fit-content;
+    transition: var(--transition-smooth);
+  }
+
+  .arrow-icon {
+    width: 1.1rem;
+    height: 1.1rem;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .card-link:hover {
+    color: var(--primary-hover);
+  }
+
+  .card-link:hover .arrow-icon {
+    transform: translateX(6px);
+  }
+</style>

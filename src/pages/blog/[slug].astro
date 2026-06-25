@@ -1,0 +1,334 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { Image } from 'astro:assets';
+
+const base = import.meta.env.BASE_URL === '/' ? '/' : `${import.meta.env.BASE_URL}/`;
+
+// Fallback posts data (must match index.astro fallback slugs)
+const fallbackPosts = [
+  {
+    title: { rendered: "Innovación y Sostenibilidad en la Arquitectura Moderna" },
+    slug: "innovacion-y-sostenibilidad-en-la-arquitectura-moderna",
+    date: "2026-06-10T12:00:00",
+    excerpt: { rendered: "Exploramos cómo las nuevas tecnologías y los materiales eco-amigables están transformando los procesos de construcción y diseño arquitectónico." },
+    content: { rendered: "<p>La arquitectura moderna se encuentra en un punto de inflexión. El cambio climático y la necesidad de optimizar recursos han impulsado a ingenieros y arquitectos a buscar soluciones más eficientes. En Encaje, proyectamos y construimos con una rigurosa planificación para garantizar que cada obra respete su entorno social y ecológico.</p><p>Materiales reciclados, sistemas de captación de agua y paneles solares integrados en la estructura no son solo tendencias, sino estándares de la edificación del futuro. En este artículo detallamos las mejores prácticas globales y cómo las implementamos en Ecuador.</p><h3>La Importancia de los Materiales Eco-Amigables</h3><p>La selección de materiales es crítica. Elementos como el hormigón celular, la madera certificada y las pinturas libres de compuestos orgánicos volátiles (COVs) reducen drásticamente la huella de carbono de la construcción y mejoran la calidad del aire interior.</p><p>Al planificar nuestros proyectos, evaluamos el ciclo de vida completo de cada material para asegurar un impacto mínimo y una durabilidad máxima.</p>" },
+    _embedded: {
+      "wp:featuredmedia": [
+        {
+          source_url: "https://encaje.ec/wp-content/uploads/2025/02/03-SECCION-NOSOTROS-1.jpg"
+        }
+      ]
+    }
+  },
+  {
+    title: { rendered: "Planificación de Obras Civiles: Clave para el Éxito" },
+    slug: "planificacion-de-obras-civiles-clave-para-el-exito",
+    date: "2026-05-28T09:30:00",
+    excerpt: { rendered: "Un desglose detallado de la importancia del control de cronogramas y presupuestos en el desarrollo de infraestructuras comerciales e institucionales." },
+    content: { rendered: "<p>Todo gran proyecto arquitectónico comienza con una planificación minuciosa. Los desvíos en tiempos y costos suelen ser los principales dolores de cabeza de los desarrolladores. Es por ello que un equipo técnico de alto nivel es indispensable.</p><p>Desde los estudios de suelo hasta los acabados finales, cada etapa requiere supervisión continua y el uso de herramientas tecnológicas modernas para mitigar riesgos. La transparencia y la honestidad en cada fase garantizan obras duraderas y de alta calidad.</p><h3>Optimización de Procesos</h3><p>Utilizar metodologías como BIM (Building Information Modeling) nos permite modelar virtualmente la edificación antes de iniciar la excavación, detectando conflictos de ingeniería y ajustando el presupuesto al milímetro.</p><p>Esto se traduce en obras sin retrasos y con total conformidad con las expectativas del cliente.</p>" },
+    _embedded: {
+      "wp:featuredmedia": [
+        {
+          source_url: "https://encaje.ec/wp-content/uploads/2025/02/03-SECCION-NOSOTROS-2.jpg"
+        }
+      ]
+    }
+  },
+  {
+    title: { rendered: "Tendencias de Diseño de Interiores para Espacios de Trabajo" },
+    slug: "tendencias-de-diseno-de-interiores-para-espacios-de-trabajo",
+    date: "2026-05-15T15:45:00",
+    excerpt: { rendered: "Cómo el diseño biofílico y los espacios flexibles mejoran la productividad y el bienestar de los colaboradores en oficinas corporativas." },
+    content: { rendered: "<p>El diseño de oficinas ha evolucionado de cubículos grises a espacios dinámicos y abiertos. Hoy en día se prioriza el bienestar del usuario, introduciendo elementos naturales, luz natural maximizada y áreas de relajación.</p><p>El diseño biofílico, que integra plantas, agua y texturas naturales, ha demostrado reducir el estrés laboral y potenciar la creatividad. En Encaje diseñamos soluciones a medida que combinan la estética con la funcionalidad empresarial.</p><h3>La Revolución de la Flexibilidad</h3><p>Mobiliario modular, salas de reuniones virtuales integradas y zonas híbridas de co-working permiten que las empresas se adapten a las necesidades cambiantes de sus equipos día a día.</p><p>Un buen diseño interior inspira pertenencia y mejora el clima organizacional de forma medible.</p>" },
+    _embedded: {
+      "wp:featuredmedia": [
+        {
+          source_url: "https://encaje.ec/wp-content/uploads/2025/02/03_CIERRE_NOSOTROS.jpg"
+        }
+      ]
+    }
+  }
+];
+
+export async function getStaticPaths() {
+  const BACKEND_URL = import.meta.env.WORDPRESS_API_URL || "http://encaje-wp.test";
+  
+  // Define fallback posts locally inside getStaticPaths to use if connection fails
+  const localFallback = [
+    { slug: "innovacion-y-sostenibilidad-en-la-arquitectura-moderna" },
+    { slug: "planificacion-de-obras-civiles-clave-para-el-exito" },
+    { slug: "tendencias-de-diseno-de-interiores-para-espacios-de-trabajo" }
+  ];
+
+  try {
+    const response = await fetch(`${BACKEND_URL}/wp-json/wp/v2/posts?_embed`);
+    if (response.ok) {
+      const posts = await response.json();
+      return posts.map((post) => ({
+        params: { slug: post.slug },
+        props: { post },
+      }));
+    }
+  } catch (e) {
+    console.warn("Could not connect to WordPress to generate static paths, using fallback paths.");
+  }
+
+  // Fallback paths if offline
+  return localFallback.map((item) => {
+    // Find the full fallback post details
+    const found = [
+      {
+        title: { rendered: "Innovación y Sostenibilidad en la Arquitectura Moderna" },
+        slug: "innovacion-y-sostenibilidad-en-la-arquitectura-moderna",
+        date: "2026-06-10T12:00:00",
+        excerpt: { rendered: "Exploramos cómo las nuevas tecnologías..." },
+        content: { rendered: "<p>La arquitectura moderna se encuentra en un punto de inflexión. El cambio climático y la necesidad de optimizar recursos han impulsado a ingenieros y arquitectos a buscar soluciones más eficientes. En Encaje, proyectamos y construimos con una rigurosa planificación para garantizar que cada obra respete su entorno social y ecológico.</p><p>Materiales reciclados, sistemas de captación de agua y paneles solares integrados en la estructura no son solo tendencias, sino estándares de la edificación del futuro. En este artículo detallamos las mejores prácticas globales y cómo las implementamos en Ecuador.</p><h3>La Importancia de los Materiales Eco-Amigables</h3><p>La selección de materiales es crítica. Elementos como el hormigón celular, la madera certificada y las pinturas libres de compuestos orgánicos volátiles (COVs) reducen drásticamente la huella de carbono de la construcción y mejoran la calidad del aire interior.</p><p>Al planificar nuestros proyectos, evaluamos el ciclo de vida completo de cada material para asegurar un impacto mínimo y una durabilidad máxima.</p>" },
+        _embedded: { "wp:featuredmedia": [{ source_url: "https://encaje.ec/wp-content/uploads/2025/02/03-SECCION-NOSOTROS-1.jpg" }] }
+      },
+      {
+        title: { rendered: "Planificación de Obras Civiles: Clave para el Éxito" },
+        slug: "planificacion-de-obras-civiles-clave-para-el-exito",
+        date: "2026-05-28T09:30:00",
+        excerpt: { rendered: "Un desglose detallado de la importancia del control de cronogramas..." },
+        content: { rendered: "<p>Todo gran proyecto arquitectónico comienza con una planificación minuciosa. Los desvíos en tiempos y costos suelen ser los principales dolores de cabeza de los desarrolladores. Es por ello que un equipo técnico de alto nivel es indispensable.</p><p>Desde los estudios de suelo hasta los acabados finales, cada etapa requiere supervisión continua y el uso de herramientas tecnológicas modernas para mitigar riesgos. La transparencia y la honestidad en cada fase garantizan obras duraderas y de alta calidad.</p><h3>Optimización de Procesos</h3><p>Utilizar metodologías como BIM (Building Information Modeling) nos permite modelar virtualmente la edificación antes de iniciar la excavación, detectando conflictos de ingeniería y ajustando el presupuesto al milímetro.</p><p>Esto se traduce en obras sin retrasos y con total conformidad con las expectativas del cliente.</p>" },
+        _embedded: { "wp:featuredmedia": [{ source_url: "https://encaje.ec/wp-content/uploads/2025/02/03-SECCION-NOSOTROS-2.jpg" }] }
+      },
+      {
+        title: { rendered: "Tendencias de Diseño de Interiores para Espacios de Trabajo" },
+        slug: "tendencias-de-diseno-de-interiores-para-espacios-de-trabajo",
+        date: "2026-05-15T15:45:00",
+        excerpt: { rendered: "Cómo el diseño biofílico y los espacios flexibles..." },
+        content: { rendered: "<p>El diseño de oficinas ha evolucionado de cubículos grises a espacios dinámicos y abiertos. Hoy en día se prioriza el bienestar del usuario, introduciendo elementos naturales, luz natural maximizada y áreas de relajación.</p><p>El diseño biofílico, que integra plantas, agua y texturas naturales, ha demostrado reducir el estrés laboral y potenciar la creatividad. En Encaje diseñamos soluciones a medida que combinan la estética con la funcionalidad empresarial.</p><h3>La Revolución de la Flexibilidad</h3><p>Mobiliario modular, salas de reuniones virtuales integradas y zonas híbridas de co-working permiten que las empresas se adapten a las necesidades cambiantes de sus equipos día a día.</p><p>Un buen diseño interior inspira pertenencia y mejora el clima organizacional de forma medible.</p>" },
+        _embedded: { "wp:featuredmedia": [{ source_url: "https://encaje.ec/wp-content/uploads/2025/02/03_CIERRE_NOSOTROS.jpg" }] }
+      }
+    ].find(p => p.slug === item.slug);
+
+    return {
+      params: { slug: item.slug },
+      props: { post: found }
+    };
+  });
+}
+
+const { post } = Astro.props;
+
+if (!post) {
+  return Astro.redirect(`${base}blog`);
+}
+
+// Extract featured image
+const media = post._embedded?.['wp:featuredmedia']?.[0];
+const imageUrl = media?.source_url || 'https://encaje.ec/wp-content/uploads/2025/02/03-SECCION-NOSOTROS-1.jpg';
+const imageAlt = media?.alt_text || post.title.rendered;
+
+// Clean up shortcodes
+const cleanContent = post.content.rendered.replace(/\[\/?[^\]]+\]/g, '');
+
+// Extract Yoast SEO fields
+const seoTitle = post.yoast_head_json?.title || `${post.title.rendered} | Blog Encaje`;
+const seoDescription = post.yoast_head_json?.description || post.yoast_head_json?.og_description || post.excerpt?.rendered?.replace(/<[^>]*>/g, '').slice(0, 160) || `Lee sobre ${post.title.rendered} en el blog de Encaje.`;
+const seoImage = post.yoast_head_json?.og_image?.[0]?.url || imageUrl;
+
+// Format date helper
+const formatDate = (dateString) => {
+  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+  return new Date(dateString).toLocaleDateString('es-ES', options);
+};
+---
+
+<Layout title={seoTitle} description={seoDescription} image={seoImage}>
+  <main class="blog-detail-page">
+    <!-- Hero Banner -->
+    <section class="detail-hero" style={`background-image: linear-gradient(to bottom, rgba(36, 36, 36, 0.45), rgba(36, 36, 36, 0.95)), url(${imageUrl});`}>
+      <div class="hero-container">
+        <a href={`${base}blog`} class="back-link">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="back-arrow">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+          </svg>
+          <span>Volver al Blog</span>
+        </a>
+        <span class="post-date">{formatDate(post.date)}</span>
+        <h1 class="post-title" set:html={post.title.rendered}></h1>
+      </div>
+    </section>
+
+    <!-- Content Section -->
+    <section class="detail-content-section">
+      <div class="content-container">
+        <!-- Main Image Card -->
+        <div class="featured-media-card">
+          <Image src={imageUrl} alt={imageAlt} class="main-image" width={900} height={560} />
+        </div>
+
+        <!-- Rich Text content -->
+        <article class="post-rich-content" set:html={cleanContent}>
+        </article>
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  .blog-detail-page {
+    background-color: var(--bg-dark);
+    min-height: 100vh;
+  }
+
+  /* Hero Banner Styling */
+  .detail-hero {
+    height: 55vh;
+    min-height: 400px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: flex-end;
+    position: relative;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .hero-container {
+    max-width: 900px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 2rem 4rem;
+    z-index: 10;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--primary);
+    text-decoration: none;
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 0.95rem;
+    letter-spacing: 0.05em;
+    margin-bottom: 1.5rem;
+    transition: var(--transition-smooth);
+    width: fit-content;
+  }
+
+  .back-link:hover {
+    color: var(--primary-hover);
+  }
+
+  .back-arrow {
+    width: 1.1rem;
+    height: 1.1rem;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .back-link:hover .back-arrow {
+    transform: translateX(-5px);
+  }
+
+  .post-date {
+    display: block;
+    font-family: var(--font-heading);
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 0.95rem;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+  }
+
+  .post-title {
+    font-family: var(--font-heading);
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: var(--text-light);
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    text-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+  }
+
+  @media (max-width: 768px) {
+    .post-title {
+      font-size: 2.2rem;
+    }
+    .detail-hero {
+      height: 45vh;
+    }
+  }
+
+  /* Content Container styling */
+  .detail-content-section {
+    padding: 4rem 2rem;
+  }
+
+  .content-container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .featured-media-card {
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid var(--border-card);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    margin-top: -8rem;
+    margin-bottom: 4rem;
+    position: relative;
+    z-index: 20;
+    background: #1b1b1b;
+  }
+
+  .main-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    max-height: 600px;
+    object-fit: cover;
+  }
+
+  /* Rich text post content */
+  .post-rich-content {
+    line-height: 1.8;
+  }
+
+  .post-rich-content :global(h2), 
+  .post-rich-content :global(h3) {
+    font-family: var(--font-heading);
+    color: var(--text-light);
+    font-weight: 700;
+    font-size: 2rem;
+    margin-top: 3.5rem;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.01em;
+    position: relative;
+    padding-bottom: 0.75rem;
+  }
+
+  .post-rich-content :global(h2::after),
+  .post-rich-content :global(h3::after) {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: var(--primary);
+    border-radius: 2px;
+  }
+
+  .post-rich-content :global(p) {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    margin-bottom: 1.8rem;
+  }
+
+  .post-rich-content :global(ul),
+  .post-rich-content :global(ol) {
+    margin: 2rem 0;
+    padding-left: 2rem;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+  }
+
+  .post-rich-content :global(li) {
+    margin-bottom: 0.75rem;
+  }
+</style>
