@@ -46,13 +46,21 @@
     - Creadas las páginas de catálogo de blog y de artículos individuales tanto en el sitio premium (`/blog` y `/blog/[slug]`) como en la réplica de WordPress (`/replica-wp/blog` y `/replica-wp/blog/[slug]`).
     - Añadido el enlace de "Blog" a los menús de navegación superior y pie de página en ambos layouts.
     - Integrado fallback offline de artículos para garantizar builds estáticos estables si el backend de WordPress no responde.
+19. **Rediseño Fiel y Ajustes de Cabecera/Menú (Réplica WP):**
+    - Reemplazado el logo SVG por `logo.png` en el preloader, cabeceras y footer.
+    - Implementada animación tipo puzzle en escritorio: la caja del logo se desplaza a la izquierda y el botón de menú baja para revelar la "X" antes de desplegar el panel de menú.
+    - Corregidos márgenes verticales y forzada la alineación al inicio (`!important`) del panel gris para remover espacios vacíos innecesarios.
+    - Compactado el ancho del panel de menú y la caja del logo a `300px` (y `400px` al abrirse) para evitar que la barra se vea muy extensa.
+    - Solucionado desbordamiento de altura del logo añadiendo `max-height: 60px` a `.wp-logo-img` en la cabecera.
+    - Refinada la cuadrícula del menú para hacerla sutil (`rgba(255, 255, 255, 0.06)`) y añadir segmentos de guías horizontales estáticos y dinámicos que atraviesan los números y se conectan con el texto y la flecha alineados.
+    - Asegurada la alineación de textos multilínea largos (como "Quiénes Somos") mediante la eliminación de `margin-left: auto` y agregando un ancho mínimo de `20px` a `.menu-line-fill` con alineación derecha (`text-align: right`).
 
 ## 📌 Estado Actual
 - Las portadas, páginas de "Quiénes Somos", "Proyectos", "Blog" y "Contacto" están completamente creadas, alineadas en contenidos en ambos layouts, y con sus respectivos banners y recursos integrados.
-- El build estático de Astro compila con éxito (38 páginas generadas estáticamente, incluyendo el `sitemap-index.xml`).
-- La optimización de imágenes nativa de Astro está activa, lo que garantiza una excelente velocidad de carga y rendimiento de cara al usuario final.
+- El menú de navegación tipo réplica en escritorio cuenta con una animación puzzle pulida, una cuadrícula técnica refinada, y dimensiones reducidas a `300px` de ancho.
+- El build estático de Astro compila con éxito y el servidor de desarrollo local hot-reloadea de forma instantánea.
 
 ## 🚀 Siguientes Pasos
-1. **Configurar automatización por FTP (Opcional):** Configurar GitHub Actions si el cliente decide implementar el flujo automático.
-2. **Puesta en producción / Despliegue de los archivos generados en `/dist`.**
+1. **Verificar Despliegue en Producción:** Subir la build final a Laragon / producción una vez que el cliente apruebe el diseño visual actual.
+2. **Replicar Detalles Adicionales:** Ajustar detalles visuales que el cliente indique en futuras iteraciones.
 
