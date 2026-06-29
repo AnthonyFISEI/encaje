@@ -46,7 +46,7 @@ const base =
 		<div id="ip-container" class="ip-container loading">
 			<div class="ip-header">
 				<p class="ip-logo">
-					<img src={`${base}logo.svg`} alt="ENCAJE" />
+					<img src={`${base}logo.png`} alt="ENCAJE" />
 				</p>
 				<div class="ip-loader">
 					<svg
@@ -82,26 +82,26 @@ const base =
 			<div class="wp-logo-box">
 				<a href={`${base}replica-wp`}>
 					<img
-						src={`${base}logo.svg`}
+						src={`${base}logo.png`}
 						alt="ENCAJE"
 						class="wp-logo-img"
 					/>
 				</a>
 			</div>
 
+			<!-- Menu toggle button -->
+			<button
+				id="wp-menu-toggle"
+				class="wp-open-menu-toggle"
+				aria-label="Toggle Menu"
+			>
+				<span></span>
+				<span></span>
+				<span></span>
+			</button>
+
 			<!-- Sidebar vertical bar -->
 			<div class="wp-sidebar-line">
-				<!-- Menu toggle button -->
-				<button
-					id="wp-menu-toggle"
-					class="wp-open-menu-toggle"
-					aria-label="Toggle Menu"
-				>
-					<span></span>
-					<span></span>
-					<span></span>
-				</button>
-
 				<!-- Social icons list -->
 				<div class="wp-social-line">
 					<ul class="wp-social-list">
@@ -155,7 +155,7 @@ const base =
 
 				<!-- Vertical Copyright -->
 				<div class="wp-copyright-line">
-					<p>© 2025 Encaje</p>
+					<p>© 2026 Encaje</p>
 				</div>
 			</div>
 
@@ -164,27 +164,47 @@ const base =
 				<ul class="wp-navigation-menu-list">
 					<li>
 						<a href={`${base}replica-wp`}>
-							<span><em>Inicio</em></span>
+							<span class="menu-line-fill"></span>
+							<span class="menu-text">Inicio</span>
+							<span class="menu-arrow-box"
+								><i class="fas fa-chevron-down"></i></span
+							>
 						</a>
 					</li>
 					<li>
 						<a href={`${base}replica-wp/proyectos`}>
-							<span><em>Proyectos</em></span>
+							<span class="menu-line-fill"></span>
+							<span class="menu-text">Proyectos</span>
+							<span class="menu-arrow-box"
+								><i class="fas fa-chevron-down"></i></span
+							>
 						</a>
 					</li>
 					<li>
 						<a href={`${base}replica-wp/blog`}>
-							<span><em>Blog</em></span>
+							<span class="menu-line-fill"></span>
+							<span class="menu-text">Blog</span>
+							<span class="menu-arrow-box"
+								><i class="fas fa-chevron-down"></i></span
+							>
 						</a>
 					</li>
 					<li>
 						<a href={`${base}replica-wp/quienes-somos`}>
-							<span><em>Quienes Somos</em></span>
+							<span class="menu-line-fill"></span>
+							<span class="menu-text">Quienes Somos</span>
+							<span class="menu-arrow-box"
+								><i class="fas fa-chevron-down"></i></span
+							>
 						</a>
 					</li>
 					<li>
 						<a href={`${base}replica-wp/contacto`}>
-							<span><em>Contacto</em></span>
+							<span class="menu-line-fill"></span>
+							<span class="menu-text">Contacto</span>
+							<span class="menu-arrow-box"
+								><i class="fas fa-chevron-down"></i></span
+							>
 						</a>
 					</li>
 				</ul>
@@ -216,7 +236,7 @@ const base =
 					<!-- Col 1: Logo -->
 					<div class="wp-footer-col">
 						<img
-							src={`${base}logo.svg`}
+							src={`${base}logo.png`}
 							alt="ENCAJE"
 							class="wp-footer-logo"
 						/>
@@ -399,19 +419,31 @@ const base =
 		position: fixed;
 		top: 0;
 		left: 100px;
-		width: 310px;
+		width: 300px;
 		height: 100px;
-		padding: 30px;
+		padding: 20px 30px;
 		background-color: var(--wp-bg-darker);
-		z-index: 999;
-		transition: all 0.3s ease-in-out;
+		z-index: 1010;
+		transition:
+			left 0.4s cubic-bezier(0.77, 0, 0.175, 1) 0.3s,
+			width 0.4s cubic-bezier(0.77, 0, 0.175, 1) 0.3s;
 		display: flex;
 		align-items: center;
+		justify-content: flex-start;
+	}
+
+	.wp-logo-box.active {
+		left: 0;
+		width: 400px;
+		transition:
+			left 0.4s cubic-bezier(0.77, 0, 0.175, 1) 0s,
+			width 0.4s cubic-bezier(0.77, 0, 0.175, 1) 0s;
 	}
 
 	.wp-logo-img {
 		max-width: 100%;
-		height: 40px;
+		max-height: 80px;
+		height: auto;
 		width: auto;
 		display: block;
 	}
@@ -433,51 +465,68 @@ const base =
 
 	/* Hamburger menu toggle button */
 	.wp-open-menu-toggle {
+		position: fixed;
+		top: 0;
+		left: 0;
 		display: flex;
-		flex-direction: column;
 		justify-content: center;
 		align-items: center;
 		width: 100px;
 		height: 100px;
-		padding: 0;
 		background-color: var(--wp-accent-yellow);
 		border: none;
 		cursor: pointer;
 		outline: none;
-		transition: all 0.3s ease-in-out;
+		z-index: 1020;
+		transition: top 0.4s cubic-bezier(0.77, 0, 0.175, 1) 0.3s;
 	}
 
 	.wp-open-menu-toggle span {
+		position: absolute;
 		display: block;
 		width: 28px;
 		height: 2px;
 		background-color: var(--wp-text-light);
-		margin-bottom: 6px;
-		transition: all 0.3s ease-in-out;
+		transition:
+			transform 0.3s ease-in-out,
+			opacity 0.3s ease-in-out,
+			width 0.3s ease-in-out;
 	}
 
-	.wp-open-menu-toggle span:last-child {
-		width: 17px;
-		margin-bottom: 0;
+	.wp-open-menu-toggle span:nth-child(1) {
+		transform: translateY(-8px);
+	}
+
+	.wp-open-menu-toggle span:nth-child(2) {
+		transform: translateY(0);
+	}
+
+	.wp-open-menu-toggle span:nth-child(3) {
+		transform: translateY(8px);
+		width: 18px;
 	}
 
 	/* Hamburger Menu Active state animations */
 	.wp-open-menu-toggle.active {
-		background-color: var(--wp-bg-darker);
+		top: 100px;
+		transition: top 0.4s cubic-bezier(0.77, 0, 0.175, 1) 0s;
+	}
+
+	.wp-open-menu-toggle.active span {
+		width: 28px;
 	}
 
 	.wp-open-menu-toggle.active span:nth-child(1) {
-		transform: rotate(45deg) translate(6px, 5px);
-		width: 28px;
+		transform: translateY(0) rotate(45deg);
 	}
 
 	.wp-open-menu-toggle.active span:nth-child(2) {
 		opacity: 0;
+		transform: scale(0);
 	}
 
 	.wp-open-menu-toggle.active span:nth-child(3) {
-		transform: rotate(-45deg) translate(6px, -5px);
-		width: 28px;
+		transform: translateY(0) rotate(-45deg);
 	}
 
 	/* Social Media Line in Sidebar */
@@ -557,118 +606,197 @@ const base =
 	/* Navigation Panel (Slides Out) */
 	.wp-nav-menu-box {
 		position: fixed;
-		top: 0;
-		left: -300px;
-		width: 400px;
-		height: 100vh;
-		background-color: var(--wp-bg-panel);
-		padding: 130px 40px 30px; /* Offset top for logo area */
-		text-align: right;
+		top: 100px;
+		left: 100px;
+		width: 300px;
+		height: calc(100vh - 100px);
+		background-color: #5b5b5b;
+		padding: 20px 20px 40px;
+		opacity: 0;
+		pointer-events: none;
+		transform: translateY(-30px);
+		transition:
+			transform 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0s,
+			opacity 0.4s ease 0s;
+		z-index: 995;
 		overflow-y: auto;
-		transition: all 0.3s ease-in-out;
-		z-index: 998;
+		display: flex !important;
+		flex-direction: column !important;
+		align-items: center !important;
+		justify-content: flex-start !important;
 	}
 
 	.wp-nav-menu-box.active {
-		left: 100px;
-	}
-
-	.wp-logo-box.active {
-		left: 100px;
+		opacity: 1;
+		pointer-events: auto;
+		transform: translateY(0);
+		transition:
+			transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.3s,
+			opacity 0.5s ease 0.3s;
 	}
 
 	.wp-navigation-menu-list {
+		position: relative;
 		list-style: none;
-		border-left: 1px solid #868686;
-		border-right: 1px solid #868686;
+		padding: 10px 0;
+		margin: 0 auto !important;
+		width: 100%;
+		max-width: 260px;
 		counter-reset: menu-counter;
 	}
 
+	/* Left vertical grid line */
+	.wp-navigation-menu-list::before {
+		content: "";
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 50px;
+		width: 1px;
+		background-color: rgba(255, 255, 255, 0.06);
+		z-index: 1;
+	}
+
+	/* Right vertical grid line */
+	.wp-navigation-menu-list::after {
+		content: "";
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		right: 35px;
+		width: 1px;
+		background-color: rgba(255, 255, 255, 0.06);
+		z-index: 1;
+	}
+
 	.wp-navigation-menu-list > li {
-		border-bottom: 1px solid #868686;
 		position: relative;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+		height: 90px;
+		display: flex;
+		align-items: center;
 		counter-increment: menu-counter;
 	}
 
 	.wp-navigation-menu-list > li:first-child {
-		border-top: 1px solid #868686;
+		border-top: 1px solid rgba(255, 255, 255, 0.06);
 	}
 
-	/* Number prefix (e.g. 01, 02) */
-	.wp-navigation-menu-list > li::before {
-		content: "0" counter(menu-counter);
-		position: absolute;
-		top: 38px;
-		left: 30px;
-		font-weight: bold;
-		color: rgba(255, 255, 255, 0.1);
-		font-size: 20px;
-		font-family: "Montserrat", sans-serif;
-		transition: all 0.2s ease-in-out;
-	}
-
-	.wp-navigation-menu-list > li:hover::before {
-		left: 42px;
-		color: var(--wp-text-light);
-	}
-
-	/* Horizontal dash decorator */
+	/* Leftmost static horizontal grid line segment */
 	.wp-navigation-menu-list > li::after {
 		content: "";
 		position: absolute;
-		width: 20px;
+		left: 0;
+		width: 50px;
 		height: 1px;
-		top: 47px;
-		left: 10px;
-		background-color: #868686;
-		transition: all 0.2s ease-in-out;
-	}
-
-	.wp-navigation-menu-list > li:hover::after {
-		width: 32px;
-	}
-
-	.wp-navigation-menu-list > li > a {
-		display: block;
-		padding: 36px 25px;
-		color: var(--wp-text-light);
-		font-size: 16px;
-		font-weight: 700;
-		letter-spacing: 1.5px;
-		text-transform: uppercase;
-		text-decoration: none;
-		font-family: "Montserrat", sans-serif;
-		transition: all 0.2s ease-in-out;
-	}
-
-	.wp-navigation-menu-list > li > a span em {
-		font-style: normal;
-		position: relative;
-		z-index: 2;
-	}
-
-	.wp-navigation-menu-list > li > a span {
-		display: inline-block;
-		position: relative;
-	}
-
-	/* Underline/slash animations on hover */
-	.wp-navigation-menu-list > li > a span::after {
-		content: "";
-		position: absolute;
-		height: 10px;
-		bottom: 0px;
-		left: 100%;
-		right: -56px;
-		margin-left: 56px;
-		background-color: var(--wp-accent-yellow);
-		transition: all 0.3s ease-in-out;
+		background-color: rgba(255, 255, 255, 0.06);
+		top: 50%;
+		transform: translateY(-50%);
 		z-index: 1;
 	}
 
-	.wp-navigation-menu-list > li > a:hover span::after {
-		margin-left: 0;
-		left: -20px;
+	/* Number prefix style */
+	.wp-navigation-menu-list > li::before {
+		content: "0" counter(menu-counter);
+		position: absolute;
+		left: 10px;
+		font-size: 16px;
+		font-weight: 700;
+		color: rgba(255, 255, 255, 0.15);
+		font-family: "Montserrat", sans-serif;
+		background-color: #5b5b5b;
+		padding: 0 6px;
+		z-index: 2;
+		transition: all 0.3s ease;
+	}
+
+	.wp-navigation-menu-list > li:hover::before {
+		color: var(--wp-accent-yellow);
+	}
+
+	/* Link container */
+	.wp-navigation-menu-list > li > a {
+		display: flex;
+		align-items: center;
+		width: 100%;
+		height: 100%;
+		padding-left: 50px;
+		padding-right: 0;
+		color: var(--wp-text-light);
+		text-decoration: none;
+		font-family: "Montserrat", sans-serif;
+		position: relative;
+	}
+
+	/* Rightmost static horizontal grid line segment */
+	.wp-navigation-menu-list > li > a::after {
+		content: "";
+		position: absolute;
+		right: 0;
+		width: 55px;
+		height: 1px;
+		background-color: rgba(255, 255, 255, 0.06);
+		top: 50%;
+		transform: translateY(-50%);
+		z-index: 1;
+	}
+
+	/* Dynamic horizontal line fill */
+	.menu-line-fill {
+		flex-grow: 1;
+		min-width: 20px;
+		height: 1px;
+		background-color: rgba(255, 255, 255, 0.06);
+		margin-right: 15px;
+		z-index: 1;
+		transition: all 0.3s ease;
+	}
+
+	.wp-navigation-menu-list > li:hover .menu-line-fill {
+		background-color: var(--wp-accent-yellow);
+	}
+
+	/* Text label */
+	.menu-text {
+		font-size: 15px;
+		font-weight: 700;
+		letter-spacing: 1.5px;
+		text-transform: uppercase;
+		background-color: #5b5b5b;
+		padding: 0 10px;
+		z-index: 2;
+		margin-right: 55px;
+		text-align: right;
+		line-height: 1.2;
+		transition: all 0.3s ease;
+	}
+
+	.wp-navigation-menu-list > li:hover .menu-text {
+		color: var(--wp-accent-yellow);
+	}
+
+	/* Arrow Box */
+	.menu-arrow-box {
+		position: absolute;
+		right: 23px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 24px;
+		height: 24px;
+		border: 1px solid rgba(255, 255, 255, 0.12);
+		color: rgba(255, 255, 255, 0.6);
+		font-size: 10px;
+		background-color: #5b5b5b;
+		z-index: 3;
+		margin: 0;
+		transition: all 0.3s ease;
+	}
+
+	.wp-navigation-menu-list > li:hover .menu-arrow-box {
+		border-color: var(--wp-accent-yellow);
+		color: var(--wp-accent-yellow);
+		transform: translateY(2px);
 	}
 
 	/* Main Content Container Offset */
@@ -686,10 +814,12 @@ const base =
 			height: 80px;
 			justify-content: flex-end;
 			padding-right: 120px;
+			z-index: 1010;
 		}
 
 		.wp-logo-box.active {
 			left: 0;
+			width: 100%;
 		}
 
 		.wp-sidebar-line {
@@ -700,11 +830,23 @@ const base =
 			background: transparent;
 			flex-direction: row;
 			justify-content: flex-end;
+			z-index: 1000;
 		}
 
 		.wp-open-menu-toggle {
+			position: fixed;
+			top: 0;
+			right: 0;
+			left: auto;
 			width: 80px;
 			height: 80px;
+			z-index: 1020;
+			transition: none;
+		}
+
+		.wp-open-menu-toggle.active {
+			top: 0;
+			transition: none;
 		}
 
 		.wp-social-line,
@@ -718,10 +860,48 @@ const base =
 			top: 80px;
 			height: calc(100vh - 80px);
 			padding: 40px 20px;
+			opacity: 1;
+			pointer-events: auto;
+			transform: none;
+			transition: all 0.3s ease-in-out;
+			z-index: 998;
+			display: block;
 		}
 
 		.wp-nav-menu-box.active {
 			left: 0;
+			transform: none;
+			transition: all 0.3s ease-in-out;
+		}
+
+		.wp-navigation-menu-list {
+			max-width: 100%;
+			padding: 0;
+		}
+
+		.wp-navigation-menu-list::before,
+		.wp-navigation-menu-list::after {
+			display: none;
+		}
+
+		.wp-navigation-menu-list > li {
+			height: auto;
+			border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+		}
+
+		.wp-navigation-menu-list > li::before {
+			position: relative;
+			left: 0;
+			margin-right: 15px;
+		}
+
+		.wp-navigation-menu-list > li > a {
+			padding: 20px 0;
+			justify-content: space-between;
+		}
+
+		.menu-line-fill {
+			display: none;
 		}
 
 		.wp-content-container {
