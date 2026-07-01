@@ -1,5 +1,6 @@
 ---
 import LayoutWpReplica from '../../layouts/LayoutWpReplica.astro';
+import WpSlider from '../../components/WpSlider.astro';
 
 const base = import.meta.env.BASE_URL === '/' ? '/' : `${import.meta.env.BASE_URL}/`;
 const BACKEND_URL = import.meta.env.WORDPRESS_API_URL || "http://encaje-wp.test";
@@ -31,26 +32,32 @@ const getFeaturedImage = (project) => {
   const media = project?._embedded?.['wp:featuredmedia']?.[0];
   return media?.source_url || '/placeholder.jpg';
 };
+
+// Helper to get actual project category from embedded terms
+const getProjectCategory = (project) => {
+  const terms = project?._embedded?.['wp:term'];
+  if (terms && Array.isArray(terms)) {
+    for (const taxTerms of terms) {
+      if (Array.isArray(taxTerms)) {
+        const found = taxTerms.find(term => term.taxonomy === 'Project Category' || term.taxonomy === 'project-category' || term.taxonomy === 'project_category');
+        if (found) {
+          return found.name;
+        }
+      }
+    }
+  }
+  
+  if (project.slug === 'edificio-t5') return 'Edificios';
+  if (project.slug === 'mama-miche') return 'Comercial & Retail';
+  if (project.slug === 'casadb') return 'Hogar y Vivienda';
+  
+  return 'Hogar y Vivienda';
+};
 ---
 
 <LayoutWpReplica title="Encaje - Soluciones Constructivas (Réplica WordPress)" errorMsg={errorMsg}>
   <!-- Hero Section -->
-  <section class="wp-hero-section" style={`background-image: url('${BACKEND_URL}/wp-content/uploads/2025/02/01-SECCION-BANNER-1-min.jpg');`}>
-    <div class="wp-hero-overlay"></div>
-    <div class="wp-hero-container">
-      <span class="wp-hero-num">1<span class="wp-hero-num-total">/ 3</span></span>
-      <h1 class="wp-hero-title">Soluciones<br />constructivas</h1>
-      <div class="wp-hero-link-box">
-        <a href={`${base}replica-wp/proyectos`} class="wp-hero-link">TODOS LOS PROYECTOS</a>
-      </div>
-    </div>
-
-    <!-- Siguiente slider indicator vertically on the right edge -->
-    <div class="wp-hero-next-control">
-      <span>SIGUIENTE</span>
-      <span class="wp-next-line"></span>
-    </div>
-  </section>
+  <WpSlider location="home" />
 
   <!-- Projects Carousel Preview Section -->
   <section class="wp-carousel-section">
@@ -71,7 +78,7 @@ const getFeaturedImage = (project) => {
                     <img src={imgUrl} alt={project.title.rendered} />
                   </div>
                   <div class="wp-card-info">
-                    <span class="wp-card-category">Hogar y Vivienda</span>
+                    <span class="wp-card-category">{getProjectCategory(project)}</span>
                     <h3 class="wp-card-title" set:html={project.title.rendered}></h3>
                   </div>
                 </a>
@@ -172,7 +179,7 @@ const getFeaturedImage = (project) => {
       <div class="wp-gallery-grid">
         {galleryProjects.map((project) => {
           const imgUrl = getFeaturedImage(project);
-          const category = project.slug === 'edificio-t5' ? 'Edificios' : (project.slug === 'mama-miche' ? 'Comercial & Retail' : 'Hogar y Vivienda');
+          const category = getProjectCategory(project);
           return (
             <div class="wp-gallery-card">
               <a href={`${base}replica-wp/proyectos/${project.slug}`} class="wp-gallery-link">
@@ -279,126 +286,6 @@ const getFeaturedImage = (project) => {
 </LayoutWpReplica>
 
 <style>
-  /* Hero Section styles */
-  .wp-hero-section {
-    position: relative;
-    height: calc(100vh - 100px);
-    min-height: 500px;
-    background-size: cover;
-    background-position: center;
-    display: flex;
-    align-items: center;
-    padding: 0 80px;
-    overflow: hidden;
-  }
-
-  .wp-hero-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.4);
-    z-index: 1;
-  }
-
-  .wp-hero-container {
-    position: relative;
-    z-index: 2;
-    max-width: 1000px;
-    width: 100%;
-    margin: 0 auto;
-  }
-
-  .wp-hero-num {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--wp-text-light);
-    display: block;
-    margin-bottom: 25px;
-    font-family: "Montserrat", sans-serif;
-  }
-
-  .wp-hero-num-total {
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.4);
-    font-weight: 500;
-    margin-left: 4px;
-    vertical-align: super;
-  }
-
-  /* Vertical NEXT button indicator on the right edge */
-  .wp-hero-next-control {
-    position: absolute;
-    right: 40px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-    z-index: 5;
-  }
-
-  .wp-hero-next-control span {
-    writing-mode: vertical-rl;
-    text-transform: uppercase;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    color: rgba(255, 255, 255, 0.6);
-    font-family: "Montserrat", sans-serif;
-  }
-
-  .wp-next-line {
-    width: 1px;
-    height: 60px;
-    background-color: rgba(255, 255, 255, 0.3);
-  }
-
-  .wp-hero-title {
-    font-size: 80px;
-    font-weight: 800;
-    color: var(--wp-text-light);
-    line-height: 1.1;
-    text-transform: uppercase;
-    font-family: "Montserrat", sans-serif;
-    margin-bottom: 40px;
-    letter-spacing: -1px;
-  }
-
-  .wp-hero-link-box {
-    display: inline-block;
-  }
-
-  .wp-hero-link {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--wp-text-light);
-    text-decoration: none;
-    letter-spacing: 2px;
-    font-family: "Montserrat", sans-serif;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--wp-text-light);
-    transition: color 0.2s, border-color 0.2s;
-  }
-
-  .wp-hero-link:hover {
-    color: var(--wp-accent-gold);
-    border-color: var(--wp-accent-gold);
-  }
-
-  @media (max-width: 1023px) {
-    .wp-hero-section {
-      height: 60vh;
-      padding: 0 40px;
-    }
-
-    .wp-hero-title {
-      font-size: 50px;
-    }
-  }
-
   /* Carousel Section (JCJ, Jama, Casa DB) */
   .wp-carousel-section {
     padding: 0;

@@ -1,0 +1,525 @@
+---
+let { location = "home" } = Astro.props;
+
+const base = import.meta.env.BASE_URL === '/' ? '/' : `${import.meta.env.BASE_URL}/`;
+const BACKEND_URL = import.meta.env.WORDPRESS_API_URL || "http://encaje-wp.test";
+
+const defaultSlides = [
+  {
+    title: "Soluciones<br />constructivas",
+    content: "Proyectamos y construimos con rigurosa planificación y el mejor equipo técnico.",
+    image: "https://encaje.ec/wp-content/uploads/2025/02/01-SECCION-BANNER-1-min.jpg",
+    link: `${base}replica-wp/proyectos`,
+    button_text: "TODOS LOS PROYECTOS"
+  },
+  {
+    title: "Diseño &<br />Arquitectura",
+    content: "Conceptos innovadores que desafían los estándares y optimizan cada metro cuadrado.",
+    image: "https://encaje.ec/wp-content/uploads/2025/02/BANNER_PROYECTOS.jpg",
+    link: `${base}replica-wp/quienes-somos`,
+    button_text: "CONÓCENOS"
+  },
+  {
+    title: "Compromiso &<br />Honestidad",
+    content: "Soluciones de alta ingeniería civil con estructuras sismorresistentes y duraderas.",
+    image: "https://encaje.ec/wp-content/uploads/2025/02/CIERRE_BANER_QUIENESSOMOS.jpg",
+    link: `${base}replica-wp/contacto`,
+    button_text: "CONTÁCTANOS"
+  }
+];
+
+let slides = [];
+let hasWpSliders = false;
+
+try {
+  // 1. Fetch location term by slug
+  const termRes = await fetch(`${BACKEND_URL}/wp-json/wp/v2/slider-locations?slug=${location}`);
+  if (termRes.ok) {
+    const terms = await termRes.json();
+    if (terms && terms.length > 0) {
+      const termId = terms[0].id;
+      // 2. Fetch sliders assigned to this location ID, ordered by menu_order
+      const slidersRes = await fetch(`${BACKEND_URL}/wp-json/wp/v2/sliders?slider-locations=${termId}&orderby=menu_order&order=asc&_embed`);
+      if (slidersRes.ok) {
+        const wpSliders = await slidersRes.json();
+        if (wpSliders && wpSliders.length > 0) {
+          slides = wpSliders.map(s => {
+            const media = s?._embedded?.['wp:featuredmedia']?.[0];
+            const imageUrl = media?.source_url || '/placeholder.jpg';
+            return {
+              title: s.title?.rendered || '',
+              content: s.content?.rendered ? s.content.rendered.replace(/<[^>]*>/g, '') : '', 
+              image: imageUrl,
+              link: s.slider_link || '#',
+              button_text: s.slider_button_text || 'VER MÁS'
+            };
+          });
+          hasWpSliders = true;
+        }
+      }
+    }
+  }
+} catch (e) {
+  console.warn(`Could not load slider for location "${location}":`, e.message);
+}
+
+// Fallback logic if there are no sliders configured in WordPress
+let isStaticHeader = false;
+let staticHeaderData = null;
+
+if (!hasWpSliders) {
+  if (location === "home") {
+    slides = defaultSlides;
+  } else if (location === "contacto") {
+    isStaticHeader = true;
+    staticHeaderData = {
+      image: "https://encaje.ec/wp-content/uploads/2025/02/BANNER_CONTACTO.jpg",
+      titleSvg: "https://encaje.ec/wp-content/uploads/2025/02/Contacto.svg",
+      titleText: "Contacto",
+      breadcrumbs: [
+        { name: "Inicio", url: `${base}replica-wp` },
+        { name: "Contacto", url: null }
+      ]
+    };
+  } else if (location === "quienes-somos") {
+    isStaticHeader = true;
+    staticHeaderData = {
+      image: "https://encaje.ec/wp-content/uploads/2025/02/BANNER_QUIENES_SOMOS.jpg",
+      titleSvg: "https://encaje.ec/wp-content/uploads/2025/02/QUIENES_SOMOS.svg",
+      titleText: "Quienes Somos",
+      breadcrumbs: [
+        { name: "Inicio", url: `${base}replica-wp` },
+        { name: "Quienes Somos", url: null }
+      ]
+    };
+  } else {
+    // Default generic static header for any other pages
+    isStaticHeader = true;
+    const readableTitle = location.charAt(0).toUpperCase() + location.slice(1).replace('-', ' ');
+    staticHeaderData = {
+      image: "https://encaje.ec/wp-content/uploads/2025/02/BANNER_PROYECTOS.jpg",
+      titleSvg: null,
+      titleText: readableTitle,
+      breadcrumbs: [
+        { name: "Inicio", url: `${base}replica-wp` },
+        { name: readableTitle, url: null }
+      ]
+    };
+  }
+}
+---
+
+{isStaticHeader ? (
+  <section class="wp-page-banner" style={`background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('${staticHeaderData.image}');`}>
+    <div class="wp-banner-container">
+      <div class="wp-banner-content">
+        {staticHeaderData.titleSvg ? (
+          <img src={staticHeaderData.titleSvg} alt={staticHeaderData.titleText} class="wp-banner-svg-title" />
+        ) : (
+          <h1 class="wp-banner-text-title">{staticHeaderData.titleText}</h1>
+        )}
+        <ul class="wp-breadcrumbs">
+          {staticHeaderData.breadcrumbs.map((crumb, idx) => (
+            <>
+              {idx > 0 && <li><span>/</span></li>}
+              {crumb.url ? (
+                <li><a href={crumb.url}>{crumb.name}</a></li>
+              ) : (
+                <li class="active">{crumb.name}</li>
+              )}
+            </>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+) : (
+  <section class="wp-hero-slider" id="wp-hero-slider">
+    <div class="wp-slides-container">
+      {slides.map((slide, index) => (
+        <div 
+          class={`wp-slide ${index === 0 ? 'active' : ''}`} 
+          data-index={index} 
+          style={`background-image: linear-gradient(rgba(0,0,0,0.15), rgba(0,0,0,0.35)), url('${slide.image}');`}
+        >
+          <div class="wp-hero-overlay"></div>
+          <div class="wp-hero-container">
+            <span class="wp-hero-num">{index + 1}<span class="wp-hero-num-total">/ {slides.length}</span></span>
+            <h1 class="wp-hero-title" set:html={slide.title}></h1>
+            {slide.content && <p class="wp-hero-desc" set:html={slide.content}></p>}
+            <div class="wp-hero-link-box">
+              <a href={slide.link} class="wp-hero-link">{slide.button_text}</a>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- Siguiente slider indicator vertically on the right edge -->
+    {slides.length > 1 && (
+      <div class="wp-hero-next-control" id="wp-slider-next-btn" style="cursor: pointer;">
+        <span>SIGUIENTE</span>
+        <span class="wp-next-line"></span>
+      </div>
+    )}
+  </section>
+)}
+
+<script is:inline>
+  // Slider interactive logic
+  (function() {
+    const initSlider = () => {
+      const slider = document.getElementById("wp-hero-slider");
+      if (!slider) return;
+
+      const slides = slider.querySelectorAll(".wp-slide");
+      const nextBtn = document.getElementById("wp-slider-next-btn");
+      if (slides.length <= 1) return;
+
+      let currentIdx = 0;
+      const slideCount = slides.length;
+      let autoplayInterval;
+
+      const showSlide = (idx) => {
+        slides.forEach((slide, i) => {
+          if (i === idx) {
+            slide.classList.add("active");
+          } else {
+            slide.classList.remove("active");
+          }
+        });
+        currentIdx = idx;
+      };
+
+      const nextSlide = () => {
+        const nextIdx = (currentIdx + 1) % slideCount;
+        showSlide(nextIdx);
+      };
+
+      if (nextBtn) {
+        // Clone button to remove previous event listeners (useful for hot-reloading/navigation)
+        const newNextBtn = nextBtn.cloneNode(true);
+        nextBtn.parentNode.replaceChild(newNextBtn, nextBtn);
+        
+        newNextBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          nextSlide();
+          resetAutoplay();
+        });
+      }
+
+      const startAutoplay = () => {
+        autoplayInterval = setInterval(nextSlide, 6500);
+      };
+
+      const resetAutoplay = () => {
+        clearInterval(autoplayInterval);
+        startAutoplay();
+      };
+
+      startAutoplay();
+    };
+
+    // Initialize on page load and support Astro View Transitions
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initSlider);
+    } else {
+      initSlider();
+    }
+    document.addEventListener('astro:page-load', initSlider);
+  })();
+</script>
+
+<style>
+  .wp-hero-slider {
+    position: relative;
+    height: calc(100vh - 100px);
+    min-height: 550px;
+    width: 100%;
+    overflow: hidden;
+    background-color: #242424;
+  }
+
+  .wp-slides-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .wp-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+    padding: 0 80px;
+    opacity: 0;
+    visibility: hidden;
+    z-index: 1;
+    transition: opacity 1.2s cubic-bezier(0.25, 1, 0.5, 1), visibility 1.2s;
+  }
+
+  .wp-slide.active {
+    opacity: 1;
+    visibility: visible;
+    z-index: 2;
+  }
+
+  .wp-hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.2);
+    z-index: 1;
+  }
+
+  .wp-hero-container {
+    position: relative;
+    z-index: 3;
+    max-width: 1000px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .wp-hero-num {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--wp-text-light);
+    display: block;
+    margin-bottom: 25px;
+    font-family: "Montserrat", sans-serif;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s;
+    transition-delay: 0.2s;
+  }
+
+  .wp-slide.active .wp-hero-num {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .wp-hero-num-total {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.4);
+    font-weight: 500;
+    margin-left: 4px;
+    vertical-align: super;
+  }
+
+  .wp-hero-title {
+    font-size: 80px;
+    font-weight: 800;
+    color: var(--wp-text-light);
+    line-height: 1.1;
+    text-transform: uppercase;
+    font-family: "Montserrat", sans-serif;
+    margin-bottom: 15px;
+    letter-spacing: -1px;
+    transform: translateY(40px);
+    opacity: 0;
+    transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.9s;
+    transition-delay: 0.4s;
+  }
+
+  .wp-slide.active .wp-hero-title {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .wp-hero-desc {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.8);
+    font-family: "Montserrat", sans-serif;
+    font-weight: 300;
+    line-height: 1.6;
+    max-width: 600px;
+    margin-bottom: 40px;
+    transform: translateY(30px);
+    opacity: 0;
+    transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.9s;
+    transition-delay: 0.6s;
+  }
+
+  .wp-slide.active .wp-hero-desc {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .wp-hero-link-box {
+    display: inline-block;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s;
+    transition-delay: 0.8s;
+  }
+
+  .wp-slide.active .wp-hero-link-box {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .wp-hero-link {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--wp-text-light);
+    text-decoration: none;
+    letter-spacing: 2px;
+    font-family: "Montserrat", sans-serif;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--wp-text-light);
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  .wp-hero-link:hover {
+    color: var(--wp-accent-gold);
+    border-color: var(--wp-accent-gold);
+  }
+
+  /* Vertical NEXT button indicator on the right edge */
+  .wp-hero-next-control {
+    position: absolute;
+    right: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    z-index: 10;
+  }
+
+  .wp-hero-next-control span {
+    writing-mode: vertical-rl;
+    text-transform: uppercase;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: rgba(255, 255, 255, 0.6);
+    font-family: "Montserrat", sans-serif;
+    transition: color 0.2s;
+  }
+
+  .wp-hero-next-control:hover span {
+    color: var(--wp-accent-gold);
+  }
+
+  .wp-next-line {
+    width: 1px;
+    height: 60px;
+    background-color: rgba(255, 255, 255, 0.3);
+    transition: background-color 0.2s;
+  }
+
+  .wp-hero-next-control:hover .wp-next-line {
+    background-color: var(--wp-accent-gold);
+  }
+
+  /* Static Page Banner fallback styling */
+  .wp-page-banner {
+    padding: 180px 0 100px;
+    background-size: cover;
+    background-position: center;
+    border-bottom: 1px solid #3d3d3d;
+    position: relative;
+    text-align: center;
+    width: 100%;
+  }
+
+  .wp-banner-container {
+    max-width: 1170px;
+    margin: 0 auto;
+    padding: 0 30px;
+  }
+
+  .wp-banner-svg-title {
+    max-width: 500px;
+    width: 100%;
+    height: auto;
+    margin-bottom: 25px;
+    display: inline-block;
+  }
+
+  .wp-banner-text-title {
+    font-size: 48px;
+    font-weight: 800;
+    color: var(--wp-text-light);
+    text-transform: uppercase;
+    font-family: "Montserrat", sans-serif;
+    margin-bottom: 25px;
+    letter-spacing: 1px;
+  }
+
+  .wp-breadcrumbs {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.4);
+    margin-top: 15px;
+    padding: 0;
+  }
+
+  .wp-breadcrumbs a {
+    color: rgba(255, 255, 255, 0.4);
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .wp-breadcrumbs a:hover {
+    color: var(--wp-accent-gold);
+  }
+
+  .wp-breadcrumbs li.active {
+    color: var(--wp-text-light);
+  }
+
+  .wp-breadcrumbs li span {
+    color: rgba(255, 255, 255, 0.3);
+  }
+
+  @media (max-width: 1023px) {
+    .wp-hero-slider {
+      height: 60vh;
+    }
+    
+    .wp-slide {
+      padding: 0 40px;
+    }
+
+    .wp-hero-title {
+      font-size: 50px;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .wp-hero-slider {
+      height: 80vh;
+      min-height: 480px;
+    }
+
+    .wp-hero-title {
+      font-size: 38px;
+    }
+
+    .wp-hero-next-control {
+      right: 20px;
+    }
+
+    .wp-page-banner {
+      padding: 120px 0 60px;
+    }
+    
+    .wp-banner-text-title {
+      font-size: 32px;
+    }
+  }
+</style>

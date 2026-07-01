@@ -64,3 +64,24 @@
 1. **Verificar Despliegue en Producción:** Subir la build final a Laragon / producción una vez que el cliente apruebe el diseño visual actual.
 2. **Replicar Detalles Adicionales:** Ajustar detalles visuales que el cliente indique en futuras iteraciones.
 
+## 📝 Actualización Reciente (30 de Junio de 2026)
+20. **Registro e Integración de Sliders Dinámicos (CPT):**
+    - Registrado Custom Post Type `slider` y taxonomía `slider-location` en el backend (`enable-rest-api.php`).
+    - Configurado soporte para títulos, editor, orden de página (`menu_order`), enlaces personalizados (`slider_link`) y texto del botón (`slider_button_text`) expuestos a la REST API de WordPress.
+21. **Desarrollo de Componente `<WpSlider />` en Astro:**
+    - Creado componente interactivo con transición de desvanecimiento suave (fade) y entrada escalonada (staggered delay) de elementos de texto/botones.
+    - Implementadas transiciones automáticas por intervalos (6.5s) y control manual ("SIGUIENTE") con reinicio de temporizador.
+    - Configurado fallback condicional para ocultar el botón "SIGUIENTE" cuando solo hay 1 slider.
+    - Implementado fallback de cabecera estática automática por página (e.g. Contacto, Quiénes Somos) cuando no hay banners asignados en WordPress para evitar sliders vacíos.
+22. **Integración en Páginas del Sitio:**
+    - Integrado `<WpSlider location="home" />` en la portada.
+    - Integrado `<WpSlider location="contacto" />` en la página de Contacto.
+    - Integrado `<WpSlider location="quienes-somos" />` en la página de Quiénes Somos.
+23. **Botón Flotante de WhatsApp:**
+    - Diseñado e implementado botón flotante de WhatsApp en `Layout.astro` y `LayoutWpReplica.astro` con efectos de pulso radial, transiciones e interactividad por tooltip usando la URL oficial del cliente.
+24. **Alineación de Estilos de Tarjetas en Quiénes Somos:**
+    - Ajustadas las dimensiones, efectos de sombra, filtros de escala de grises y transiciones hover de las tarjetas de la sección "Quiénes Somos" para igualarse exactamente a la página de inicio.
+    - Eliminado el contenedor intermedio en la cuadrícula para permitir el auto-estiramiento nativo por CSS Grid.
+25. **Categorías de Proyecto Dinámicas:**
+    - Corregida la extracción de términos de taxonomía en `index.astro` y `replica-wp/index.astro` para renderizar el nombre de categoría dinámico real provisto por WordPress (desde `_embedded['wp:term']`) en lugar de textos fijos.
+

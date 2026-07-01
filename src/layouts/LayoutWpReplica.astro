@@ -362,6 +362,20 @@ const base =
 				}
 			});
 		</script>
+
+		<!-- Floating WhatsApp Button -->
+		<a
+			href="https://api.whatsapp.com/send?phone=593983116325&text=Saludos%20Encaje%2C%20estoy%20visitando%20su%20web%20y%20requiero%20informaci%C3%B3n%20de%20sus%20servicios.%20"
+			class="wp-whatsapp-float"
+			target="_blank"
+			rel="noopener noreferrer"
+			aria-label="Contactar por WhatsApp"
+		>
+			<span class="wp-whatsapp-tooltip">Contáctanos</span>
+			<div class="wp-whatsapp-ripple"></div>
+			<!-- FontAwesome is loaded in LayoutWpReplica.astro, so we can use its standard icon -->
+			<i class="fab fa-whatsapp"></i>
+		</a>
 	</body>
 </html>
 
@@ -1143,6 +1157,111 @@ const base =
 		}
 		to {
 			transform: translateY(0);
+		}
+	}
+
+	/* Floating WhatsApp Button */
+	.wp-whatsapp-float {
+		position: fixed;
+		bottom: 30px;
+		right: 30px;
+		width: 60px;
+		height: 60px;
+		background-color: #25d366;
+		color: #ffffff;
+		border-radius: 50%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		font-size: 32px;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+		z-index: 9999;
+		transition: all 0.3s ease;
+		text-decoration: none;
+	}
+
+	.wp-whatsapp-float:hover {
+		transform: scale(1.1);
+		background-color: #128c7e;
+		box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+		color: #ffffff;
+	}
+
+	.wp-whatsapp-float i {
+		line-height: 1;
+		margin-top: -1px;
+		display: block;
+	}
+
+	/* Pulsating Ripple Effect */
+	.wp-whatsapp-ripple {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		background-color: #25d366;
+		border-radius: 50%;
+		z-index: -1;
+		animation: wp-pulse 2s infinite;
+		opacity: 0.4;
+	}
+
+	@keyframes wp-pulse {
+		0% {
+			transform: scale(1);
+			opacity: 0.4;
+		}
+		100% {
+			transform: scale(1.6);
+			opacity: 0;
+		}
+	}
+
+	/* Tooltip */
+	.wp-whatsapp-tooltip {
+		position: absolute;
+		right: 80px;
+		background-color: #333333;
+		color: #ffffff;
+		padding: 8px 14px;
+		border-radius: 6px;
+		font-family: "Montserrat", sans-serif;
+		font-size: 13px;
+		font-weight: 600;
+		white-space: nowrap;
+		opacity: 0;
+		visibility: hidden;
+		transition: opacity 0.3s ease, transform 0.3s ease;
+		transform: translateX(10px);
+		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+	}
+
+	.wp-whatsapp-tooltip::after {
+		content: '';
+		position: absolute;
+		right: -6px;
+		top: 50%;
+		transform: translateY(-50%);
+		border-width: 6px 0 6px 6px;
+		border-style: solid;
+		border-color: transparent transparent transparent #333333;
+	}
+
+	.wp-whatsapp-float:hover .wp-whatsapp-tooltip {
+		opacity: 1;
+		visibility: visible;
+		transform: translateX(0);
+	}
+
+	@media (max-width: 767px) {
+		.wp-whatsapp-float {
+			bottom: 20px;
+			right: 20px;
+			width: 50px;
+			height: 50px;
+			font-size: 26px;
+		}
+		.wp-whatsapp-tooltip {
+			display: none;
 		}
 	}
 </style>

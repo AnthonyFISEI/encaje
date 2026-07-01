@@ -1,5 +1,6 @@
 ---
 import LayoutWpReplica from '../../layouts/LayoutWpReplica.astro';
+import WpSlider from '../../components/WpSlider.astro';
 
 const base = import.meta.env.BASE_URL === '/' ? '/' : `${import.meta.env.BASE_URL}/`;
 ---
@@ -7,18 +8,7 @@ const base = import.meta.env.BASE_URL === '/' ? '/' : `${import.meta.env.BASE_UR
 <LayoutWpReplica title="Contacto - Encaje (Réplica WordPress)">
   <main class="wp-contacto-page">
     <!-- Page Banner -->
-    <section class="wp-page-banner" style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://encaje.ec/wp-content/uploads/2025/02/BANNER_CONTACTO.jpg');">
-      <div class="wp-banner-container">
-        <div class="wp-banner-content">
-          <img src="https://encaje.ec/wp-content/uploads/2025/02/Contacto.svg" alt="Contacto" class="wp-banner-svg-title" />
-          <ul class="wp-breadcrumbs">
-            <li><a href={`${base}replica-wp`}>Inicio</a></li>
-            <li><span>/</span></li>
-            <li class="active">Contacto</li>
-          </ul>
-        </div>
-      </div>
-    </section>
+    <WpSlider location="contacto" />
 
     <!-- Contact Info Section -->
     <section class="contact-info-section">

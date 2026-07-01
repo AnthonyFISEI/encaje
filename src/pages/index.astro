@@ -104,6 +104,27 @@ const getFeaturedImage = (project) => {
   return media?.source_url || '/placeholder.jpg';
 };
 
+// Helper to get actual project category from embedded terms
+const getProjectCategory = (project) => {
+  const terms = project?._embedded?.['wp:term'];
+  if (terms && Array.isArray(terms)) {
+    for (const taxTerms of terms) {
+      if (Array.isArray(taxTerms)) {
+        const found = taxTerms.find(term => term.taxonomy === 'Project Category' || term.taxonomy === 'project-category' || term.taxonomy === 'project_category');
+        if (found) {
+          return found.name;
+        }
+      }
+    }
+  }
+  
+  if (project.slug === 'edificio-t5') return 'Edificios';
+  if (project.slug === 'mama-miche') return 'Comercial & Retail';
+  if (project.slug === 'casadb') return 'Hogar y Vivienda';
+  
+  return 'Hogar y Vivienda';
+};
+
 // Structured Data (JSON-LD)
 const schema = {
   "@context": "https://schema.org",
@@ -173,7 +194,7 @@ const schema = {
                 </div>
               </div>
               <div class="card-content">
-                <span class="card-category">Hogar y Vivienda</span>
+                <span class="card-category">{getProjectCategory(project)}</span>
                 <h3 class="card-title" set:html={project.title.rendered}></h3>
                 <a href={`${base}proyectos/${project.slug}`} class="card-link-arrow">
                   <span>Explorar Detalles</span>
@@ -285,7 +306,7 @@ const schema = {
       <div class="gallery-projects-grid">
         {galleryProjects.map((project) => {
           const imgUrl = getFeaturedImage(project);
-          const categoryName = project.slug === 'edificio-t5' ? 'Edificios' : (project.slug === 'mama-miche' ? 'Comercial & Retail' : 'Hogar y Vivienda');
+          const categoryName = getProjectCategory(project);
           return (
             <div class="gallery-project-card">
               <figure class="gallery-figure effect-milo">

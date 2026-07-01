@@ -7,10 +7,11 @@ const base =
 const BACKEND_URL =
   import.meta.env.WORDPRESS_API_URL || "http://encaje-wp.test";
 let projects = [];
+let categories = [];
 let errorMsg = null;
 
 try {
-  const response = await fetch(`${BACKEND_URL}/wp-json/wp/v2/projects?_embed`);
+  const response = await fetch(`${BACKEND_URL}/wp-json/wp/v2/projects?per_page=100&_embed`);
   if (response.ok) {
     projects = await response.json();
   } else {
@@ -18,6 +19,19 @@ try {
   }
 } catch (e) {
   errorMsg = `No se pudo conectar al servidor de WordPress (${BACKEND_URL}). Asegúrate de que esté encendido y accesible.`;
+}
+
+if (projects.length > 0) {
+  try {
+    const catResponse = await fetch(`${BACKEND_URL}/wp-json/wp/v2/project-categories?per_page=100`);
+    if (catResponse.ok) {
+      categories = await catResponse.json();
+    } else {
+      console.warn(`[WordPress API] No se pudieron obtener las categorías del endpoint '/wp-json/wp/v2/project-categories' (Status: ${catResponse.status}).`);
+    }
+  } catch (e) {
+    console.error("[WordPress API] Error al conectar con el endpoint de categorías:", e);
+  }
 }
 ---
 
@@ -46,6 +60,27 @@ try {
     <section class="wp-portfolio-section">
       <div class="wp-container">
         {
+          !errorMsg && categories.length > 0 && (
+            <div class="wp-filter-wrapper">
+              <ul class="wp-filter-menu">
+                <li>
+                  <button class="wp-filter-btn active" data-filter="all">
+                    Mostrar Todos
+                  </button>
+                </li>
+                {categories.map((cat) => (
+                  <li>
+                    <button class="wp-filter-btn" data-filter={cat.slug} data-filter-id={cat.id}>
+                      {cat.name}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )
+        }
+
+        {
           errorMsg ? (
             <div class="wp-error-box">
               <p>{errorMsg}</p>
@@ -55,8 +90,24 @@ try {
               {projects.map((project) => {
                 const media = project._embedded?.["wp:featuredmedia"]?.[0];
                 const imageUrl = media?.source_url || "/placeholder.jpg";
+
+                // Extract category slugs and IDs
+                const projectCats = [];
+                Object.keys(project).forEach(key => {
+                  if (key.toLowerCase().includes('categor') && Array.isArray(project[key])) {
+                    projectCats.push(...project[key]);
+                  }
+                });
+                if (project.class_list) {
+                  project.class_list.forEach(cls => {
+                    if (cls.startsWith('ProjectCategory-')) {
+                      projectCats.push(cls.replace('ProjectCategory-', ''));
+                    }
+                  });
+                }
+
                 return (
-                  <div class="wp-portfolio-post">
+                  <div class="wp-portfolio-post" data-categories={JSON.stringify(projectCats)}>
                     <figure class="wp-portfolio-figure effect-milo">
                       <img
                         src={imageUrl}
@@ -345,5 +396,135 @@ try {
     display: block;
   }
 
+  /* Filter Menu styling */
+  .wp-filter-wrapper {
+    margin-bottom: 50px;
+    display: flex;
+    justify-content: center;
+    background-color: #2b2b2b; /* Slightly lighter dark gray */
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    overflow: hidden;
+  }
 
+  .wp-filter-menu {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+  }
+
+  .wp-filter-menu li {
+    display: flex;
+    flex: 1;
+    min-width: 160px;
+    justify-content: center;
+    align-items: center;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .wp-filter-menu li:last-child {
+    border-right: none;
+  }
+
+  .wp-filter-btn {
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-family: "Montserrat", sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 22px 15px;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transition: all 0.3s ease;
+    letter-spacing: 0.5px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .wp-filter-btn:hover {
+    color: var(--wp-accent-yellow);
+  }
+
+  .wp-filter-btn.active {
+    color: var(--wp-accent-yellow);
+  }
+
+  /* Centered thick short underline under the active button */
+  .wp-filter-btn::after {
+    content: '';
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%) scaleX(0);
+    width: 32px;
+    height: 3px;
+    background-color: var(--wp-accent-yellow);
+    transition: transform 0.3s ease;
+    transform-origin: center;
+  }
+
+  .wp-filter-btn.active::after {
+    transform: translateX(-50%) scaleX(1);
+  }
+
+  /* Card filtering transition styling */
+  .wp-portfolio-post {
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
 </style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const cards = document.querySelectorAll('.wp-portfolio-post') as NodeListOf<HTMLElement>;
+    const buttons = document.querySelectorAll('.wp-filter-btn') as NodeListOf<HTMLButtonElement>;
+
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Toggle active status
+        buttons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const filterVal = btn.getAttribute('data-filter');
+        const filterId = btn.getAttribute('data-filter-id');
+
+        cards.forEach(card => {
+          const categoriesAttr = card.getAttribute('data-categories');
+          if (!categoriesAttr) return;
+
+          const categories = JSON.parse(categoriesAttr);
+          const isMatch = filterVal === 'all' || 
+                          categories.includes(filterVal) || 
+                          categories.includes(Number(filterId)) ||
+                          categories.includes(filterId);
+
+          if (isMatch) {
+            card.style.display = '';
+            // Allow display change to register before playing transitions
+            setTimeout(() => {
+              card.style.opacity = '1';
+              card.style.transform = 'scale(1) translateY(0)';
+            }, 30);
+          } else {
+            card.style.opacity = '0';
+            card.style.transform = 'scale(0.95) translateY(10px)';
+            setTimeout(() => {
+              // Confirm it's still hidden before removing from layout
+              if (card.style.opacity === '0') {
+                card.style.display = 'none';
+              }
+            }, 400);
+          }
+        });
+      });
+    });
+  });
+</script>

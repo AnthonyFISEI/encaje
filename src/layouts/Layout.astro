@@ -77,6 +77,22 @@ const base = import.meta.env.BASE_URL === '/' ? '/' : `${import.meta.env.BASE_UR
 				<p>&copy; {new Date().getFullYear()} ENCAJE. Todos los derechos reservados.</p>
 			</div>
 		</footer>
+
+		<!-- Floating WhatsApp Button -->
+		<a
+			href="https://api.whatsapp.com/send?phone=593983116325&text=Saludos%20Encaje%2C%20estoy%20visitando%20su%20web%20y%20requiero%20informaci%C3%B3n%20de%20sus%20servicios.%20"
+			class="wp-whatsapp-float"
+			target="_blank"
+			rel="noopener noreferrer"
+			aria-label="Contactar por WhatsApp"
+		>
+			<span class="wp-whatsapp-tooltip">Contáctanos</span>
+			<div class="wp-whatsapp-ripple"></div>
+			<!-- FontAwesome script is not loaded by default in main layout, so we'll use a clean custom SVG or simple inline icon -->
+			<svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
+				<path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 0 0 1.333 4.993L2 22l5.233-1.371a9.936 9.936 0 0 0 4.777 1.217h.005c5.505 0 9.989-4.478 9.99-9.984 0-2.669-1.037-5.176-2.922-7.062A9.925 9.925 0 0 0 12.012 2zm5.727 14.126c-.314.883-1.523 1.62-2.1 1.677-.577.056-1.12.33-3.66-.673-3.25-1.286-5.328-4.57-5.49-4.786-.164-.215-1.31-1.742-1.31-3.324 0-1.581.822-2.36 1.116-2.673.294-.313.642-.392.856-.392.214 0 .428.002.615.01.196.009.46-.073.72.557.27.653.923 2.253 1.002 2.414.079.162.13.349.023.565-.106.215-.16.349-.314.53-.155.18-.327.401-.466.537-.154.15-.316.314-.136.621.18.307.8 1.306 1.714 2.12.174.15.323.238.544.382.22.144.349.122.48-.03.13-.15.56-.653.71-.876.15-.223.3-.187.5-.112.203.076 1.285.607 1.507.72.223.111.37.168.423.26.054.094.054.543-.26 1.426z"/>
+			</svg>
+		</a>
 	</body>
 </html>
 
@@ -277,5 +293,112 @@ const base = import.meta.env.BASE_URL === '/' ? '/' : `${import.meta.env.BASE_UR
 		text-align: center;
 		color: var(--text-muted);
 		font-size: 0.85rem;
+	}
+
+	/* Floating WhatsApp Button */
+	.wp-whatsapp-float {
+		position: fixed;
+		bottom: 30px;
+		right: 30px;
+		width: 60px;
+		height: 60px;
+		background-color: #25d366;
+		color: #ffffff;
+		border-radius: 50%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+		z-index: 9999;
+		transition: all 0.3s ease;
+		text-decoration: none;
+	}
+
+	.wp-whatsapp-float:hover {
+		transform: scale(1.1);
+		background-color: #128c7e;
+		box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+		color: #ffffff;
+	}
+
+	.wp-whatsapp-float svg {
+		width: 30px;
+		height: 30px;
+		display: block;
+	}
+
+	/* Pulsating Ripple Effect */
+	.wp-whatsapp-ripple {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		background-color: #25d366;
+		border-radius: 50%;
+		z-index: -1;
+		animation: wp-pulse 2s infinite;
+		opacity: 0.4;
+	}
+
+	@keyframes wp-pulse {
+		0% {
+			transform: scale(1);
+			opacity: 0.4;
+		}
+		100% {
+			transform: scale(1.6);
+			opacity: 0;
+		}
+	}
+
+	/* Tooltip */
+	.wp-whatsapp-tooltip {
+		position: absolute;
+		right: 80px;
+		background-color: #333333;
+		color: #ffffff;
+		padding: 8px 14px;
+		border-radius: 6px;
+		font-family: var(--font-body);
+		font-size: 13px;
+		font-weight: 600;
+		white-space: nowrap;
+		opacity: 0;
+		visibility: hidden;
+		transition: opacity 0.3s ease, transform 0.3s ease;
+		transform: translateX(10px);
+		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+	}
+
+	.wp-whatsapp-tooltip::after {
+		content: '';
+		position: absolute;
+		right: -6px;
+		top: 50%;
+		transform: translateY(-50%);
+		border-width: 6px 0 6px 6px;
+		border-style: solid;
+		border-color: transparent transparent transparent #333333;
+	}
+
+	.wp-whatsapp-float:hover .wp-whatsapp-tooltip {
+		opacity: 1;
+		visibility: visible;
+		transform: translateX(0);
+	}
+
+	@media (max-width: 767px) {
+		.wp-whatsapp-float {
+			bottom: 20px;
+			right: 20px;
+			width: 50px;
+			height: 50px;
+		}
+		.wp-whatsapp-float svg {
+			width: 25px;
+			height: 25px;
+		}
+		.wp-whatsapp-tooltip {
+			display: none;
+		}
 	}
 </style>

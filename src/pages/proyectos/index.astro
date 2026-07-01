@@ -5,10 +5,11 @@ const base = import.meta.env.BASE_URL === '/' ? '/' : `${import.meta.env.BASE_UR
 // Fetch projects from local Headless WordPress REST API
 const BACKEND_URL = import.meta.env.WORDPRESS_API_URL || "http://encaje-wp.test";
 let projects = [];
+let categories = [];
 let errorMsg = null;
 
 try {
-  const response = await fetch(`${BACKEND_URL}/wp-json/wp/v2/projects?_embed`);
+  const response = await fetch(`${BACKEND_URL}/wp-json/wp/v2/projects?per_page=100&_embed`);
   if (response.ok) {
     projects = await response.json();
   } else {
@@ -17,6 +18,19 @@ try {
 } catch (e) {
   errorMsg = `No se pudo conectar al servidor de WordPress (${BACKEND_URL}). Asegúrate de que esté encendido.`;
   console.error(e);
+}
+
+if (projects.length > 0) {
+  try {
+    const catResponse = await fetch(`${BACKEND_URL}/wp-json/wp/v2/project-categories?per_page=100`);
+    if (catResponse.ok) {
+      categories = await catResponse.json();
+    } else {
+      console.warn(`[WordPress API] No se pudieron obtener las categorías del endpoint '/wp-json/wp/v2/project-categories' (Status: ${catResponse.status}). Asegúrate de actualizar el plugin 'enable-rest-api.php' en el servidor.`);
+    }
+  } catch (e) {
+    console.error("[WordPress API] Error al conectar con el endpoint de categorías:", e);
+  }
 }
 ---
 
@@ -47,37 +61,73 @@ try {
             <p>{errorMsg}</p>
           </div>
         ) : (
-          <div class="projects-grid">
-            {projects.map((project) => {
-              // Extract featured media URL safely
-              const media = project._embedded?.['wp:featuredmedia']?.[0];
-              const imageUrl = media?.source_url || '/placeholder.jpg'; 
-              const altText = media?.alt_text || project.title.rendered;
-              
-              return (
-                <article class="project-card">
-                  <div class="card-image-wrapper">
-                    <img src={imageUrl} alt={altText} class="card-image" loading="lazy" />
-                    <div class="card-overlay">
-                      <a href={`${base}proyectos/${project.slug}`} class="view-btn">
-                        Ver Detalles
+          <>
+            {categories.length > 0 && (
+              <div class="projects-filter-wrapper">
+                <ul class="projects-filter-menu">
+                  <li>
+                    <button class="filter-btn active" data-filter="all">
+                      Mostrar Todos
+                    </button>
+                  </li>
+                  {categories.map((cat) => (
+                    <li>
+                      <button class="filter-btn" data-filter={cat.slug} data-filter-id={cat.id}>
+                        {cat.name}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div class="projects-grid">
+              {projects.map((project) => {
+                // Extract featured media URL safely
+                const media = project._embedded?.['wp:featuredmedia']?.[0];
+                const imageUrl = media?.source_url || '/placeholder.jpg'; 
+                const altText = media?.alt_text || project.title.rendered;
+                
+                // Extract category slugs and IDs
+                const projectCats = [];
+                Object.keys(project).forEach(key => {
+                  if (key.toLowerCase().includes('categor') && Array.isArray(project[key])) {
+                    projectCats.push(...project[key]);
+                  }
+                });
+                if (project.class_list) {
+                  project.class_list.forEach(cls => {
+                    if (cls.startsWith('ProjectCategory-')) {
+                      projectCats.push(cls.replace('ProjectCategory-', ''));
+                    }
+                  });
+                }
+
+                return (
+                  <article class="project-card" data-categories={JSON.stringify(projectCats)}>
+                    <div class="card-image-wrapper">
+                      <img src={imageUrl} alt={altText} class="card-image" loading="lazy" />
+                      <div class="card-overlay">
+                        <a href={`${base}proyectos/${project.slug}`} class="view-btn">
+                          Ver Detalles
+                        </a>
+                      </div>
+                    </div>
+                    <div class="card-info">
+                      <h2 class="project-title" set:html={project.title.rendered}></h2>
+                      <p class="project-desc">Solución constructiva premium que destaca por su innovación estructural y acabados de primera.</p>
+                      <a href={`${base}proyectos/${project.slug}`} class="card-link">
+                        <span>Explorar Obra</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="arrow-icon">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                        </svg>
                       </a>
                     </div>
-                  </div>
-                  <div class="card-info">
-                    <h2 class="project-title" set:html={project.title.rendered}></h2>
-                    <p class="project-desc">Solución constructiva premium que destaca por su innovación estructural y acabados de primera.</p>
-                    <a href={`${base}proyectos/${project.slug}`} class="card-link">
-                      <span>Explorar Obra</span>
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="arrow-icon">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-                      </svg>
-                    </a>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
+                  </article>
+                );
+              })}
+            </div>
+          </>
         )}
       </div>
     </section>
@@ -358,4 +408,136 @@ try {
     font-size: 1.1rem;
     line-height: 1.6;
   }
+
+  /* Filter Menu Styling */
+  .projects-filter-wrapper {
+    margin-bottom: 4rem;
+    display: flex;
+    justify-content: center;
+    background-color: #2b2b2b; /* Match screenshot background */
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .projects-filter-menu {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+  }
+
+  .projects-filter-menu li {
+    display: flex;
+    flex: 1;
+    min-width: 160px;
+    justify-content: center;
+    align-items: center;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .projects-filter-menu li:last-child {
+    border-right: none;
+  }
+
+  .filter-btn {
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-family: var(--font-heading);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 22px 15px;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transition: all 0.3s ease;
+    letter-spacing: 0.5px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .filter-btn:hover {
+    color: var(--primary);
+  }
+
+  .filter-btn.active {
+    color: var(--primary);
+  }
+
+  /* Centered thick short underline under the active button */
+  .filter-btn::after {
+    content: '';
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%) scaleX(0);
+    width: 32px;
+    height: 3px;
+    background-color: var(--primary);
+    transition: transform 0.3s ease;
+    transform-origin: center;
+  }
+
+  .filter-btn.active::after {
+    transform: translateX(-50%) scaleX(1);
+  }
+
+  /* Card filtering transition styling */
+  .project-card {
+    transition: opacity 0.4s ease, transform 0.4s ease, border-color 0.3s ease;
+  }
 </style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const cards = document.querySelectorAll('.project-card') as NodeListOf<HTMLElement>;
+    const buttons = document.querySelectorAll('.filter-btn') as NodeListOf<HTMLButtonElement>;
+
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Toggle active status
+        buttons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const filterVal = btn.getAttribute('data-filter');
+        const filterId = btn.getAttribute('data-filter-id');
+
+        cards.forEach(card => {
+          const categoriesAttr = card.getAttribute('data-categories');
+          if (!categoriesAttr) return;
+
+          const categories = JSON.parse(categoriesAttr);
+          const isMatch = filterVal === 'all' || 
+                          categories.includes(filterVal) || 
+                          categories.includes(Number(filterId)) ||
+                          categories.includes(filterId);
+
+          if (isMatch) {
+            card.style.display = '';
+            // Allow display change to register before playing transitions
+            setTimeout(() => {
+              card.style.opacity = '1';
+              card.style.transform = 'scale(1) translateY(0)';
+            }, 30);
+          } else {
+            card.style.opacity = '0';
+            card.style.transform = 'scale(0.95) translateY(10px)';
+            setTimeout(() => {
+              // Confirm it's still hidden before removing from layout
+              if (card.style.opacity === '0') {
+                card.style.display = 'none';
+              }
+            }, 400);
+          }
+        });
+      });
+    });
+  });
+</script>

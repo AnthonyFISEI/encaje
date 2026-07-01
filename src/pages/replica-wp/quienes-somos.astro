@@ -1,5 +1,6 @@
 ---
 import LayoutWpReplica from '../../layouts/LayoutWpReplica.astro';
+import WpSlider from '../../components/WpSlider.astro';
 
 const base = import.meta.env.BASE_URL === '/' ? '/' : `${import.meta.env.BASE_URL}/`;
 const BACKEND_URL = import.meta.env.WORDPRESS_API_URL || "http://encaje-wp.test";
@@ -8,18 +9,7 @@ const BACKEND_URL = import.meta.env.WORDPRESS_API_URL || "http://encaje-wp.test"
 <LayoutWpReplica title="Quienes Somos - Encaje (Réplica WordPress)">
   <main class="wp-quienes-somos">
     <!-- Page Banner -->
-    <section class="wp-page-banner" style={`background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://encaje.ec/wp-content/uploads/2025/02/BANNER_QUIENES_SOMOS.jpg');`}>
-      <div class="wp-banner-container">
-        <div class="wp-banner-content">
-          <img src="https://encaje.ec/wp-content/uploads/2025/02/QUIENES_SOMOS.svg" alt="Quienes Somos" class="wp-banner-svg-title" />
-          <ul class="wp-breadcrumbs">
-            <li><a href={`${base}replica-wp`}>Inicio</a></li>
-            <li><span>/</span></li>
-            <li class="active">Quienes Somos</li>
-          </ul>
-        </div>
-      </div>
-    </section>
+    <WpSlider location="quienes-somos" />
 
     <!-- About Section -->
     <section class="about-section">
@@ -61,7 +51,7 @@ const BACKEND_URL = import.meta.env.WORDPRESS_API_URL || "http://encaje-wp.test"
 
     <!-- Services Header Section -->
     <div class="wp-services-header-box">
-      <h5 class="wp-services-subtitle"><span style="color:#D8A53B !important">_____</span> NUESTROS</h5>
+      <h5 class="wp-services-subtitle"><span class="wp-title-line"></span> NUESTROS</h5>
       <h2 class="wp-services-title">Servicios</h2>
     </div>
 
@@ -71,47 +61,39 @@ const BACKEND_URL = import.meta.env.WORDPRESS_API_URL || "http://encaje-wp.test"
         <div class="services-box">
           <div class="row-services">
             <!-- Service 1 -->
-            <div class="col-service">
-              <div class="services-post">
-                <div class="wp-service-icon-container">
-                  <img src={`${BACKEND_URL}/wp-content/uploads/2025/02/Diseno_Arquitectonico_ENCAJE.svg`} alt="Diseño Arquitectónico" class="wp-service-icon-svg" />
-                </div>
-                <h4>DISEÑO ARQUITECTONICO</h4>
-                <p>Concepto e implantación de proyectos desde cero.</p>
+            <div class="services-post">
+              <div class="wp-service-icon-container">
+                <img src={`${BACKEND_URL}/wp-content/uploads/2025/02/Diseno_Arquitectonico_ENCAJE.svg`} alt="Diseño Arquitectónico" class="wp-service-icon-svg" />
               </div>
+              <h4>DISEÑO ARQUITECTONICO</h4>
+              <p>Concepto e implantación de proyectos desde cero.</p>
             </div>
 
             <!-- Service 2 -->
-            <div class="col-service">
-              <div class="services-post">
-                <div class="wp-service-icon-container">
-                  <img src={`${BACKEND_URL}/wp-content/uploads/2025/02/Construccion_ENCAJE.svg`} alt="Construcción" class="wp-service-icon-svg" />
-                </div>
-                <h4>CONSTRUCCIÓN</h4>
-                <p>Entregar soluciones constructivas eficientes.</p>
+            <div class="services-post">
+              <div class="wp-service-icon-container">
+                <img src={`${BACKEND_URL}/wp-content/uploads/2025/02/Construccion_ENCAJE.svg`} alt="Construcción" class="wp-service-icon-svg" />
               </div>
+              <h4>CONSTRUCCIÓN</h4>
+              <p>Entregar soluciones constructivas eficientes.</p>
             </div>
 
             <!-- Service 3 -->
-            <div class="col-service">
-              <div class="services-post">
-                <div class="wp-service-icon-container">
-                  <img src={`${BACKEND_URL}/wp-content/uploads/2025/02/Asesoramiento_Tecnico_ENCAJE.svg`} alt="Asesoramiento Técnico" class="wp-service-icon-svg" />
-                </div>
-                <h4>ASESORAMIENTO TÉCNICO</h4>
-                <p>Brindamos orientación y conocimientos técnicos al cliente.</p>
+            <div class="services-post">
+              <div class="wp-service-icon-container">
+                <img src={`${BACKEND_URL}/wp-content/uploads/2025/02/Asesoramiento_Tecnico_ENCAJE.svg`} alt="Asesoramiento Técnico" class="wp-service-icon-svg" />
               </div>
+              <h4>ASESORAMIENTO TÉCNICO</h4>
+              <p>Brindamos orientación y conocimientos técnicos al cliente.</p>
             </div>
 
             <!-- Service 4 -->
-            <div class="col-service">
-              <div class="services-post active">
-                <div class="wp-service-icon-container active">
-                  <img src={`${BACKEND_URL}/wp-content/uploads/2025/02/Urbanismo_ENCAJE.svg`} alt="Urbanismo" class="wp-service-icon-svg active-icon" />
-                </div>
-                <h4>URBANISMO</h4>
-                <p>Construimos desde la responsabilidad social de la arquitectura y la ingeniería.</p>
+            <div class="services-post">
+              <div class="wp-service-icon-container">
+                <img src={`${BACKEND_URL}/wp-content/uploads/2025/02/Urbanismo_ENCAJE.svg`} alt="Urbanismo" class="wp-service-icon-svg" />
               </div>
+              <h4>URBANISMO</h4>
+              <p>Construimos desde la responsabilidad social de la arquitectura y la ingeniería.</p>
             </div>
           </div>
         </div>
@@ -120,7 +102,7 @@ const BACKEND_URL = import.meta.env.WORDPRESS_API_URL || "http://encaje-wp.test"
 
     <!-- Diferenciador Header Section -->
     <div class="wp-diff-header-box">
-      <h5 class="wp-diff-subtitle"><span style="color:#D8A53B !important">_________</span></h5>
+      <h5 class="wp-diff-subtitle"><span class="wp-title-line lg"></span></h5>
       <h2 class="wp-diff-title">Diferenciador</h2>
     </div>
 
@@ -306,6 +288,22 @@ const BACKEND_URL = import.meta.env.WORDPRESS_API_URL || "http://encaje-wp.test"
     margin-bottom: 0;
   }
 
+  /* Title continuous line styles */
+  .wp-title-line {
+    display: inline-block;
+    width: 45px;
+    height: 4px;
+    background-color: var(--wp-accent-gold);
+    vertical-align: middle;
+    margin-right: 8px;
+    margin-bottom: 3px;
+  }
+
+  .wp-title-line.lg {
+    width: 75px;
+    margin-right: 0;
+  }
+
   /* Services Headers */
   .wp-services-header-box {
     text-align: center;
@@ -343,8 +341,8 @@ const BACKEND_URL = import.meta.env.WORDPRESS_API_URL || "http://encaje-wp.test"
   }
 
   .services-post {
-    border: 1px solid #3d3d3d;
-    padding: 40px 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 50px 30px;
     text-align: center;
     background-color: var(--wp-bg-darker);
     display: flex;
@@ -361,42 +359,49 @@ const BACKEND_URL = import.meta.env.WORDPRESS_API_URL || "http://encaje-wp.test"
   .wp-service-icon-container {
     width: 95px;
     height: 82px;
-    background-color: #3d3d3d;
+    background-color: rgba(255, 255, 255, 0.08);
     display: flex;
     justify-content: center;
     align-items: center;
     margin-bottom: 25px;
-    transition: background-color 0.3s;
+    transition: all 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border-radius: 0px;
   }
 
-  .wp-service-icon-container.active {
+  /* Hover state: turn yellow and animate container */
+  .services-post:hover .wp-service-icon-container {
     background-color: var(--wp-accent-gold);
+    transform: translateY(-8px) scale(1.08) rotate(5deg);
+    box-shadow: 0 10px 25px rgba(214, 163, 59, 0.35);
   }
 
   .wp-service-icon-svg {
     width: 40px;
     height: 40px;
-    filter: invert(1) brightness(2);
+    filter: brightness(0) invert(1) !important; /* make line icons white */
+    transition: transform 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
 
-  .wp-service-icon-svg.active-icon {
-    filter: none;
+  /* Hover state: scale up and rotate icon slightly */
+  .services-post:hover .wp-service-icon-svg {
+    transform: scale(1.15) rotate(-5deg);
   }
 
   .services-post h4 {
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 700;
-    color: var(--wp-text-light);
+    color: #ffffff;
     margin-bottom: 15px;
     letter-spacing: 1px;
+    font-family: "Montserrat", sans-serif;
   }
 
   .services-post p {
     font-size: 13px;
-    color: var(--wp-text-muted);
+    color: #b3b3b3;
     line-height: 22px;
     margin: 0;
-    font-weight: 300;
+    font-weight: 400;
   }
 
   /* Diferenciador Headers */

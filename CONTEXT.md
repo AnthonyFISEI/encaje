@@ -32,8 +32,16 @@ Este proyecto consiste en migrar el sitio web de **Encaje** (un sitio de solucio
   - Implementado SEO dinámico integrado con Yoast SEO en la REST API de WordPress, y configurada la generación automática de Sitemaps (`@astrojs/sitemap`) con un archivo `robots.txt` para rastreo.
   - Integrada la optimización automática de imágenes mediante `<Image />` de `astro:assets` en la portada y detalles de proyectos, con dominios remotos configurados (`encaje.ec`, `app.encaje.ec`, `encaje-wp.test`).
   - Implementado JSON-LD con marcado de esquema `ProfessionalService` en la portada para mejorar el posicionamiento SEO local de Encaje.
+  - **Sistema de Sliders Dinámicos (CPT Sliders):**
+    - Registrado Custom Post Type `slider` y taxonomía jerárquica `slider-location` en WordPress.
+    - Creados campos meta `slider_link` y `slider_button_text` expuestos en REST API.
+    - Diseñado y desarrollado el componente `<WpSlider location="..." />` en Astro para cargar dinámicamente banners asignados a ubicaciones específicas de WordPress, ordenados por `menu_order`.
+    - Implementados fallbacks inteligentes en `<WpSlider />`: si no hay sliders en WordPress, la página de inicio muestra un carrusel por defecto, mientras que las subpáginas (Contacto, Quiénes Somos, etc.) muestran de forma automatizada su banner estático original con breadcrumbs e imágenes SVG.
+  - **Botón Flotante de WhatsApp:**
+    - Agregado botón flotante interactivo con tooltip y animación pulsante a los layouts generales (`Layout.astro` y `LayoutWpReplica.astro`) conectado al enlace oficial de contacto.
+  - **Alineación de Tarjetas de Servicios:**
+    - Ajustados los estilos de las tarjetas de servicios de "Quiénes Somos" (sombras, efectos hover, filtros, y alturas iguales mediante CSS Grid) para que coincidan con los de la página de inicio.
 - **Punto de reanudación:** 
-  - Subir el nuevo compilado de producción (`dist/`) al servidor.
-  - Pruebas y monitoreo de la carga y el SEO una vez desplegado.
-  - Opcional: configurar la automatización de despliegue mediante FTP en GitHub Actions si se requiere.
+  - Monitoreo de los sliders dinámicos en producción.
+  - Desplegar cambios a producción compilando Astro a la carpeta `dist/`.
 
