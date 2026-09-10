@@ -1,41 +1,79 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { Image } from 'astro:assets';
+import { fetchAllWp } from '../../lib/wordpress.js';
 
 const base = import.meta.env.BASE_URL === '/' ? '/' : `${import.meta.env.BASE_URL}/`;
-// Enable Static Site Generation (SSG) paths
 export async function getStaticPaths() {
   const BACKEND_URL = import.meta.env.WORDPRESS_API_URL || "http://encaje-wp.test";
-  try {
-    const response = await fetch(`${BACKEND_URL}/wp-json/wp/v2/projects?_embed`);
-    if (!response.ok) {
-      return [];
+  const fallbackProjects = [
+    {
+      title: { rendered: "Residencia JCJ" },
+      slug: "residencia-jcj",
+      content: { rendered: "<p>Un diseño residencial único que destaca por su elegancia y espacialidad...</p>" },
+      _embedded: {
+        "wp:featuredmedia": [{ source_url: `${BACKEND_URL}/wp-content/uploads/2025/02/02_RESIDENCIAJCJ_PROYECTOS_5-1.jpg` }]
+      }
+    },
+    {
+      title: { rendered: "Playa Jama" },
+      slug: "playa-jama",
+      content: { rendered: "<p>Un exclusivo proyecto junto al mar pensado para disfrutar del descanso y el clima tropical...</p>" },
+      _embedded: {
+        "wp:featuredmedia": [{ source_url: `${BACKEND_URL}/wp-content/uploads/2025/02/02_PLAYAJAMA_PROYECTOS_2-1-1.jpg` }]
+      }
+    },
+    {
+      title: { rendered: "Casa DB" },
+      slug: "casadb",
+      content: { rendered: "<p>Una hermosa residencia familiar que se integra armónicamente con la naturaleza...</p>" },
+      _embedded: {
+        "wp:featuredmedia": [{ source_url: `${BACKEND_URL}/wp-content/uploads/2025/02/02_CASADB_PROYECTOS_6-1.jpg` }]
+      }
+    },
+    {
+      title: { rendered: "Edificio T5" },
+      slug: "edificio-t5",
+      content: { rendered: "<p>Un moderno edificio de departamentos diseñado para el confort urbano...</p>" },
+      _embedded: {
+        "wp:featuredmedia": [{ source_url: `${BACKEND_URL}/wp-content/uploads/2025/02/02_EDIFICIOT5_PROYECTOS_4-1.jpg` }]
+      }
+    },
+    {
+      title: { rendered: "Mama Miche" },
+      slug: "mama-miche",
+      content: { rendered: "<p>Un innovador espacio comercial con identidad y diseño minimalista...</p>" },
+      _embedded: {
+        "wp:featuredmedia": [{ source_url: `${BACKEND_URL}/wp-content/uploads/2025/02/02_MM_PROYECTOS_1.jpg` }]
+      }
     }
-    const projects = await response.json();
+  ];
+
+  try {
+    const projects = await fetchAllWp(`${BACKEND_URL}/wp-json/wp/v2/projects?_embed`);
     return projects.map((project) => ({
       params: { slug: project.slug },
       props: { project },
     }));
   } catch (e) {
-    console.error("Error generating static paths for projects:", e);
-    return [];
+    console.warn("WordPress projects API failed. Using fallback static paths.");
+    return fallbackProjects.map((project) => ({
+      params: { slug: project.slug },
+      props: { project },
+    }));
   }
 }
 
 const { project } = Astro.props;
 
-// If project is not found (e.g. build error or empty paths)
 if (!project) {
   return Astro.redirect(`${base}proyectos`);
 }
 
-// Extract featured image
 const media = project._embedded?.['wp:featuredmedia']?.[0];
 const imageUrl = media?.source_url || '/placeholder.jpg';
-const imageAlt = media?.alt_text || project.title.rendered;
 
-// Clean up shortcodes (like [rev_slider ...]) from the WordPress content
-let cleanContent = project.content.rendered.replace(/\[\/?[^\]]+\]/g, '');
+// Clean shortcodes
+let processedContent = project.content.rendered.replace(/\[\/?[^\]]+\]/g, '');
 
 const hasStructuredData = (project.acf && (project.acf.estilo || project.acf.tipo_obra || project.acf.ubicacion || project.acf.cliente || project.acf.descripcion)) || 
   (project.planimetria_ambientada_gallery && project.planimetria_ambientada_gallery.length > 0) || 
@@ -47,7 +85,7 @@ const hasStructuredData = (project.acf && (project.acf.estilo || project.acf.tip
 
 if (hasStructuredData) {
   // If we have structured data, strip out any legacy lists, images, figures, and gallery headings from the description
-  cleanContent = cleanContent
+  processedContent = processedContent
     .replace(/<img[^>]*>/gi, '') // Remove all image tags
     .replace(/<figure[^>]*>[\s\S]*?<\/figure>/gi, '') // Remove all figures (like Gutenberg or Elementor galleries/images)
     .replace(/<ul[^>]*>[\s\S]*?<\/ul>/gi, '') // Remove any lists (like Ficha Técnica list)
@@ -67,93 +105,118 @@ if (hasStructuredData) {
       }
       return match;
     });
+} else {
+  // Convert the dynamic list structure from WordPress to the original theme's spans markup
+  // Match: <li>\n\t\t\t\t\t\t\t\t\t\tEstilo\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\tIndustrial\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t</li>
+  // Regex matches any label word, newlines/spaces, and the value string inside <li> tags
+  processedContent = processedContent.replace(
+    /<li>\s*([A-Za-zÀ-ÿ]+)\s*\n\s*([A-Za-zÀ-ÿ0-9\s,\-\/]+)\s*<\/li>/gi,
+    '<li><span class="data-name">$1</span><span class="data-val">$2</span></li>'
+  );
+
+  // We also wrap the <ul> under Ficha Técnica with the class .project-data-list
+  processedContent = processedContent.replace(
+    /<h2>Ficha Técnica<\/h2>\s*<ul>/gi,
+    '<h2>Ficha Técnica</h2><ul class="project-data-list">'
+  );
 }
 
+// ACF "video": accepts YouTube's iframe embed code or a plain link (watch, youtu.be, shorts)
+const rawVideo = (project.acf?.video || '').trim();
+const youtubeId = rawVideo.match(/(?:youtube(?:-nocookie)?\.com\/(?:embed\/|shorts\/|watch\?(?:[^"'\s]*&)?v=)|youtu\.be\/)([\w-]{11})/)?.[1];
+const videoEmbedUrl = youtubeId ? `https://www.youtube.com/embed/${youtubeId}` : null;
+// Non-YouTube iframe (e.g. Vimeo): render as pasted
+const rawVideoHtml = !youtubeId && /<iframe/i.test(rawVideo) ? rawVideo : null;
+
 // Extract Yoast SEO fields if available, otherwise use defaults
-const seoTitle = project.yoast_head_json?.title || `${project.title.rendered} | Encaje`;
-const seoDescription = project.yoast_head_json?.description || project.yoast_head_json?.og_description || `Conoce los detalles y soluciones técnicas del proyecto ${project.title.rendered} de Encaje.`;
+const seoTitle = project.yoast_head_json?.title || `${project.title.rendered} - Encaje`;
+const seoDescription = project.yoast_head_json?.description || project.yoast_head_json?.og_description || `Conoce los detalles de la obra ${project.title.rendered} en Encaje.`;
 const seoImage = project.yoast_head_json?.og_image?.[0]?.url || imageUrl;
 ---
 
 <Layout title={seoTitle} description={seoDescription} image={seoImage}>
-  <main class="project-detail-page">
-    <!-- Hero Banner -->
-    <section class="detail-hero" style={`background-image: linear-gradient(to bottom, rgba(36, 36, 36, 0.4), rgba(36, 36, 36, 0.95)), url(${imageUrl});`}>
-      <div class="hero-container">
-        <a href={`${base}proyectos`} class="back-link">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="back-arrow">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-          </svg>
-          <span>Volver a Proyectos</span>
-        </a>
-        <h1 class="project-title" set:html={project.title.rendered}></h1>
+  <main class="wp-replica-detail">
+    <!-- Banner Section -->
+    <section class="wp-single-banner">
+      <div class="wp-banner-container">
+        <h1 set:html={project.title.rendered}></h1>
+        <p>Solución Constructiva</p>
       </div>
     </section>
 
-    <!-- Content Section -->
-    <section class="detail-content-section">
-      <div class="content-container">
-        <!-- Main Image Card -->
-        <div class="featured-media-card">
-          <Image src={imageUrl} alt={imageAlt} class="main-image" width={900} height={560} />
-        </div>
+    <!-- Main Content Section -->
+    <section class="wp-single-project-section">
+      <div class="wp-container">
+        <div class="wp-project-grid">
+          <!-- Featured Image -->
+          <div class="wp-project-image-box">
+            <div class="wp-feature-image">
+              <img src={imageUrl} alt={project.title.rendered} />
+            </div>
+          </div>
 
-        {/* Check if we have structured data. If so, display it in a modern grid. */}
-        {((project.acf && (project.acf.estilo || project.acf.tipo_obra || project.acf.ubicacion || project.acf.cliente)) || 
-          (project.renders_gallery && project.renders_gallery.length > 0) || 
-          (project.planos_gallery && project.planos_gallery.length > 0) || 
-          (project.resultados_gallery && project.resultados_gallery.length > 0)) ? (
-          
-          <div class="structured-project-content">
-            <!-- Grid: Technical specifications and main description -->
-            <div class="project-info-grid">
-              <!-- Ficha Técnica -->
-              <div class="project-specs-card">
-                <h2 class="section-subtitle">Ficha Técnica</h2>
-                <ul class="specs-list">
+          <!-- Description and Specs -->
+          <div class="wp-project-content-box">
+            {((project.acf && (project.acf.estilo || project.acf.tipo_obra || project.acf.ubicacion || project.acf.cliente)) || 
+              (project.renders_gallery && project.renders_gallery.length > 0) || 
+              (project.planos_gallery && project.planos_gallery.length > 0) || 
+              (project.resultados_gallery && project.resultados_gallery.length > 0)) ? (
+              
+              <article class="wp-project-content">
+                <h2>Ficha Técnica</h2>
+                <ul class="project-data-list">
                   {project.acf?.estilo && (
                     <li>
-                      <span class="spec-label">Estilo</span>
-                      <span class="spec-val">{project.acf.estilo}</span>
+                      <span class="data-name">Estilo</span>
+                      <span class="data-val">{project.acf.estilo}</span>
                     </li>
                   )}
                   {project.acf?.tipo_obra && (
                     <li>
-                      <span class="spec-label">Tipo de Obra</span>
-                      <span class="spec-val">{project.acf.tipo_obra}</span>
+                      <span class="data-name">Tipo</span>
+                      <span class="data-val">{project.acf.tipo_obra}</span>
                     </li>
                   )}
                   {project.acf?.ubicacion && (
                     <li>
-                      <span class="spec-label">Ubicación</span>
-                      <span class="spec-val">{project.acf.ubicacion}</span>
+                      <span class="data-name">Ubicación</span>
+                      <span class="data-val">{project.acf.ubicacion}</span>
                     </li>
                   )}
                   {project.acf?.cliente && (
                     <li>
-                      <span class="spec-label">Cliente</span>
-                      <span class="spec-val">{project.acf.cliente}</span>
+                      <span class="data-name">Cliente</span>
+                      <span class="data-val">{project.acf.cliente}</span>
                     </li>
                   )}
                 </ul>
-              </div>
 
-              <!-- Reseña del Proyecto -->
-              <div class="project-description-card">
-                <h2 class="section-subtitle">El Proyecto</h2>
-                <div class="project-desc-text" set:html={project.acf?.descripcion ? project.acf.descripcion : cleanContent} />
-              </div>
-            </div>
+                <h2>El Proyecto</h2>
+                <div class="wp-project-desc" set:html={project.acf?.descripcion ? project.acf.descripcion : processedContent} />
+              </article>
+            ) : (
+              <article class="wp-project-content" set:html={processedContent}>
+              </article>
+            )}
+          </div>
+        </div>
 
-            <!-- Galleries Section -->
+        {/* Galleries rendered outside the 2-column grid for full width */}
+        {((project.planimetria_ambientada_gallery && project.planimetria_ambientada_gallery.length > 0) || 
+          (project.planimetria_arquitectonica_gallery && project.planimetria_arquitectonica_gallery.length > 0) || 
+          (project.volumetria_gallery && project.volumetria_gallery.length > 0) || 
+          (project.resultados_gallery && project.resultados_gallery.length > 0) ||
+          (project.renders_gallery && project.renders_gallery.length > 0) || 
+          (project.planos_gallery && project.planos_gallery.length > 0)) && (
+          <div class="wp-project-galleries">
             {project.renders_gallery && project.renders_gallery.length > 0 && (
-              <div class="gallery-section">
-                <h2 class="gallery-section-title">RENDERS</h2>
-                <div class="gallery-masonry">
+              <div class="wp-gallery-block">
+                <h2>Renders</h2>
+                <div class="wp-gallery-grid">
                   {project.renders_gallery.map((img) => (
-                    <div class="gallery-card">
-                      <a href={img.url} target="_blank" rel="noopener noreferrer" class="gallery-link">
-                        <Image src={img.url} alt={img.alt || "Render"} class="gallery-img" width={800} height={530} />
+                    <div class="wp-gallery-item">
+                      <a href={img.url} target="_blank" rel="noopener noreferrer">
+                        <img src={img.url} alt={img.alt || "Render"} />
                       </a>
                     </div>
                   ))}
@@ -162,13 +225,13 @@ const seoImage = project.yoast_head_json?.og_image?.[0]?.url || imageUrl;
             )}
 
             {project.planimetria_ambientada_gallery && project.planimetria_ambientada_gallery.length > 0 && (
-              <div class="gallery-section">
-                <h2 class="gallery-section-title">PLANIMETRÍA AMBIENTADA</h2>
-                <div class="gallery-masonry">
+              <div class="wp-gallery-block">
+                <h2>Planimetría Ambientada</h2>
+                <div class="wp-gallery-grid">
                   {project.planimetria_ambientada_gallery.map((img) => (
-                    <div class="gallery-card">
-                      <a href={img.url} target="_blank" rel="noopener noreferrer" class="gallery-link">
-                        <Image src={img.url} alt={img.alt || "Planimetría Ambientada"} class="gallery-img" width={800} height={530} />
+                    <div class="wp-gallery-item">
+                      <a href={img.url} target="_blank" rel="noopener noreferrer">
+                        <img src={img.url} alt={img.alt || "Planimetría Ambientada"} />
                       </a>
                     </div>
                   ))}
@@ -177,13 +240,13 @@ const seoImage = project.yoast_head_json?.og_image?.[0]?.url || imageUrl;
             )}
 
             {project.planimetria_arquitectonica_gallery && project.planimetria_arquitectonica_gallery.length > 0 && (
-              <div class="gallery-section">
-                <h2 class="gallery-section-title">PLANIMETRÍA ARQUITECTÓNICA</h2>
-                <div class="gallery-masonry">
+              <div class="wp-gallery-block">
+                <h2>Planimetría Arquitectónica</h2>
+                <div class="wp-gallery-grid">
                   {project.planimetria_arquitectonica_gallery.map((img) => (
-                    <div class="gallery-card">
-                      <a href={img.url} target="_blank" rel="noopener noreferrer" class="gallery-link">
-                        <Image src={img.url} alt={img.alt || "Planimetría Arquitectónica"} class="gallery-img" width={800} height={530} />
+                    <div class="wp-gallery-item">
+                      <a href={img.url} target="_blank" rel="noopener noreferrer">
+                        <img src={img.url} alt={img.alt || "Planimetría Arquitectónica"} />
                       </a>
                     </div>
                   ))}
@@ -192,13 +255,13 @@ const seoImage = project.yoast_head_json?.og_image?.[0]?.url || imageUrl;
             )}
 
             {project.volumetria_gallery && project.volumetria_gallery.length > 0 && (
-              <div class="gallery-section">
-                <h2 class="gallery-section-title">VOLUMETRÍA</h2>
-                <div class="gallery-masonry">
+              <div class="wp-gallery-block">
+                <h2>Volumetría</h2>
+                <div class="wp-gallery-grid">
                   {project.volumetria_gallery.map((img) => (
-                    <div class="gallery-card">
-                      <a href={img.url} target="_blank" rel="noopener noreferrer" class="gallery-link">
-                        <Image src={img.url} alt={img.alt || "Volumetría"} class="gallery-img" width={800} height={530} />
+                    <div class="wp-gallery-item">
+                      <a href={img.url} target="_blank" rel="noopener noreferrer">
+                        <img src={img.url} alt={img.alt || "Volumetría"} />
                       </a>
                     </div>
                   ))}
@@ -207,13 +270,13 @@ const seoImage = project.yoast_head_json?.og_image?.[0]?.url || imageUrl;
             )}
 
             {project.resultados_gallery && project.resultados_gallery.length > 0 && (
-              <div class="gallery-section">
-                <h2 class="gallery-section-title">RESULTADOS</h2>
-                <div class="gallery-masonry">
+              <div class="wp-gallery-block">
+                <h2>Resultados (Obra Terminada)</h2>
+                <div class="wp-gallery-grid">
                   {project.resultados_gallery.map((img) => (
-                    <div class="gallery-card">
-                      <a href={img.url} target="_blank" rel="noopener noreferrer" class="gallery-link">
-                        <Image src={img.url} alt={img.alt || "Resultado"} class="gallery-img" width={800} height={530} />
+                    <div class="wp-gallery-item">
+                      <a href={img.url} target="_blank" rel="noopener noreferrer">
+                        <img src={img.url} alt={img.alt || "Resultado"} />
                       </a>
                     </div>
                   ))}
@@ -221,17 +284,17 @@ const seoImage = project.yoast_head_json?.og_image?.[0]?.url || imageUrl;
               </div>
             )}
 
-            {/* Backwards compatibility fallback for plans */}
+            {/* Backwards compatibility fallback for planos */}
             {(!project.planimetria_ambientada_gallery || project.planimetria_ambientada_gallery.length === 0) && 
              (!project.planimetria_arquitectonica_gallery || project.planimetria_arquitectonica_gallery.length === 0) && 
              project.planos_gallery && project.planos_gallery.length > 0 && (
-              <div class="gallery-section">
-                <h2 class="gallery-section-title">PLANOS</h2>
-                <div class="gallery-masonry">
+              <div class="wp-gallery-block">
+                <h2>Planos</h2>
+                <div class="wp-gallery-grid">
                   {project.planos_gallery.map((img) => (
-                    <div class="gallery-card">
-                      <a href={img.url} target="_blank" rel="noopener noreferrer" class="gallery-link">
-                        <Image src={img.url} alt={img.alt || "Plano"} class="gallery-img" width={800} height={530} />
+                    <div class="wp-gallery-item">
+                      <a href={img.url} target="_blank" rel="noopener noreferrer">
+                        <img src={img.url} alt={img.alt || "Plano"} />
                       </a>
                     </div>
                   ))}
@@ -239,9 +302,26 @@ const seoImage = project.yoast_head_json?.og_image?.[0]?.url || imageUrl;
               </div>
             )}
           </div>
-        ) : (
-          /* Fallback: If no structured data is present, render the HTML directly from WordPress (compatibility mode) */
-          <article class="project-rich-content" set:html={cleanContent} />
+        )}
+
+        {(videoEmbedUrl || rawVideoHtml) && (
+          <div class="wp-project-video">
+            <h2>Video</h2>
+            <div class="wp-video-frame">
+              {videoEmbedUrl ? (
+                <iframe
+                  src={videoEmbedUrl}
+                  title="Video del proyecto"
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerpolicy="strict-origin-when-cross-origin"
+                  allowfullscreen
+                ></iframe>
+              ) : (
+                <Fragment set:html={rawVideoHtml} />
+              )}
+            </div>
+          </div>
         )}
       </div>
     </section>
@@ -308,339 +388,216 @@ const seoImage = project.yoast_head_json?.og_image?.[0]?.url || imageUrl;
 </script>
 
 <style>
-  .project-detail-page {
-    background-color: var(--bg-dark);
-    min-height: 100vh;
+  .wp-replica-detail {
+    background-color: var(--wp-bg-dark);
+    padding-bottom: 80px;
   }
 
-  /* Hero Banner Styling */
-  .detail-hero {
-    height: 60vh;
-    min-height: 400px;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    display: flex;
-    align-items: flex-end;
-    position: relative;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  /* Single banner */
+  .wp-single-banner {
+    padding: 120px 0 80px;
+    background-color: var(--wp-bg-darker);
+    border-bottom: 1px solid #3d3d3d;
+    margin-bottom: 60px;
   }
 
-  .hero-container {
-    max-width: 1200px;
-    width: 100%;
+  .wp-banner-container {
+    max-width: 1170px;
     margin: 0 auto;
-    padding: 0 2rem 4rem;
-    z-index: 10;
+    padding: 0 30px;
   }
 
-  .back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--primary);
-    text-decoration: none;
-    font-family: var(--font-heading);
-    font-weight: 600;
-    font-size: 0.95rem;
-    letter-spacing: 0.05em;
-    margin-bottom: 1.5rem;
-    transition: var(--transition-smooth);
-    width: fit-content;
+  .wp-single-banner h1 {
+    font-size: 40px;
+    font-weight: 700;
+    color: var(--wp-text-light);
+    font-family: "Montserrat", sans-serif;
+    text-transform: uppercase;
+    margin-bottom: 10px;
   }
 
-  .back-link:hover {
-    color: var(--primary-hover);
+  .wp-single-banner p {
+    font-size: 16px;
+    color: var(--wp-accent-gold);
+    font-family: "Montserrat", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 2px;
   }
 
-  .back-arrow {
-    width: 1.1rem;
-    height: 1.1rem;
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  /* Layout container split */
+  .wp-single-project-section {
+    padding: 0 0 40px 0;
   }
 
-  .back-link:hover .back-arrow {
-    transform: translateX(-5px);
+  .wp-container {
+    max-width: 1170px;
+    margin: 0 auto;
+    padding: 0 30px;
   }
 
-  .project-title {
-    font-family: var(--font-heading);
-    font-size: 4rem;
-    font-weight: 800;
-    color: var(--text-light);
-    letter-spacing: -0.02em;
-    line-height: 1.1;
-    text-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+  .wp-project-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
   }
 
-  @media (max-width: 768px) {
-    .project-title {
-      font-size: 2.5rem;
-    }
-    .detail-hero {
-      height: 45vh;
+  @media (max-width: 1023px) {
+    .wp-project-grid {
+      grid-template-columns: 1fr;
     }
   }
 
-  /* Content Container styling */
-  .detail-content-section {
-    padding: 4rem 2rem;
-  }
-
-  .content-container {
-    max-width: 1000px;
-    margin: 0 auto;
-  }
-
-  .featured-media-card {
-    border-radius: 20px;
-    overflow: hidden;
-    border: 1px solid var(--border-card);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-    margin-top: -8rem;
-    margin-bottom: 4rem;
-    position: relative;
-    z-index: 20;
-    background: #1b1b1b;
-  }
-
-  .main-image {
+  .wp-feature-image img {
     width: 100%;
     height: auto;
     display: block;
-    max-height: 600px;
-    object-fit: cover;
+    border: 1px solid #3d3d3d;
   }
 
-  /* Structured Content Styles */
-  .project-info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1.8fr;
-    gap: 3rem;
-    margin-bottom: 4rem;
+  /* Rendered Content styles matching WordPress */
+  .wp-project-content {
+    font-family: "Montserrat", sans-serif;
+    text-align: justify;
   }
 
-  @media (max-width: 768px) {
-    .project-info-grid {
-      grid-template-columns: 1fr;
-      gap: 2rem;
-    }
+  .wp-project-desc {
+    text-align: justify;
+    white-space: pre-line;
   }
 
-  .section-subtitle {
-    font-family: var(--font-heading);
-    color: var(--text-light);
-    font-weight: 700;
-    font-size: 1.8rem;
-    margin-bottom: 1.5rem;
-    letter-spacing: -0.01em;
-    position: relative;
-    padding-bottom: 0.5rem;
+  .wp-project-desc :global(p) {
+    text-align: justify;
+    white-space: pre-line;
   }
 
-  .section-subtitle::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 40px;
-    height: 3px;
-    background: var(--primary);
-    border-radius: 2px;
-  }
-
-  /* Ficha técnica styling */
-  .specs-list {
-    list-style: none;
-    background: var(--bg-card);
-    border: 1px solid var(--border-card);
-    padding: 2rem;
-    border-radius: 16px;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.01);
-  }
-
-  .specs-list li {
-    border-left: 2px solid var(--primary);
-    padding-left: 1rem;
-    margin-bottom: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-
-  .specs-list li:last-child {
-    margin-bottom: 0;
-  }
-
-  .spec-label {
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-muted);
-    font-weight: 500;
-  }
-
-  .spec-val {
-    font-size: 1.1rem;
-    color: var(--text-light);
+  .wp-project-content h2,
+  .wp-project-content :global(h2) {
+    font-size: 25px;
     font-weight: 600;
+    color: var(--wp-text-light);
+    margin-bottom: 25px;
+    margin-top: 35px;
+    font-family: "Montserrat", sans-serif;
   }
 
-  /* Description styling */
-  .project-desc-text {
-    color: var(--text-muted);
-    font-size: 1.1rem;
-    line-height: 1.8;
+  .wp-project-content h2:first-child {
+    margin-top: 0;
+  }
+
+  .wp-project-content :global(p) {
+    font-size: 15px;
+    color: var(--wp-text-muted);
+    line-height: 26px;
+    margin-bottom: 20px;
     text-align: justify;
     white-space: pre-line;
   }
 
-  .project-desc-text :global(p) {
-    margin-bottom: 1.5rem;
-    text-align: justify;
-    white-space: pre-line;
+  /* Ficha técnica custom list styles matching Royarch style.css */
+  .wp-project-content ul.project-data-list,
+  .wp-project-content :global(ul.project-data-list) {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 30px;
   }
 
-  .project-desc-text :global(p:last-child) {
-    margin-bottom: 0;
+  .wp-project-content ul.project-data-list li,
+  .wp-project-content :global(ul.project-data-list li) {
+    display: flex;
+    border: 1px solid #3d3d3d;
+    border-bottom: none;
+    align-items: center;
   }
 
-  /* Galleries styling */
-  .gallery-section {
-    margin-top: 5rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-    padding-top: 3.5rem;
+  .wp-project-content ul.project-data-list li:last-child,
+  .wp-project-content :global(ul.project-data-list li:last-child) {
+    border-bottom: 1px solid #3d3d3d;
   }
 
-  .gallery-section-title {
-    font-family: var(--font-heading);
-    font-size: 2.2rem;
-    font-weight: 800;
-    color: var(--text-light);
-    letter-spacing: 0.05em;
-    margin-bottom: 2rem;
-    position: relative;
-    padding-left: 1rem;
+  .wp-project-content ul.project-data-list li span,
+  .wp-project-content :global(ul.project-data-list li span) {
+    display: inline-block;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 300;
+    line-height: 50px;
   }
 
-  .gallery-section-title::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 10%;
-    height: 80%;
-    width: 4px;
-    background: var(--primary);
-    border-radius: 2px;
+  .wp-project-content ul.project-data-list li span.data-name,
+  .wp-project-content :global(ul.project-data-list li span.data-name) {
+    width: 150px;
+    font-weight: 700;
+    text-transform: uppercase;
+    background-color: #3d3d3d;
+    padding: 0 30px;
+    margin-right: 15px;
+    flex-shrink: 0;
   }
 
-  .gallery-masonry {
+  .wp-project-content ul.project-data-list li span.data-val,
+  .wp-project-content :global(ul.project-data-list li span.data-val) {
+    padding: 0 15px;
+  }
+
+  /* WP Galleries styling */
+  .wp-project-galleries {
+    margin-top: 50px;
+    border-top: 1px solid #3d3d3d;
+    padding-top: 30px;
+  }
+  .wp-gallery-block {
+    margin-top: 40px;
+  }
+  .wp-gallery-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
+    gap: 20px;
+    margin-bottom: 40px;
   }
-
-  .gallery-card {
-    border-radius: 12px;
-    overflow: hidden;
-    border: 1px solid var(--border-card);
-    background: #1b1b1b;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-    transition: var(--transition-smooth);
+  .wp-gallery-item {
+    border: 1px solid #3d3d3d;
+    background: var(--wp-bg-darker);
+    padding: 8px;
+    transition: border-color 0.2s;
   }
-
-  .gallery-link {
-    display: block;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
+  .wp-gallery-item:hover {
+    border-color: var(--wp-accent-yellow);
   }
-
-  .gallery-img {
+  .wp-gallery-item img {
     width: 100%;
     height: auto;
     aspect-ratio: 4 / 3;
     object-fit: cover;
     display: block;
-    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .gallery-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
-    border-color: rgba(255, 255, 255, 0.1);
+  /* Project video (ACF "video") */
+  .wp-project-video {
+    margin-top: 50px;
+    border-top: 1px solid #3d3d3d;
+    padding-top: 30px;
   }
-
-  .gallery-card:hover .gallery-img {
-    transform: scale(1.05);
+  .wp-project-video h2 {
+    font-size: 25px;
+    font-weight: 600;
+    color: var(--wp-text-light);
+    margin: 10px 0 25px;
+    font-family: "Montserrat", sans-serif;
   }
-
-  /* Fallback Legacy Styles */
-  .project-rich-content {
-    line-height: 1.8;
-  }
-
-  .project-rich-content :global(h2), 
-  .project-rich-content :global(h3) {
-    font-family: var(--font-heading);
-    color: var(--text-light);
-    font-weight: 700;
-    font-size: 2.2rem;
-    margin-top: 3.5rem;
-    margin-bottom: 1.5rem;
-    letter-spacing: -0.01em;
+  .wp-video-frame {
     position: relative;
-    padding-bottom: 0.75rem;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border: 1px solid #3d3d3d;
+    background: var(--wp-bg-darker);
   }
-
-  .project-rich-content :global(h2::after) {
-    content: '';
+  .wp-video-frame iframe,
+  .wp-video-frame :global(iframe) {
     position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 60px;
-    height: 3px;
-    background: var(--primary);
-    border-radius: 2px;
-  }
-
-  .project-rich-content :global(p) {
-    color: var(--text-muted);
-    font-size: 1.1rem;
-    margin-bottom: 1.8rem;
-  }
-
-  .project-rich-content :global(ul) {
-    list-style: none;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 2rem;
-    background: var(--bg-card);
-    border: 1px solid var(--border-card);
-    padding: 2.5rem;
-    border-radius: 16px;
-    margin: 3rem 0;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.01);
-  }
-
-  .project-rich-content :global(li) {
-    border-left: 2px solid var(--primary);
-    padding-left: 1.25rem;
-    font-family: var(--font-body);
-    color: var(--text-light);
-    font-size: 1.1rem;
-    line-height: 1.4;
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-
-  .project-rich-content :global(li) {
-    white-space: pre-line;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
   }
 
   /* Lightbox Modal */
@@ -690,7 +647,7 @@ const seoImage = project.yoast_head_json?.og_image?.[0]?.url || imageUrl;
     transition: 0.3s;
   }
   .lightbox-close:hover {
-    color: var(--primary);
+    color: var(--wp-accent-yellow);
   }
   .lightbox-caption {
     position: absolute;
@@ -700,6 +657,6 @@ const seoImage = project.yoast_head_json?.og_image?.[0]?.url || imageUrl;
     color: #ccc;
     font-size: 14px;
     letter-spacing: 1px;
-    font-family: var(--font-body);
+    font-family: "Montserrat", sans-serif;
   }
 </style>

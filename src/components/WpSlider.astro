@@ -1,4 +1,6 @@
 ---
+import { fetchAllWp } from "../lib/wordpress.js";
+
 let { location = "home" } = Astro.props;
 
 const base = import.meta.env.BASE_URL === '/' ? '/' : `${import.meta.env.BASE_URL}/`;
@@ -8,22 +10,22 @@ const defaultSlides = [
   {
     title: "Soluciones<br />constructivas",
     content: "Proyectamos y construimos con rigurosa planificación y el mejor equipo técnico.",
-    image: "https://encaje.ec/wp-content/uploads/2025/02/01-SECCION-BANNER-1-min.jpg",
-    link: `${base}replica-wp/proyectos`,
+    image: `${BACKEND_URL}/wp-content/uploads/2025/02/01-SECCION-BANNER-1-min.jpg`,
+    link: `${base}proyectos`,
     button_text: "TODOS LOS PROYECTOS"
   },
   {
     title: "Diseño &<br />Arquitectura",
     content: "Conceptos innovadores que desafían los estándares y optimizan cada metro cuadrado.",
-    image: "https://encaje.ec/wp-content/uploads/2025/02/BANNER_PROYECTOS.jpg",
-    link: `${base}replica-wp/quienes-somos`,
+    image: `${BACKEND_URL}/wp-content/uploads/2025/02/BANNER_PROYECTOS.jpg`,
+    link: `${base}quienes-somos`,
     button_text: "CONÓCENOS"
   },
   {
     title: "Compromiso &<br />Honestidad",
     content: "Soluciones de alta ingeniería civil con estructuras sismorresistentes y duraderas.",
-    image: "https://encaje.ec/wp-content/uploads/2025/02/CIERRE_BANER_QUIENESSOMOS.jpg",
-    link: `${base}replica-wp/contacto`,
+    image: `${BACKEND_URL}/wp-content/uploads/2025/02/CIERRE_BANER_QUIENESSOMOS.jpg`,
+    link: `${base}contacto`,
     button_text: "CONTÁCTANOS"
   }
 ];
@@ -39,23 +41,20 @@ try {
     if (terms && terms.length > 0) {
       const termId = terms[0].id;
       // 2. Fetch sliders assigned to this location ID, ordered by menu_order
-      const slidersRes = await fetch(`${BACKEND_URL}/wp-json/wp/v2/sliders?slider-locations=${termId}&orderby=menu_order&order=asc&_embed`);
-      if (slidersRes.ok) {
-        const wpSliders = await slidersRes.json();
-        if (wpSliders && wpSliders.length > 0) {
-          slides = wpSliders.map(s => {
-            const media = s?._embedded?.['wp:featuredmedia']?.[0];
-            const imageUrl = media?.source_url || '/placeholder.jpg';
-            return {
-              title: s.title?.rendered || '',
-              content: s.content?.rendered ? s.content.rendered.replace(/<[^>]*>/g, '') : '', 
-              image: imageUrl,
-              link: s.slider_link || '#',
-              button_text: s.slider_button_text || 'VER MÁS'
-            };
-          });
-          hasWpSliders = true;
-        }
+      const wpSliders = await fetchAllWp(`${BACKEND_URL}/wp-json/wp/v2/sliders?slider-locations=${termId}&orderby=menu_order&order=asc&_embed`);
+      if (wpSliders && wpSliders.length > 0) {
+        slides = wpSliders.map(s => {
+          const media = s?._embedded?.['wp:featuredmedia']?.[0];
+          const imageUrl = media?.source_url || '/placeholder.jpg';
+          return {
+            title: s.title?.rendered || '',
+            content: s.content?.rendered ? s.content.rendered.replace(/<[^>]*>/g, '') : '',
+            image: imageUrl,
+            link: s.slider_link || '#',
+            button_text: s.slider_button_text || 'VER MÁS'
+          };
+        });
+        hasWpSliders = true;
       }
     }
   }
@@ -73,22 +72,22 @@ if (!hasWpSliders) {
   } else if (location === "contacto") {
     isStaticHeader = true;
     staticHeaderData = {
-      image: "https://encaje.ec/wp-content/uploads/2025/02/BANNER_CONTACTO.jpg",
-      titleSvg: "https://encaje.ec/wp-content/uploads/2025/02/Contacto.svg",
+      image: `${BACKEND_URL}/wp-content/uploads/2025/02/BANNER_CONTACTO.jpg`,
+      titleSvg: `${BACKEND_URL}/wp-content/uploads/2025/02/Contacto.svg`,
       titleText: "Contacto",
       breadcrumbs: [
-        { name: "Inicio", url: `${base}replica-wp` },
+        { name: "Inicio", url: `${base}` },
         { name: "Contacto", url: null }
       ]
     };
   } else if (location === "quienes-somos") {
     isStaticHeader = true;
     staticHeaderData = {
-      image: "https://encaje.ec/wp-content/uploads/2025/02/BANNER_QUIENES_SOMOS.jpg",
-      titleSvg: "https://encaje.ec/wp-content/uploads/2025/02/QUIENES_SOMOS.svg",
+      image: `${BACKEND_URL}/wp-content/uploads/2025/02/BANNER_QUIENES_SOMOS.jpg`,
+      titleSvg: `${BACKEND_URL}/wp-content/uploads/2025/02/QUIENES_SOMOS.svg`,
       titleText: "Quienes Somos",
       breadcrumbs: [
-        { name: "Inicio", url: `${base}replica-wp` },
+        { name: "Inicio", url: `${base}` },
         { name: "Quienes Somos", url: null }
       ]
     };
@@ -97,11 +96,11 @@ if (!hasWpSliders) {
     isStaticHeader = true;
     const readableTitle = location.charAt(0).toUpperCase() + location.slice(1).replace('-', ' ');
     staticHeaderData = {
-      image: "https://encaje.ec/wp-content/uploads/2025/02/BANNER_PROYECTOS.jpg",
+      image: `${BACKEND_URL}/wp-content/uploads/2025/02/BANNER_PROYECTOS.jpg`,
       titleSvg: null,
       titleText: readableTitle,
       breadcrumbs: [
-        { name: "Inicio", url: `${base}replica-wp` },
+        { name: "Inicio", url: `${base}` },
         { name: readableTitle, url: null }
       ]
     };

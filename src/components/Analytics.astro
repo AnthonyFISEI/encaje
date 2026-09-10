@@ -1,0 +1,55 @@
+---
+// Google Analytics 4 + Meta Pixel. Only rendered in production builds (npm run build)
+// and only for the IDs defined in .env, so local development doesn't pollute the stats.
+const gaId = import.meta.env.PUBLIC_GA_MEASUREMENT_ID;
+const pixelId = import.meta.env.PUBLIC_META_PIXEL_ID;
+const enabled = import.meta.env.PROD;
+---
+
+{enabled && gaId && (
+  <>
+    <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}></script>
+    <script is:inline define:vars={{ gaId }}>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { window.dataLayer.push(arguments); };
+      window.gtag('js', new Date());
+      window.gtag('config', gaId);
+    </script>
+  </>
+)}
+
+{enabled && pixelId && (
+  <>
+    <script is:inline define:vars={{ pixelId }}>
+      !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+      n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+      document,'script','https://connect.facebook.net/en_US/fbevents.js');
+      window.fbq('init', pixelId);
+      window.fbq('track', 'PageView');
+    </script>
+    <noscript>
+      <img height="1" width="1" style="display:none" alt=""
+        src={`https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1`} />
+    </noscript>
+  </>
+)}
+
+{enabled && (gaId || pixelId) && (
+  <script is:inline>
+    // Contact clicks (WhatsApp, email, phone) → GA4 "generate_lead" + Meta "Contact"
+    document.addEventListener('click', function (event) {
+      var link = event.target.closest && event.target.closest('a[href]');
+      if (!link) return;
+      var href = link.getAttribute('href');
+      var method = /whatsapp\.com|wa\.me/.test(href) ? 'whatsapp'
+        : href.indexOf('mailto:') === 0 ? 'email'
+        : href.indexOf('tel:') === 0 ? 'phone'
+        : null;
+      if (!method) return;
+      if (window.gtag) window.gtag('event', 'generate_lead', { method: method });
+      if (window.fbq) window.fbq('track', 'Contact', { method: method });
+    });
+  </script>
+)}

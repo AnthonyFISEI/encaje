@@ -1,0 +1,17 @@
+RewriteEngine On
+
+# Si la petición es a la raíz, servir dist/index.html
+RewriteRule ^$ dist/index.html [L]
+
+# Si el archivo o directorio no existe en la raíz, buscar en dist/
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{DOCUMENT_ROOT}/dist/$1 -f [OR]
+RewriteCond %{DOCUMENT_ROOT}/dist/$1 -d
+RewriteRule ^(.*)$ dist/$1 [L]
+
+# Para rutas limpias de Astro en dist/ (ej. /proyectos -> /dist/proyectos/index.html)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{DOCUMENT_ROOT}/dist/$1/index.html -f
+RewriteRule ^(.*)$ dist/$1/index.html [L]

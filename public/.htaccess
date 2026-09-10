@@ -1,0 +1,16 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Handle trailing slash requests for directory routes
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^(.*)/$ $1/index.html [L]
+</IfModule>
+
+# Custom 404 handling
+ErrorDocument 404 /404.html
+
+# Enable GZIP Compression for fast load times
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json image/svg+xml
+</IfModule>

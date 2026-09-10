@@ -1,496 +1,487 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import WpSlider from '../components/WpSlider.astro';
+
+const base = import.meta.env.BASE_URL === '/' ? '/' : `${import.meta.env.BASE_URL}/`;
+const BACKEND_URL = import.meta.env.WORDPRESS_API_URL || "http://encaje-wp.test";
+
+// Contact Form 7 form "Contacto" in WordPress (fields: your-name, your-email, your-subject, your-message).
+// Recipient, email template and response messages are managed in WP admin → Contacto.
+const CF7_FORM_ID = 1587;
+const CF7_ENDPOINT = `${BACKEND_URL}/wp-json/contact-form-7/v1/contact-forms/${CF7_FORM_ID}/feedback`;
 ---
 
-<Layout>
-  <main class="contacto-page">
-    <!-- Hero Section -->
-    <section class="contacto-hero" style="background-image: linear-gradient(to bottom, rgba(36, 36, 36, 0.4) 0%, rgba(36, 36, 36, 0.85) 100%), url('https://encaje.ec/wp-content/uploads/2025/02/BANNER_CONTACTO.jpg');">
-      <div class="hero-content">
-        <span class="hero-tagline">HABLEMOS</span>
-        <h1>Contacto</h1>
-        <ul class="breadcrumbs">
-          <li><a href="/">Inicio</a></li>
-          <li class="separator">/</li>
-          <li class="active">Contacto</li>
-        </ul>
-      </div>
-    </section>
+<Layout title="Contacto - Encaje">
+  <main class="wp-contacto-page">
+    <!-- Page Banner -->
+    <WpSlider location="contacto" />
 
-    <!-- Contact Info Cards & Grid Section -->
-    <section class="contacto-section">
-      <div class="section-container">
-        <!-- Info Cards Grid -->
-        <div class="info-cards-grid">
-          <!-- WhatsApp Card -->
-          <div class="info-card">
-            <div class="info-icon-box">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="info-icon">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.824-1.802-5.14-4.117-6.94-6.94l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" />
-              </svg>
-            </div>
-            <h3>WhatsApp</h3>
-            <a href="https://wa.me/593983116325" target="_blank" rel="noopener noreferrer" class="info-link">
-              +593 98 311 6325
-            </a>
-            <p>Atención directa e inmediata para consultas comerciales.</p>
-          </div>
-
-          <!-- Email Card -->
-          <div class="info-card">
-            <div class="info-icon-box">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="info-icon">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-              </svg>
-            </div>
-            <h3>Email</h3>
-            <a href="mailto:info@encaje.ec" class="info-link">
-              info@encaje.ec
-            </a>
-            <p>Escríbenos para propuestas formales, licitaciones y consultoría.</p>
-          </div>
-
-          <!-- Location Card -->
-          <div class="info-card">
-            <div class="info-icon-box">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="info-icon">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25s-7.5-4.108-7.5-11.25g9 3a9 9 0 0 1 18 0Z" />
-              </svg>
-            </div>
-            <h3>Ubicaciones</h3>
-            <span class="info-text">Quito y Salinas</span>
-            <p>Cobertura y ejecución de obras a nivel nacional.</p>
-          </div>
+    <!-- Contact Info Section -->
+    <section class="contact-info-section">
+      <div class="container">
+        <div class="title-box">
+          <span></span>
+          <h2>Contáctanos</h2>
         </div>
-
-        <!-- Form and Map Box -->
-        <div class="interactive-grid">
-          <!-- Premium Form -->
-          <div class="premium-form-box">
-            <h2>Envíanos un mensaje</h2>
-            <div class="gold-line"></div>
-            
-            <form class="contact-form" onSubmit="event.preventDefault(); alert('Mensaje enviado exitosamente. Nos pondremos en contacto a la brevedad.');">
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="name">Nombre Completo</label>
-                  <input type="text" id="name" placeholder="Tu nombre" required />
-                </div>
-                <div class="form-group">
-                  <label for="email">Correo Electrónico</label>
-                  <input type="email" id="email" placeholder="nombre@correo.com" required />
-                </div>
-              </div>
-              
-              <div class="form-group">
-                <label for="subject">Asunto</label>
-                <input type="text" id="subject" placeholder="¿En qué te podemos ayudar?" required />
-              </div>
-              
-              <div class="form-group">
-                <label for="message">Mensaje</label>
-                <textarea id="message" rows="6" placeholder="Cuéntanos sobre tu proyecto..." required></textarea>
-              </div>
-
-              <button type="submit" class="submit-btn">
-                <span>Enviar Mensaje</span>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="submit-arrow">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+        
+        <div class="contact-info-box">
+          <div class="row-info">
+            <!-- Whatsapp Info -->
+            <div class="col-info">
+              <div class="contact-info-post">
+                <svg aria-hidden="true" class="e-font-icon-svg e-fab-whatsapp" viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg">
+                  <path fill="currentColor" d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"></path>
                 </svg>
-              </button>
-            </form>
-          </div>
+                <div class="info-content">
+                  <h4>+593 98 311 6325</h4>
+                </div>
+              </div>
+            </div>
 
-          <!-- Map Box -->
-          <div class="premium-map-box">
-            <iframe frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?q=Quito%2C+Ecuador&t=m&z=14&output=embed&iwloc=near" class="dark-iframe-map"></iframe>
+            <!-- Email Info -->
+            <div class="col-info">
+              <div class="contact-info-post">
+                <svg aria-hidden="true" class="e-font-icon-svg e-far-envelope" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+                  <path fill="currentColor" d="M464 64H48C21.49 64 0 85.49 0 112v288c0 26.51 21.49 48 48 48h416c26.51 0 48-21.49 48-48V112c0-26.51-21.49-48-48-48zm0 48v40.805c-22.422 18.259-58.168 46.651-134.587 106.49-16.841 13.247-50.201 45.072-73.413 44.701-23.208.375-56.579-31.459-73.413-44.701C106.18 199.465 70.425 171.067 48 152.805V112h416zM48 400V214.398c22.914 18.251 55.409 43.862 104.938 82.646 21.857 17.205 60.134 55.186 103.062 54.955 42.717.231 80.509-37.199 103.053-54.947 49.528-38.783 82.032-64.401 104.947-82.653V400H48z"></path>
+                </svg>
+                <div class="info-content">
+                  <h4>info@encaje.ec</h4>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="contact-form-box">
+          <div class="row-form">
+            <!-- Form Block -->
+            <div class="col-lg-8">
+              <div id="contact-form">
+                <div class="wpcf7">
+                  <form method="post" class="wpcf7-form" data-endpoint={CF7_ENDPOINT}>
+                    <input type="hidden" name="_wpcf7" value={CF7_FORM_ID} />
+                    <input type="hidden" name="_wpcf7_unit_tag" value={`wpcf7-f${CF7_FORM_ID}-o1`} />
+                    <h4>Envíanos un mensaje</h4>
+                    <div class="row-fields">
+                      <div class="col-md-6">
+                        <div class="input-line">
+                          <label for="your-name"><i class="fas fa-user"></i></label>
+                          <input size="40" class="wpcf7-form-control wpcf7-text" placeholder="Nombre" type="text" name="your-name" required />
+                        </div>
+                        <div class="input-line">
+                          <label for="your-email"><i class="far fa-envelope"></i></label>
+                          <input size="40" class="wpcf7-form-control wpcf7-text" placeholder="Correo" type="email" name="your-email" required />
+                        </div>
+                        <div class="input-line">
+                          <label for="your-subject"><i class="fas fa-link"></i></label>
+                          <input size="40" class="wpcf7-form-control wpcf7-text" placeholder="Asunto" type="text" name="your-subject" required />
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="input-line text-area-line">
+                          <textarea cols="40" rows="10" class="wpcf7-form-control wpcf7-textarea" placeholder="Mensaje" name="your-message" required></textarea>
+                        </div>
+                        <div class="submit-line">
+                          <input class="wpcf7-form-control wpcf7-submit" type="submit" value="Enviar" />
+                        </div>
+                        <div class="form-response" role="status" aria-live="polite" hidden></div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <!-- Map Block -->
+            <div class="col-lg-4">
+              <div id="map">
+                <div class="elementor-custom-embed">
+                  <iframe frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?q=Quito%2C+Ecuador&t=m&z=14&output=embed&iwloc=near"></iframe>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Parallax Closing Banner -->
-    <section class="closing-banner" style="background-image: linear-gradient(to top, rgba(36,36,36,0.95), rgba(36,36,36,0.35)), url('https://encaje.ec/wp-content/uploads/2025/02/CIERRE_BANNER_CONTACTO.jpg');">
-      <div class="closing-content">
-        <h2>Construyamos Juntos</h2>
-        <p>Proyectamos soluciones constructivas eficientes desde la responsabilidad social.</p>
-      </div>
+    <!-- Cierre Banner Section -->
+    <section class="wp-cierre-banner">
+      <img src={`${BACKEND_URL}/wp-content/uploads/2025/02/CIERRE_BANNER_CONTACTO.jpg`} alt="Cierre Banner Contacto" class="wp-cierre-banner-img" />
     </section>
+
+
   </main>
 </Layout>
 
+<script>
+  // Sends the form to the Contact Form 7 REST API; CF7 validates it and emails it.
+  const form = document.querySelector<HTMLFormElement>('.wpcf7-form');
+  const submit = form?.querySelector<HTMLInputElement>('.wpcf7-submit');
+  const output = form?.querySelector<HTMLElement>('.form-response');
+  const FALLBACK_ERROR =
+    'No pudimos enviar tu mensaje. Inténtalo de nuevo o escríbenos por WhatsApp al +593 98 311 6325.';
+
+  const showMessage = (text: string, type: 'success' | 'error') => {
+    if (!output) return;
+    output.textContent = text;
+    output.className = `form-response is-${type}`;
+    output.hidden = false;
+  };
+
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!submit || !form.dataset.endpoint) return;
+
+    form.querySelectorAll('[aria-invalid="true"]').forEach((field) => field.removeAttribute('aria-invalid'));
+    if (output) output.hidden = true;
+    submit.disabled = true;
+    submit.value = 'Enviando...';
+
+    try {
+      const response = await fetch(form.dataset.endpoint, { method: 'POST', body: new FormData(form) });
+      const data = await response.json();
+
+      if (data.status === 'mail_sent') {
+        form.reset();
+        showMessage(data.message, 'success');
+        const tracking = window as any;
+        tracking.gtag?.('event', 'generate_lead', { method: 'form' });
+        tracking.fbq?.('track', 'Lead');
+      } else {
+        (data.invalid_fields || []).forEach(({ field }: { field: string }) => {
+          form.querySelector(`[name="${field}"]`)?.setAttribute('aria-invalid', 'true');
+        });
+        showMessage(data.message || FALLBACK_ERROR, 'error');
+      }
+    } catch {
+      showMessage(FALLBACK_ERROR, 'error');
+    } finally {
+      submit.disabled = false;
+      submit.value = 'Enviar';
+    }
+  });
+</script>
+
 <style>
-  .contacto-page {
-    background-color: var(--bg-dark);
+  .wp-contacto-page {
+    background-color: var(--wp-bg-dark);
+    font-family: "Montserrat", sans-serif;
   }
 
-  /* Hero Styling */
-  .contacto-hero {
-    position: relative;
-    padding: 12rem 2rem 8rem;
-    text-align: center;
+  /* Page Banner styling */
+  .wp-page-banner {
+    padding: 180px 0 100px;
     background-size: cover;
     background-position: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  }
-
-  .hero-content {
-    max-width: 800px;
-    margin: 0 auto;
+    border-bottom: 1px solid #3d3d3d;
     position: relative;
-    z-index: 2;
-  }
-
-  .contacto-hero h1 {
-    font-family: var(--font-heading);
-    font-size: 4rem;
-    font-weight: 900;
-    letter-spacing: -0.02em;
-    margin-bottom: 1.5rem;
-    background: linear-gradient(135deg, var(--text-light) 40%, rgba(241, 245, 249, 0.7) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-transform: uppercase;
-  }
-
-  /* Breadcrumbs */
-  .breadcrumbs {
-    list-style: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.75rem;
-    background: rgba(27, 27, 27, 0.6);
-    padding: 0.5rem 1.5rem;
-    border-radius: 30px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    font-size: 0.9rem;
-  }
-
-  .breadcrumbs a {
-    color: rgba(255, 255, 255, 0.6);
-    text-decoration: none;
-    font-family: var(--font-heading);
-    font-weight: 500;
-    transition: var(--transition-smooth);
-  }
-
-  .breadcrumbs a:hover {
-    color: var(--primary);
-  }
-
-  .breadcrumbs .separator {
-    color: rgba(255, 255, 255, 0.25);
-  }
-
-  .breadcrumbs .active {
-    color: var(--primary);
-    font-weight: 600;
-    font-family: var(--font-heading);
-  }
-
-  /* Section Layout */
-  .contacto-section {
-    padding: 6rem 2rem;
-  }
-
-  .section-container {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  /* Info Cards Grid */
-  .info-cards-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2rem;
-    margin-bottom: 5rem;
-  }
-
-  .info-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-card);
-    border-radius: 16px;
-    padding: 2.5rem 2rem;
     text-align: center;
-    transition: var(--transition-smooth);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
   }
 
-  .info-card:hover {
-    transform: translateY(-5px);
-    border-color: var(--border-card-hover);
-    box-shadow: 0 15px 35px rgba(212, 175, 55, 0.05);
+  .wp-banner-container {
+    max-width: 1170px;
+    margin: 0 auto;
+    padding: 0 30px;
   }
 
-  .info-icon-box {
-    width: 60px;
-    height: 60px;
-    background: rgba(212, 175, 55, 0.1);
-    border: 1px solid rgba(212, 175, 55, 0.25);
-    border-radius: 12px;
+  .wp-banner-svg-title {
+    max-width: 500px;
+    width: 100%;
+    height: auto;
+    margin-bottom: 25px;
+    display: inline-block;
+  }
+
+  .wp-breadcrumbs {
+    list-style: none;
     display: flex;
     justify-content: center;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    color: var(--primary);
-    transition: var(--transition-smooth);
+    gap: 10px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.4);
+    margin-top: 15px;
   }
 
-  .info-card:hover .info-icon-box {
-    background: var(--primary);
-    color: var(--bg-dark);
-    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
-    transform: scale(1.05);
-  }
-
-  .info-icon {
-    width: 1.8rem;
-    height: 1.8rem;
-  }
-
-  .info-card h3 {
-    font-family: var(--font-heading);
-    font-size: 1.35rem;
-    font-weight: 700;
-    margin-bottom: 0.75rem;
-    color: var(--text-light);
-  }
-
-  .info-link,
-  .info-text {
-    font-family: var(--font-heading);
-    font-size: 1.15rem;
-    font-weight: 600;
-    color: var(--primary);
+  .wp-breadcrumbs a {
+    color: rgba(255, 255, 255, 0.4);
     text-decoration: none;
-    margin-bottom: 0.75rem;
-    transition: var(--transition-smooth);
+    transition: all 0.2s;
   }
 
-  .info-link:hover {
-    color: var(--primary-hover);
+  .wp-breadcrumbs a:hover {
+    color: var(--wp-accent-yellow);
   }
 
-  .info-card p {
-    color: var(--text-muted);
-    font-size: 0.95rem;
-    line-height: 1.5;
-    font-weight: 300;
+  .wp-breadcrumbs li.active {
+    color: var(--wp-text-light);
+  }
+
+  /* Contact Info Section */
+  .contact-info-section {
+    padding: 100px 0;
+  }
+
+  .container {
+    max-width: 1170px;
+    margin: 0 auto;
+    padding: 0 30px;
+  }
+
+  .title-box {
+    text-align: left;
+    margin-bottom: 50px;
+    position: relative;
+  }
+
+  .title-box span {
+    display: block;
+    width: 30px;
+    height: 1px;
+    background-color: var(--wp-accent-gold);
+    margin-bottom: 15px;
+  }
+
+  .title-box h2 {
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--wp-text-light);
+    text-transform: uppercase;
+    margin: 0;
+    letter-spacing: 1px;
+  }
+
+  .contact-info-box {
+    margin-bottom: 60px;
+  }
+
+  .row-info {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+  }
+
+  .contact-info-post {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 30px;
+    border: 1px solid #3d3d3d;
+    background-color: var(--wp-bg-darker);
+    min-height: 110px;
+    transition: border-color 0.3s;
+  }
+
+  .contact-info-post:hover {
+    border-color: var(--wp-accent-yellow);
+  }
+
+  .contact-info-post svg {
+    width: 32px;
+    height: 32px;
+    color: var(--wp-accent-gold);
+    flex-shrink: 0;
+  }
+
+  .info-content h4 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--wp-text-light);
     margin: 0;
   }
 
-  /* Interactive Form and Map Grid */
-  .interactive-grid {
+  /* Form and Map layout */
+  .row-form {
     display: grid;
-    grid-template-columns: 1.2fr 0.8fr;
-    gap: 3rem;
+    grid-template-columns: 1.3fr 0.7fr;
+    gap: 30px;
   }
 
-  .premium-form-box {
-    background: var(--bg-card);
-    border: 1px solid var(--border-card);
-    border-radius: 20px;
-    padding: 3rem;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+  #contact-form {
+    background-color: var(--wp-bg-darker);
+    border: 1px solid #3d3d3d;
+    padding: 40px;
   }
 
-  .premium-form-box h2 {
-    font-family: var(--font-heading);
-    font-size: 2.2rem;
-    font-weight: 800;
-    color: var(--text-light);
-    margin-bottom: 1rem;
-    letter-spacing: -0.01em;
+  #contact-form h4 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--wp-text-light);
+    margin-bottom: 30px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
   }
 
-  .gold-line {
-    width: 50px;
-    height: 4px;
-    background: linear-gradient(90deg, var(--primary), var(--secondary));
-    margin-bottom: 2.5rem;
-    border-radius: 2px;
-  }
-
-  /* Form Elements */
-  .contact-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.75rem;
-  }
-
-  .form-row {
+  .row-fields {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
+    gap: 25px;
   }
 
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+  .input-line {
+    position: relative;
+    margin-bottom: 20px;
   }
 
-  .form-group label {
-    font-family: var(--font-heading);
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.75);
-    letter-spacing: 0.05em;
+  .input-line label {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 14px;
+    pointer-events: none;
   }
 
-  .form-group input,
-  .form-group textarea {
-    background: rgba(30, 30, 30, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 8px;
-    padding: 1rem 1.25rem;
-    color: var(--text-light);
-    font-family: var(--font-body);
-    font-size: 0.95rem;
+  .input-line input {
+    width: 100%;
+    background-color: transparent;
+    border: 1px solid #4c4c4c;
+    color: var(--wp-text-light);
+    padding: 15px 15px 15px 50px;
+    font-size: 14px;
+    font-family: "Montserrat", sans-serif;
     outline: none;
-    transition: var(--transition-smooth);
+    transition: border-color 0.3s;
   }
 
-  .form-group input:focus,
-  .form-group textarea:focus {
-    border-color: var(--primary);
-    background: rgba(30, 30, 30, 0.7);
-    box-shadow: 0 0 10px rgba(212, 175, 55, 0.1);
+  .input-line input:focus,
+  .input-line textarea:focus {
+    border-color: var(--wp-accent-gold);
   }
 
-  .form-group textarea {
+  .input-line.text-area-line {
+    margin-bottom: 20px;
+  }
+
+  .input-line textarea {
+    width: 100%;
+    height: 135px;
+    background-color: transparent;
+    border: 1px solid #4c4c4c;
+    color: var(--wp-text-light);
+    padding: 15px;
+    font-size: 14px;
+    font-family: "Montserrat", sans-serif;
+    outline: none;
     resize: none;
+    transition: border-color 0.3s;
   }
 
-  /* Submit Button */
-  .submit-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-    background: var(--primary);
-    color: var(--bg-dark);
-    font-family: var(--font-heading);
-    font-weight: 700;
-    font-size: 1.05rem;
+  .wpcf7-submit {
+    width: 100%;
+    background-color: var(--wp-accent-yellow);
     border: none;
-    padding: 1.1rem;
-    border-radius: 30px;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 15px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
     cursor: pointer;
-    box-shadow: 0 10px 25px rgba(212, 175, 55, 0.2);
-    transition: var(--transition-smooth);
-    margin-top: 1rem;
+    font-family: "Montserrat", sans-serif;
+    transition: background-color 0.2s;
   }
 
-  .submit-btn:hover {
-    background: var(--primary-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 15px 35px rgba(212, 175, 55, 0.4);
+  .wpcf7-submit:hover {
+    background-color: #ffffff;
+    color: #000000;
   }
 
-  .submit-arrow {
-    width: 1.2rem;
-    height: 1.2rem;
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  .wpcf7-submit:disabled {
+    opacity: 0.6;
+    cursor: wait;
   }
 
-  .submit-btn:hover .submit-arrow {
-    transform: translateX(6px);
+  .input-line [aria-invalid="true"] {
+    border-color: #e5484d;
   }
 
-  /* Premium Map Container */
-  .premium-map-box {
-    border: 1px solid var(--border-card);
-    border-radius: 20px;
-    overflow: hidden;
+  .form-response {
+    margin-top: 15px;
+    padding: 12px 15px;
+    font-size: 14px;
+    line-height: 22px;
+    font-family: "Montserrat", sans-serif;
+    border: 1px solid;
+  }
+
+  .form-response.is-success {
+    color: #7fd19b;
+    border-color: #2f7a4a;
+  }
+
+  .form-response.is-error {
+    color: #ff9a9d;
+    border-color: #a8363a;
+  }
+
+  /* Map Container */
+  #map {
     height: 100%;
-    min-height: 450px;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    min-height: 350px;
+    border: 1px solid #3d3d3d;
   }
 
-  .dark-iframe-map {
+  .elementor-custom-embed {
     width: 100%;
     height: 100%;
-    border: none;
+  }
+
+  .elementor-custom-embed iframe {
+    width: 100%;
+    height: 100%;
+    min-height: 350px;
     display: block;
-    filter: grayscale(1) invert(0.9) contrast(1.2); /* elegant premium dark map styling */
+    filter: grayscale(1) invert(0.9) contrast(1.2); /* elegant dark map styling */
   }
 
-  /* Closing Banner */
-  .closing-banner {
-    position: relative;
-    padding: 10rem 2rem;
-    text-align: center;
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+  /* Cierre Banner */
+  .wp-cierre-banner {
+    width: 100%;
   }
 
-  .closing-content {
-    max-width: 700px;
-    margin: 0 auto;
-    position: relative;
-    z-index: 2;
+  .wp-cierre-banner-img {
+    width: 100%;
+    height: auto;
+    display: block;
   }
 
-  .closing-content h2 {
-    font-family: var(--font-heading);
-    font-size: 3.2rem;
-    font-weight: 800;
-    color: var(--text-light);
-    margin-bottom: 1.25rem;
-    letter-spacing: -0.02em;
-    text-transform: uppercase;
-  }
 
-  .closing-content p {
-    color: var(--text-muted);
-    font-size: 1.25rem;
-    font-weight: 300;
-  }
 
   /* Responsive Design */
-  @media (max-width: 1024px) {
-    .info-cards-grid {
+  @media (max-width: 1023px) {
+    .row-info {
       grid-template-columns: 1fr;
-      gap: 1.5rem;
+      gap: 20px;
     }
 
-    .interactive-grid {
+    .row-form {
       grid-template-columns: 1fr;
-      gap: 3rem;
+      gap: 30px;
     }
 
-    .premium-map-box {
-      min-height: 350px;
+    #map {
+      height: 350px;
     }
   }
 
-  @media (max-width: 768px) {
-    .contacto-hero h1 {
-      font-size: 3rem;
+  @media (max-width: 767px) {
+    .wp-page-banner {
+      padding: 140px 0 60px;
     }
 
-    .closing-content h2 {
-      font-size: 2.2rem;
+    .wp-banner-svg-title {
+      max-width: 300px;
     }
 
-    .form-row {
+    .row-fields {
       grid-template-columns: 1fr;
-      gap: 1.5rem;
+      gap: 0;
     }
 
-    .premium-form-box {
-      padding: 2rem;
+    .wpcf7-submit {
+      margin-top: 10px;
     }
   }
 </style>
