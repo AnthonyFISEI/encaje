@@ -49,6 +49,18 @@ const CF7_ENDPOINT = `${BACKEND_URL}/wp-json/contact-form-7/v1/contact-forms/${C
                 </div>
               </div>
             </div>
+
+            <!-- Address Info -->
+            <div class="col-info">
+              <a href="https://maps.app.goo.gl/p6jtjiXVfXztFwBA6" target="_blank" rel="noopener noreferrer" class="contact-info-post" data-track="find_location">
+                <svg aria-hidden="true" class="e-font-icon-svg e-fas-map-marker-alt" viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg">
+                  <path fill="currentColor" d="M172.268 501.67C26.97 291.031 0 269.413 0 192 0 85.961 85.961 0 192 0s192 85.961 192 192c0 77.413-26.97 99.031-172.268 309.67-9.535 13.774-29.93 13.773-39.464 0zM192 272c44.183 0 80-35.817 80-80s-35.817-80-80-80-80 35.817-80 80 35.817 80 80 80z"></path>
+                </svg>
+                <div class="info-content">
+                  <h4>Belisario Quevedo 1-109 y Marqués de Maenza</h4>
+                </div>
+              </a>
+            </div>
           </div>
         </div>
 
@@ -96,9 +108,18 @@ const CF7_ENDPOINT = `${BACKEND_URL}/wp-json/contact-form-7/v1/contact-forms/${C
             <div class="col-lg-4">
               <div id="map">
                 <div class="elementor-custom-embed">
-                  <iframe frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?q=Quito%2C+Ecuador&t=m&z=14&output=embed&iwloc=near"></iframe>
+                  <iframe frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?q=-0.9377526,-78.615387&t=m&z=17&output=embed&iwloc=near"></iframe>
                 </div>
               </div>
+              <a
+                href="https://www.google.com/maps/dir/?api=1&destination=-0.9377526,-78.615387"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="map-directions-link"
+                data-track="find_location"
+              >
+                <i class="fas fa-location-arrow"></i> Cómo llegar
+              </a>
             </div>
           </div>
         </div>
@@ -145,9 +166,7 @@ const CF7_ENDPOINT = `${BACKEND_URL}/wp-json/contact-form-7/v1/contact-forms/${C
       if (data.status === 'mail_sent') {
         form.reset();
         showMessage(data.message, 'success');
-        const tracking = window as any;
-        tracking.gtag?.('event', 'generate_lead', { method: 'form' });
-        tracking.fbq?.('track', 'Lead');
+        (window as any).trackEvent?.('generate_lead', { method: 'form' }, 'Lead', { content_name: 'Formulario de contacto' });
       } else {
         (data.invalid_fields || []).forEach(({ field }: { field: string }) => {
           form.querySelector(`[name="${field}"]`)?.setAttribute('aria-invalid', 'true');
@@ -160,6 +179,13 @@ const CF7_ENDPOINT = `${BACKEND_URL}/wp-json/contact-form-7/v1/contact-forms/${C
       submit.disabled = false;
       submit.value = 'Enviar';
     }
+  });
+
+  // Address block + "Cómo llegar" → GA4 "find_location" + Meta "FindLocation"
+  document.querySelectorAll('[data-track="find_location"]').forEach((link) => {
+    link.addEventListener('click', () => {
+      (window as any).trackEvent?.('find_location', {}, 'FindLocation', {});
+    });
   });
 </script>
 
@@ -257,7 +283,7 @@ const CF7_ENDPOINT = `${BACKEND_URL}/wp-json/contact-form-7/v1/contact-forms/${C
 
   .row-info {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 30px;
   }
 
@@ -269,6 +295,7 @@ const CF7_ENDPOINT = `${BACKEND_URL}/wp-json/contact-form-7/v1/contact-forms/${C
     border: 1px solid #3d3d3d;
     background-color: var(--wp-bg-darker);
     min-height: 110px;
+    text-decoration: none;
     transition: border-color 0.3s;
   }
 
@@ -426,6 +453,28 @@ const CF7_ENDPOINT = `${BACKEND_URL}/wp-json/contact-form-7/v1/contact-forms/${C
   .elementor-custom-embed {
     width: 100%;
     height: 100%;
+  }
+
+  .map-directions-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 15px;
+    padding: 15px;
+    border: 1px solid #4c4c4c;
+    color: var(--wp-text-light);
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-decoration: none;
+    transition: border-color 0.3s, color 0.3s;
+  }
+
+  .map-directions-link:hover {
+    border-color: var(--wp-accent-gold);
+    color: var(--wp-accent-gold);
   }
 
   .elementor-custom-embed iframe {

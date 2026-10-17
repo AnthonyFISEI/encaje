@@ -115,6 +115,16 @@ const formatDate = (dateString) => {
       </div>
     </section>
   </main>
+
+  <script define:vars={{ postName: post.title.rendered.replace(/<[^>]*>/g, ''), postSlug: post.slug }} is:inline>
+    // GA4 "view_item" + Meta "ViewContent" for this blog post
+    if (window.trackEvent) {
+      window.trackEvent(
+        'view_item', { item_id: postSlug, item_name: postName },
+        'ViewContent', { content_ids: [postSlug], content_name: postName, content_type: 'article' }
+      );
+    }
+  </script>
 </Layout>
 
 <style>

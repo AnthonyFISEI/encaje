@@ -38,6 +38,13 @@ const enabled = import.meta.env.PROD;
 
 {enabled && (gaId || pixelId) && (
   <script is:inline>
+    // Shared helper so any page can fire a GA4 event + its equivalent Meta standard event
+    // in one call: window.trackEvent('generate_lead', {...}, 'Lead', {...})
+    window.trackEvent = function (gaEvent, gaParams, metaEvent, metaParams) {
+      if (window.gtag && gaEvent) window.gtag('event', gaEvent, gaParams || {});
+      if (window.fbq && metaEvent) window.fbq('track', metaEvent, metaParams || {});
+    };
+
     // Contact clicks (WhatsApp, email, phone) → GA4 "generate_lead" + Meta "Contact"
     document.addEventListener('click', function (event) {
       var link = event.target.closest && event.target.closest('a[href]');
@@ -48,8 +55,7 @@ const enabled = import.meta.env.PROD;
         : href.indexOf('tel:') === 0 ? 'phone'
         : null;
       if (!method) return;
-      if (window.gtag) window.gtag('event', 'generate_lead', { method: method });
-      if (window.fbq) window.fbq('track', 'Contact', { method: method });
+      window.trackEvent('generate_lead', { method: method }, 'Contact', { method: method });
     });
   </script>
 )}

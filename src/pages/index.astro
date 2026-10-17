@@ -1,15 +1,19 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import WpSlider from '../components/WpSlider.astro';
+import Layout from "../layouts/Layout.astro";
+import WpSlider from "../components/WpSlider.astro";
 
-const base = import.meta.env.BASE_URL === '/' ? '/' : `${import.meta.env.BASE_URL}/`;
-const BACKEND_URL = import.meta.env.WORDPRESS_API_URL || "http://encaje-wp.test";
+const base =
+  import.meta.env.BASE_URL === "/" ? "/" : `${import.meta.env.BASE_URL}/`;
+const BACKEND_URL =
+  import.meta.env.WORDPRESS_API_URL || "http://encaje-wp.test";
 
 // Fetch projects from WordPress
 let projects = [];
 let errorMsg = null;
 try {
-  const response = await fetch(`${BACKEND_URL}/wp-json/wp/v2/projects?_embed&per_page=10`);
+  const response = await fetch(
+    `${BACKEND_URL}/wp-json/wp/v2/projects?_embed&per_page=10`,
+  );
   if (response.ok) {
     projects = await response.json();
   } else {
@@ -20,8 +24,9 @@ try {
 }
 
 let featuredProjects = projects;
-let galleryProjects = projects.filter(p =>
-  p.slug === 'edificio-t5' || p.slug === 'mama-miche' || p.slug === 'casadb'
+let galleryProjects = projects.filter(
+  (p) =>
+    p.slug === "edificio-t5" || p.slug === "mama-miche" || p.slug === "casadb",
 );
 if (galleryProjects.length < 3) {
   galleryProjects = projects.slice(0, 3);
@@ -29,29 +34,34 @@ if (galleryProjects.length < 3) {
 
 // Fallback image utility
 const getFeaturedImage = (project) => {
-  const media = project?._embedded?.['wp:featuredmedia']?.[0];
-  return media?.source_url || '/placeholder.jpg';
+  const media = project?._embedded?.["wp:featuredmedia"]?.[0];
+  return media?.source_url || "/placeholder.jpg";
 };
 
 // Helper to get actual project category from embedded terms
 const getProjectCategory = (project) => {
-  const terms = project?._embedded?.['wp:term'];
+  const terms = project?._embedded?.["wp:term"];
   if (terms && Array.isArray(terms)) {
     for (const taxTerms of terms) {
       if (Array.isArray(taxTerms)) {
-        const found = taxTerms.find(term => term.taxonomy === 'Project Category' || term.taxonomy === 'project-category' || term.taxonomy === 'project_category');
+        const found = taxTerms.find(
+          (term) =>
+            term.taxonomy === "Project Category" ||
+            term.taxonomy === "project-category" ||
+            term.taxonomy === "project_category",
+        );
         if (found) {
           return found.name;
         }
       }
     }
   }
-  
-  if (project.slug === 'edificio-t5') return 'Edificios';
-  if (project.slug === 'mama-miche') return 'Comercial & Retail';
-  if (project.slug === 'casadb') return 'Hogar y Vivienda';
-  
-  return 'Hogar y Vivienda';
+
+  if (project.slug === "edificio-t5") return "Edificios";
+  if (project.slug === "mama-miche") return "Comercial & Retail";
+  if (project.slug === "casadb") return "Hogar y Vivienda";
+
+  return "Hogar y Vivienda";
 };
 ---
 
@@ -63,32 +73,50 @@ const getProjectCategory = (project) => {
   <section class="wp-carousel-section">
     <div class="wp-carousel-container">
       <!-- Carousel Slider Controls -->
-      <button class="wp-carousel-control prev" id="wp-carousel-prev" aria-label="Previous Project">
+      <button
+        class="wp-carousel-control prev"
+        id="wp-carousel-prev"
+        aria-label="Previous Project"
+      >
         <i class="fas fa-chevron-left"></i>
       </button>
-      
+
       <div class="wp-carousel-wrapper">
         <div class="wp-carousel-track" id="wp-carousel-track">
-          {featuredProjects.map((project) => {
-            const imgUrl = getFeaturedImage(project);
-            return (
-              <div class="wp-carousel-card">
-                <a href={`${base}proyectos/${project.slug}`} class="wp-card-link">
-                  <div class="wp-card-image-box">
-                    <img src={imgUrl} alt={project.title.rendered} />
-                  </div>
-                  <div class="wp-card-info">
-                    <span class="wp-card-category">{getProjectCategory(project)}</span>
-                    <h3 class="wp-card-title" set:html={project.title.rendered}></h3>
-                  </div>
-                </a>
-              </div>
-            );
-          })}
+          {
+            featuredProjects.map((project) => {
+              const imgUrl = getFeaturedImage(project);
+              return (
+                <div class="wp-carousel-card">
+                  <a
+                    href={`${base}proyectos/${project.slug}`}
+                    class="wp-card-link"
+                  >
+                    <div class="wp-card-image-box">
+                      <img src={imgUrl} alt={project.title.rendered} />
+                    </div>
+                    <div class="wp-card-info">
+                      <span class="wp-card-category">
+                        {getProjectCategory(project)}
+                      </span>
+                      <h3
+                        class="wp-card-title"
+                        set:html={project.title.rendered}
+                      />
+                    </div>
+                  </a>
+                </div>
+              );
+            })
+          }
         </div>
       </div>
 
-      <button class="wp-carousel-control next" id="wp-carousel-next" aria-label="Next Project">
+      <button
+        class="wp-carousel-control next"
+        id="wp-carousel-next"
+        aria-label="Next Project"
+      >
         <i class="fas fa-chevron-right"></i>
       </button>
     </div>
@@ -101,20 +129,32 @@ const getProjectCategory = (project) => {
       <div class="wp-about-images-wrapper">
         <div class="wp-about-images">
           <div class="wp-about-img-item">
-            <img src={`${BACKEND_URL}/wp-content/uploads/2025/02/03-SECCION-NOSOTROS-1.jpg`} alt="Obra Encaje" />
+            <img
+              src={`${BACKEND_URL}/wp-content/uploads/2026/10/HOME-NOSOTROS.jpg`}
+              alt="Obra Encaje"
+            />
           </div>
           <div class="wp-about-img-item">
-            <img src={`${BACKEND_URL}/wp-content/uploads/2025/02/03-SECCION-NOSOTROS-2.jpg`} alt="Detalle Construcción" />
+            <img
+              src={`${BACKEND_URL}/wp-content/uploads/2026/10/HOME-NOSOTROS-02.jpg`}
+              alt="Detalle Construcción"
+            />
           </div>
         </div>
       </div>
 
       <!-- Right side: Text details -->
       <div class="wp-about-content">
-        <span class="wp-about-subtitle">NOSOTROS <span class="wp-about-sub-line"></span></span>
+        <span class="wp-about-subtitle"
+          >NOSOTROS <span class="wp-about-sub-line"></span></span
+        >
         <h2 class="wp-about-title">Encaje</h2>
         <p class="wp-about-text">
-          Proyectamos y construimos desde la responsabilidad social de la arquitectura y la ingeniería con el entorno de la sociedad. Somos un equipo humano de trabajo constante y coordinado entre Arquitectura e Ingeniería para entregar soluciones constructivas eficientes a nuestros clientes.
+          Proyectamos y construimos desde la responsabilidad social de la
+          arquitectura y la ingeniería con el entorno de la sociedad. Somos un
+          equipo humano de trabajo constante y coordinado entre Arquitectura e
+          Ingeniería para entregar soluciones constructivas eficientes a
+          nuestros clientes.
         </p>
       </div>
     </div>
@@ -137,7 +177,11 @@ const getProjectCategory = (project) => {
         <!-- Service 1: Diseño Arquitectónico -->
         <div class="wp-service-card">
           <div class="wp-icon-wrapper">
-            <img src={`${BACKEND_URL}/wp-content/uploads/2025/02/Diseno_Arquitectonico_ENCAJE.svg`} alt="Diseño Arquitectónico" class="wp-service-icon-svg" />
+            <img
+              src={`${BACKEND_URL}/wp-content/uploads/2025/02/Diseno_Arquitectonico_ENCAJE.svg`}
+              alt="Diseño Arquitectónico"
+              class="wp-service-icon-svg"
+            />
           </div>
           <h3>DISEÑO ARQUITECTÓNICO</h3>
           <p>Concepto e implantación de proyectos desde cero.</p>
@@ -146,7 +190,11 @@ const getProjectCategory = (project) => {
         <!-- Service 2: Construcción -->
         <div class="wp-service-card">
           <div class="wp-icon-wrapper">
-            <img src={`${BACKEND_URL}/wp-content/uploads/2025/02/Construccion_ENCAJE.svg`} alt="Construcción" class="wp-service-icon-svg" />
+            <img
+              src={`${BACKEND_URL}/wp-content/uploads/2025/02/Construccion_ENCAJE.svg`}
+              alt="Construcción"
+              class="wp-service-icon-svg"
+            />
           </div>
           <h3>CONSTRUCCIÓN</h3>
           <p>Entregar soluciones constructivas eficientes.</p>
@@ -155,7 +203,11 @@ const getProjectCategory = (project) => {
         <!-- Service 3: Asesoramiento Técnico -->
         <div class="wp-service-card">
           <div class="wp-icon-wrapper">
-            <img src={`${BACKEND_URL}/wp-content/uploads/2025/02/Asesoramiento_Tecnico_ENCAJE.svg`} alt="Asesoramiento Técnico" class="wp-service-icon-svg" />
+            <img
+              src={`${BACKEND_URL}/wp-content/uploads/2025/02/Asesoramiento_Tecnico_ENCAJE.svg`}
+              alt="Asesoramiento Técnico"
+              class="wp-service-icon-svg"
+            />
           </div>
           <h3>ASESORAMIENTO TÉCNICO</h3>
           <p>Brindamos orientación y conocimientos técnicos al cliente.</p>
@@ -164,10 +216,17 @@ const getProjectCategory = (project) => {
         <!-- Service 4: Urbanismo -->
         <div class="wp-service-card">
           <div class="wp-icon-wrapper">
-            <img src={`${BACKEND_URL}/wp-content/uploads/2025/02/Urbanismo_ENCAJE.svg`} alt="Urbanismo" class="wp-service-icon-svg" />
+            <img
+              src={`${BACKEND_URL}/wp-content/uploads/2025/02/Urbanismo_ENCAJE.svg`}
+              alt="Urbanismo"
+              class="wp-service-icon-svg"
+            />
           </div>
           <h3>URBANISMO</h3>
-          <p>Construimos desde la responsabilidad social de la arquitectura y la ingeniería.</p>
+          <p>
+            Construimos desde la responsabilidad social de la arquitectura y la
+            ingeniería.
+          </p>
         </div>
       </div>
     </div>
@@ -177,25 +236,33 @@ const getProjectCategory = (project) => {
   <section class="wp-gallery-section">
     <div class="wp-gallery-container">
       <div class="wp-gallery-grid">
-        {galleryProjects.map((project) => {
-          const imgUrl = getFeaturedImage(project);
-          const category = getProjectCategory(project);
-          return (
-            <div class="wp-gallery-card">
-              <a href={`${base}proyectos/${project.slug}`} class="wp-gallery-link">
-                <div class="wp-gallery-img-box">
-                  <img src={imgUrl} alt={project.title.rendered} />
-                </div>
-                <div class="wp-gallery-info-overlay">
-                  <span class="wp-gallery-cat">
-                    <span class="wp-cat-dash"></span> {category}
-                  </span>
-                  <h4 class="wp-gallery-title" set:html={project.title.rendered}></h4>
-                </div>
-              </a>
-            </div>
-          );
-        })}
+        {
+          galleryProjects.map((project) => {
+            const imgUrl = getFeaturedImage(project);
+            const category = getProjectCategory(project);
+            return (
+              <div class="wp-gallery-card">
+                <a
+                  href={`${base}proyectos/${project.slug}`}
+                  class="wp-gallery-link"
+                >
+                  <div class="wp-gallery-img-box">
+                    <img src={imgUrl} alt={project.title.rendered} />
+                  </div>
+                  <div class="wp-gallery-info-overlay">
+                    <span class="wp-gallery-cat">
+                      <span class="wp-cat-dash" /> {category}
+                    </span>
+                    <h4
+                      class="wp-gallery-title"
+                      set:html={project.title.rendered}
+                    />
+                  </div>
+                </a>
+              </div>
+            );
+          })
+        }
       </div>
     </div>
   </section>
@@ -206,7 +273,10 @@ const getProjectCategory = (project) => {
       <!-- Left content -->
       <div class="wp-entorno-content">
         <h2>ENTORNO Y LA SOCIEDAD</h2>
-        <p>Proyectamos y construimos desde la responsabilidad social de la arquitectura y la ingeniería con el entorno y la sociedad.</p>
+        <p>
+          Proyectamos y construimos desde la responsabilidad social de la
+          arquitectura y la ingeniería con el entorno y la sociedad.
+        </p>
         <div class="wp-entorno-btn-box">
           <a href={`${base}blog/`} class="wp-entorno-btn">MAS INFO</a>
         </div>
@@ -214,18 +284,19 @@ const getProjectCategory = (project) => {
 
       <!-- Right Image -->
       <div class="wp-entorno-image">
-        <img src={`${BACKEND_URL}/wp-content/uploads/2025/02/04-SECCION-CONTACTO-min.jpg`} alt="Entorno y la Sociedad" />
+        <img
+          src={`${BACKEND_URL}/wp-content/uploads/2025/02/04-SECCION-CONTACTO-min.jpg`}
+          alt="Entorno y la Sociedad"
+        />
       </div>
     </div>
   </section>
 
-
-
   <script is:inline>
-    document.addEventListener('DOMContentLoaded', () => {
-      const track = document.getElementById('wp-carousel-track');
-      const prevBtn = document.getElementById('wp-carousel-prev');
-      const nextBtn = document.getElementById('wp-carousel-next');
+    document.addEventListener("DOMContentLoaded", () => {
+      const track = document.getElementById("wp-carousel-track");
+      const prevBtn = document.getElementById("wp-carousel-prev");
+      const nextBtn = document.getElementById("wp-carousel-next");
       if (!track || !prevBtn || !nextBtn) return;
 
       let currentIndex = 0;
@@ -236,9 +307,9 @@ const getProjectCategory = (project) => {
       };
 
       const updateSlider = () => {
-        const cards = track.querySelectorAll('.wp-carousel-card');
+        const cards = track.querySelectorAll(".wp-carousel-card");
         if (cards.length === 0) return;
-        
+
         const cardsPerView = getCardsPerView();
         const maxIndex = Math.max(0, cards.length - cardsPerView);
         if (currentIndex > maxIndex) {
@@ -254,21 +325,22 @@ const getProjectCategory = (project) => {
         track.style.transform = `translateX(-${offset}px)`;
 
         // Toggle buttons visibility/opacity based on positions
-        prevBtn.style.opacity = currentIndex === 0 ? '0.3' : '1';
-        prevBtn.style.pointerEvents = currentIndex === 0 ? 'none' : 'auto';
-        nextBtn.style.opacity = currentIndex >= maxIndex ? '0.3' : '1';
-        nextBtn.style.pointerEvents = currentIndex >= maxIndex ? 'none' : 'auto';
+        prevBtn.style.opacity = currentIndex === 0 ? "0.3" : "1";
+        prevBtn.style.pointerEvents = currentIndex === 0 ? "none" : "auto";
+        nextBtn.style.opacity = currentIndex >= maxIndex ? "0.3" : "1";
+        nextBtn.style.pointerEvents =
+          currentIndex >= maxIndex ? "none" : "auto";
       };
 
-      prevBtn.addEventListener('click', () => {
+      prevBtn.addEventListener("click", () => {
         if (currentIndex > 0) {
           currentIndex--;
           updateSlider();
         }
       });
 
-      nextBtn.addEventListener('click', () => {
-        const cards = track.querySelectorAll('.wp-carousel-card');
+      nextBtn.addEventListener("click", () => {
+        const cards = track.querySelectorAll(".wp-carousel-card");
         const cardsPerView = getCardsPerView();
         if (currentIndex < cards.length - cardsPerView) {
           currentIndex++;
@@ -277,8 +349,8 @@ const getProjectCategory = (project) => {
       });
 
       // Update on resize and run initially
-      window.addEventListener('resize', updateSlider);
-      
+      window.addEventListener("resize", updateSlider);
+
       // Delay slightly to ensure layout is computed
       setTimeout(updateSlider, 200);
     });
@@ -389,7 +461,9 @@ const getProjectCategory = (project) => {
     color: #242424;
     font-size: 18px;
     transform: translateY(-50%);
-    transition: background-color 0.2s, color 0.2s;
+    transition:
+      background-color 0.2s,
+      color 0.2s;
   }
 
   .wp-carousel-control:hover {
@@ -740,7 +814,9 @@ const getProjectCategory = (project) => {
     height: 100%;
     object-fit: cover;
     display: block;
-    transition: transform 0.4s, opacity 0.4s;
+    transition:
+      transform 0.4s,
+      opacity 0.4s;
   }
 
   .wp-gallery-link:hover .wp-gallery-img-box img {
@@ -916,6 +992,4 @@ const getProjectCategory = (project) => {
       gap: 40px;
     }
   }
-
-
 </style>

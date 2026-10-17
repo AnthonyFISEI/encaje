@@ -27,7 +27,13 @@
 - [ ] Antispam: el formulario no tiene captcha. Akismet está instalado en WP; para que CF7 lo use hay que activarlo con su API key y añadir las opciones `akismet:author` / `akismet:author_email` a los campos del formulario en CF7. Alternativa: Cloudflare Turnstile si llega spam.
 
 ## Analítica
-- [ ] Rellenar `PUBLIC_GA_MEASUREMENT_ID` y `PUBLIC_META_PIXEL_ID` en `.env` y recompilar (el código ya está en `src/components/Analytics.astro`).
+- [x] ~~Rellenar IDs de GA/Pixel~~ → IDs reales del cliente cargados en `.env` (`G-1LGPM21QPS` / `1763860834593545`). Falta agregarlos también en el `.env` del servidor de producción antes del próximo build.
+- [x] Eventos de Meta conectados (con su equivalente en GA4 entre paréntesis):
+  - **Contact** (`generate_lead`): clic en WhatsApp, email o teléfono (global, `Analytics.astro`).
+  - **Lead** (`generate_lead`): envío exitoso del formulario de contacto.
+  - **ViewContent** (`view_item`): al abrir una ficha de proyecto o un artículo de blog.
+  - **FindLocation** (`find_location`): clic en "Cómo llegar" (nuevo enlace junto al mapa en `/contacto`).
+  - **Completar registro** y **Programar**: no agregados. El sitio no tiene formulario de registro ni sistema de citas/agendamiento — no hay una acción real que disparen. Si el cliente agrega alguna (ej. "Agendar visita a obra"), avisar para conectarla.
 - [ ] Privacidad: la LOPDP de Ecuador pide informar el uso de cookies/seguimiento. Considerar política de privacidad + aviso de cookies (y en ese caso cargar GA/Pixel solo tras aceptar).
 
 ## Riesgos en el código

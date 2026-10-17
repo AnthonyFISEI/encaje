@@ -121,6 +121,29 @@ if (hasStructuredData) {
   );
 }
 
+// ACF "banner" (image field): accepts return format "Image Array", "Image URL" or "Image ID"
+const rawBanner = project.acf?.banner;
+let bannerUrl = null;
+let bannerAlt = '';
+if (rawBanner && typeof rawBanner === 'object') {
+  bannerUrl = rawBanner.url || null;
+  bannerAlt = rawBanner.alt || '';
+} else if (typeof rawBanner === 'string' && rawBanner) {
+  bannerUrl = rawBanner;
+} else if (typeof rawBanner === 'number') {
+  try {
+    const backendUrl = import.meta.env.WORDPRESS_API_URL || "http://encaje-wp.test";
+    const res = await fetch(`${backendUrl}/wp-json/wp/v2/media/${rawBanner}`);
+    if (res.ok) {
+      const bannerMedia = await res.json();
+      bannerUrl = bannerMedia.source_url || null;
+      bannerAlt = bannerMedia.alt_text || '';
+    }
+  } catch (e) {
+    console.warn(`Could not resolve banner media ${rawBanner}`);
+  }
+}
+
 // ACF "video": accepts YouTube's iframe embed code or a plain link (watch, youtu.be, shorts)
 const rawVideo = (project.acf?.video || '').trim();
 const youtubeId = rawVideo.match(/(?:youtube(?:-nocookie)?\.com\/(?:embed\/|shorts\/|watch\?(?:[^"'\s]*&)?v=)|youtu\.be\/)([\w-]{11})/)?.[1];
@@ -147,6 +170,12 @@ const seoImage = project.yoast_head_json?.og_image?.[0]?.url || imageUrl;
     <!-- Main Content Section -->
     <section class="wp-single-project-section">
       <div class="wp-container">
+        {bannerUrl && (
+          <div class="wp-project-hero">
+            <img src={bannerUrl} alt={bannerAlt || project.title.rendered} />
+          </div>
+        )}
+
         <div class="wp-project-grid">
           <!-- Featured Image -->
           <div class="wp-project-image-box">
@@ -335,6 +364,16 @@ const seoImage = project.yoast_head_json?.og_image?.[0]?.url || imageUrl;
   </div>
 </Layout>
 
+<script define:vars={{ projectName: project.title.rendered.replace(/<[^>]*>/g, ''), projectSlug: project.slug }} is:inline>
+  // GA4 "view_item" + Meta "ViewContent" for this project's detail page
+  if (window.trackEvent) {
+    window.trackEvent(
+      'view_item', { item_id: projectSlug, item_name: projectName },
+      'ViewContent', { content_ids: [projectSlug], content_name: projectName, content_type: 'product' }
+    );
+  }
+</script>
+
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('lightbox-modal');
@@ -435,6 +474,26 @@ const seoImage = project.yoast_head_json?.og_image?.[0]?.url || imageUrl;
     padding: 0 30px;
   }
 
+  /* Banner image (custom field "Imagen Banner del Proyecto") above the two columns */
+  .wp-project-hero {
+    margin-bottom: 40px;
+  }
+
+  .wp-project-hero img {
+    width: 100%;
+    height: auto;
+    max-height: 480px;
+    object-fit: cover;
+    display: block;
+    border: 1px solid #3d3d3d;
+  }
+
+  @media (max-width: 767px) {
+    .wp-project-hero img {
+      max-height: 260px;
+    }
+  }
+
   .wp-project-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -468,6 +527,28 @@ const seoImage = project.yoast_head_json?.og_image?.[0]?.url || imageUrl;
   .wp-project-desc :global(p) {
     text-align: justify;
     white-space: pre-line;
+  }
+
+  /* Formatting available if "descripcion" becomes a WYSIWYG field in ACF (bold, italic, bullet/numbered lists) */
+  .wp-project-desc :global(strong),
+  .wp-project-desc :global(b) {
+    color: var(--wp-text-light);
+    font-weight: 700;
+  }
+
+  .wp-project-desc :global(em) {
+    font-style: italic;
+  }
+
+  .wp-project-desc :global(ul),
+  .wp-project-desc :global(ol) {
+    margin: 0 0 20px;
+    padding-left: 22px;
+  }
+
+  .wp-project-desc :global(li) {
+    margin-bottom: 10px;
+    line-height: 26px;
   }
 
   .wp-project-content h2,
