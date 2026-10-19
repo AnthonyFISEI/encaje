@@ -121,28 +121,36 @@ if (hasStructuredData) {
   );
 }
 
-// ACF "banner" (image field): accepts return format "Image Array", "Image URL" or "Image ID"
-const rawBanner = project.acf?.banner;
-let bannerUrl = null;
-let bannerAlt = '';
-if (rawBanner && typeof rawBanner === 'object') {
-  bannerUrl = rawBanner.url || null;
-  bannerAlt = rawBanner.alt || '';
-} else if (typeof rawBanner === 'string' && rawBanner) {
-  bannerUrl = rawBanner;
-} else if (typeof rawBanner === 'number') {
-  try {
-    const backendUrl = import.meta.env.WORDPRESS_API_URL || "http://encaje-wp.test";
-    const res = await fetch(`${backendUrl}/wp-json/wp/v2/media/${rawBanner}`);
-    if (res.ok) {
-      const bannerMedia = await res.json();
-      bannerUrl = bannerMedia.source_url || null;
-      bannerAlt = bannerMedia.alt_text || '';
-    }
-  } catch (e) {
-    console.warn(`Could not resolve banner media ${rawBanner}`);
+// ACF image fields: accept return format "Image Array", "Image URL" or "Image ID"
+async function resolveAcfImage(raw) {
+  if (raw && typeof raw === 'object') {
+    return { url: raw.url || null, alt: raw.alt || '' };
   }
+  if (typeof raw === 'string' && raw) {
+    return { url: raw, alt: '' };
+  }
+  if (typeof raw === 'number') {
+    try {
+      const backendUrl = import.meta.env.WORDPRESS_API_URL || "http://encaje-wp.test";
+      const res = await fetch(`${backendUrl}/wp-json/wp/v2/media/${raw}`);
+      if (res.ok) {
+        const attachment = await res.json();
+        return { url: attachment.source_url || null, alt: attachment.alt_text || '' };
+      }
+    } catch (e) {
+      console.warn(`Could not resolve ACF image ${raw}`);
+    }
+  }
+  return { url: null, alt: '' };
 }
+
+// ACF "banner": wide image above the two columns
+const { url: bannerUrl, alt: bannerAlt } = await resolveAcfImage(project.acf?.banner);
+
+// ACF "imagen_vertical": left column image; falls back to the featured image (used for the card thumbnail)
+const verticalImage = await resolveAcfImage(project.acf?.imagen_vertical);
+const sideImageUrl = verticalImage.url || imageUrl;
+const sideImageAlt = verticalImage.alt || project.title.rendered;
 
 // ACF "video": accepts YouTube's iframe embed code or a plain link (watch, youtu.be, shorts)
 const rawVideo = (project.acf?.video || '').trim();
@@ -177,10 +185,10 @@ const seoImage = project.yoast_head_json?.og_image?.[0]?.url || imageUrl;
         )}
 
         <div class="wp-project-grid">
-          <!-- Featured Image -->
+          <!-- Vertical image (ACF "imagen_vertical", falls back to the featured image) -->
           <div class="wp-project-image-box">
             <div class="wp-feature-image">
-              <img src={imageUrl} alt={project.title.rendered} />
+              <img src={sideImageUrl} alt={sideImageAlt} />
             </div>
           </div>
 
@@ -229,6 +237,14 @@ const seoImage = project.yoast_head_json?.og_image?.[0]?.url || imageUrl;
             )}
           </div>
         </div>
+
+        {/* ACF "descripcion_detallada": long text, full width below the 2 columns */}
+        {project.acf?.descripcion_detallada && (
+          <div class="wp-project-detail">
+            <h2>Detalle del Proyecto</h2>
+            <div class="wp-project-desc" set:html={project.acf.descripcion_detallada} />
+          </div>
+        )}
 
         {/* Galleries rendered outside the 2-column grid for full width */}
         {((project.planimetria_ambientada_gallery && project.planimetria_ambientada_gallery.length > 0) || 
@@ -522,6 +538,25 @@ const seoImage = project.yoast_head_json?.og_image?.[0]?.url || imageUrl;
   .wp-project-desc {
     text-align: justify;
     white-space: pre-line;
+    font-family: "Montserrat", sans-serif;
+    font-size: 15px;
+    color: var(--wp-text-muted);
+    line-height: 26px;
+  }
+
+  /* Full-width detailed description below the two columns */
+  .wp-project-detail {
+    margin-top: 50px;
+    border-top: 1px solid #3d3d3d;
+    padding-top: 30px;
+  }
+
+  .wp-project-detail h2 {
+    font-size: 25px;
+    font-weight: 600;
+    color: var(--wp-text-light);
+    margin: 10px 0 25px;
+    font-family: "Montserrat", sans-serif;
   }
 
   .wp-project-desc :global(p) {

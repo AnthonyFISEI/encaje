@@ -318,6 +318,15 @@ const base =
 				const navPanel = document.getElementById("wp-nav-panel");
 				const logoBox = document.querySelector(".wp-logo-box");
 
+				// Hide the logo as soon as the page is scrolled; show it again at the very top
+				if (logoBox) {
+					const syncLogoWithScroll = () => {
+						logoBox.classList.toggle("is-scrolled", window.scrollY > 0);
+					};
+					window.addEventListener("scroll", syncLogoWithScroll, { passive: true });
+					syncLogoWithScroll();
+				}
+
 				if (toggleBtn && navPanel) {
 					toggleBtn.addEventListener("click", (e) => {
 						e.preventDefault();
@@ -445,7 +454,9 @@ const base =
 		z-index: 1010;
 		transition:
 			left 0.4s cubic-bezier(0.77, 0, 0.175, 1) 0.3s,
-			width 0.4s cubic-bezier(0.77, 0, 0.175, 1) 0.3s;
+			width 0.4s cubic-bezier(0.77, 0, 0.175, 1) 0.3s,
+				transform 0.35s ease,
+				opacity 0.35s ease;
 		display: flex;
 		align-items: center;
 		justify-content: flex-start;
@@ -456,7 +467,16 @@ const base =
 		width: 400px;
 		transition:
 			left 0.4s cubic-bezier(0.77, 0, 0.175, 1) 0s,
-			width 0.4s cubic-bezier(0.77, 0, 0.175, 1) 0s;
+			width 0.4s cubic-bezier(0.77, 0, 0.175, 1) 0s,
+				transform 0.35s ease,
+				opacity 0.35s ease;
+	}
+
+	/* Hidden while the page is scrolled (kept visible if the side menu is open) */
+	.wp-logo-box.is-scrolled:not(.active) {
+		transform: translateY(-100%);
+		opacity: 0;
+		pointer-events: none;
 	}
 
 	.wp-logo-img {
