@@ -85,3 +85,19 @@
 25. **Categorías de Proyecto Dinámicas:**
     - Corregida la extracción de términos de taxonomía en `index.astro` y `replica-wp/index.astro` para renderizar el nombre de categoría dinámico real provisto por WordPress (desde `_embedded['wp:term']`) en lugar de textos fijos.
 
+## 📝 Actualización Reciente (18 de Octubre de 2026)
+26. **Backend en producción:** el front ya consume `https://app.encaje.ec` (`WORDPRESS_API_URL` en `.env`). El WordPress local `encaje-wp.test` dejó de usarse; el mu-plugin `enable-rest-api.php` local ya no es la fuente de verdad (producción expone sus campos ACF por su cuenta).
+27. **Nuevos campos ACF en Proyectos (`proyectos/[slug].astro`):**
+    - `banner` (imagen): banner ancho sobre las dos columnas.
+    - `imagen_vertical` (imagen): imagen de la columna izquierda; si no existe se usa la imagen destacada (que sigue siendo la miniatura de las tarjetas).
+    - `descripcion_detallada` (WYSIWYG): texto largo a todo el ancho debajo de las dos columnas ("Detalle del Proyecto"). `descripcion` queda como resumen junto a la foto.
+    - Los campos de imagen aceptan formato de retorno Array, URL o ID (el ID se resuelve contra `/wp-json/wp/v2/media/{id}`).
+28. **Galerías de proyecto rediseñadas:** Renders y Resultados en mosaico masonry (proporciones reales, sin recorte); Planimetrías, Volumetría y Planos en 2 columnas sin recortar; hover con velo y lupa dorada; imágenes con `loading="lazy"` y ancho/alto reservados; las secciones salen de una sola lista (`gallerySections`) en el frontmatter.
+29. **Lightbox con navegación:** flechas, teclado (← → Esc), swipe en móvil y contador; navega solo dentro de la galería clickeada.
+30. **Logo del header** (`Layout.astro`): se oculta al detectar scroll y reaparece al volver al tope (se mantiene visible si el menú lateral está abierto).
+31. **Home:** imagen de "Entorno y la Sociedad" reemplazada por `uploads/2026/10/HOME-ENTRNO-Y-SOCIEDAD.jpg`.
+32. **Probado y descartado:** barra de navegación fija entre secciones del proyecto (no gustó, se revirtió) y foto principal a todo el ancho en Renders (no se quiso).
+33. **Header:** el teléfono y el correo de la esquina superior derecha ahora se ocultan al hacer scroll, igual que el logo, y reaparecen al volver al tope (`Layout.astro`).
+34. **Proyectos (listado):** quitada la capa oscura (45%) de las miniaturas en reposo para mostrar la foto original; se conserva el oscurecimiento al pasar el mouse para que el título y el botón "+" se lean (`proyectos/index.astro`).
+- Commits: `931406b` (ACF, logo, home) y `070df80` (galerías + lightbox), ya en `origin/main`.
+

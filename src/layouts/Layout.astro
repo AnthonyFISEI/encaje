@@ -317,11 +317,16 @@ const base =
 				const toggleBtn = document.getElementById("wp-menu-toggle");
 				const navPanel = document.getElementById("wp-nav-panel");
 				const logoBox = document.querySelector(".wp-logo-box");
+				const contactInfo = document.querySelector(".wp-top-contact-info");
 
 				// Hide the logo as soon as the page is scrolled; show it again at the very top
 				if (logoBox) {
 					const syncLogoWithScroll = () => {
 						logoBox.classList.toggle("is-scrolled", window.scrollY > 0);
+						// Phone/email line at the top right follows the same hide-on-scroll behavior
+						if (contactInfo) {
+							contactInfo.classList.toggle("is-scrolled", window.scrollY > 0);
+						}
 					};
 					window.addEventListener("scroll", syncLogoWithScroll, { passive: true });
 					syncLogoWithScroll();
@@ -431,6 +436,19 @@ const base =
 		font-size: 13px;
 		color: rgba(255, 255, 255, 0.7);
 		font-weight: 400;
+	}
+
+	.wp-top-contact-info {
+		transition:
+			transform 0.35s ease,
+			opacity 0.35s ease;
+	}
+
+	/* Hidden while the page is scrolled, same as the logo */
+	.wp-top-contact-info.is-scrolled {
+		transform: translateY(-20px);
+		opacity: 0;
+		pointer-events: none;
 	}
 
 	.wp-top-contact-info i {
